@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --MainLight-color: #FFD369;
+  --Secondary-color: #FFF3E4;
+  --Red-color: #F45050;
+  --Blue-color:#163BA5;
+  --Small-fontSize: 18px;
+  --Regular-fontSize: 24px;
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
   background-color: white;
