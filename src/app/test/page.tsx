@@ -2,10 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-// import { Description } from "@radix-ui/react-dialog"
+import { RadioGroup } from "@/components/ui/radio-group";
 
 const questions = [
   {
@@ -281,15 +278,14 @@ export default function Page() {
   const [activeQuestion, setActiveQuestion] = useState(
     questions.find((question) => question.id === activeQuestionId)
   );
-  useState(() => {
+  useEffect(() => {
     setActiveQuestion(() =>
       questions.find((question) => question.id === activeQuestionId)
     );
   }, [activeQuestionId]);
-  console.log("activeQuestion", activeQuestion);
-  console.log("activeQuestionId", activeQuestionId);
+ 
   const [selectedOption, setSelectedOption] = useState("stomata");
-  const [timeLeft, setTimeLeft] = useState(58);
+  const [timeLeft, setTimeLeft] = useState(600);
 
   useEffect(() => {
     if (timeLeft > 0) {
@@ -359,7 +355,7 @@ export default function Page() {
                           : "border-gray-200"
                       }`}
                     >
-                      <input type="radio" value={option.id} id={option.id} checked={option.id==selectedOption} className="accent-[var(--MainLight-color)]  h-4 w-4" />
+                      <input type="radio" value={option.id} id={option.id} checked={option.id==selectedOption} className="accent-[var(--MainLight-color)]  h-4 w-4" readOnly />
                       
                       <label
                         htmlFor={option.id}
@@ -387,13 +383,8 @@ export default function Page() {
               <button
               
                 //   disabled={activeQuestionId==1}
-                onClick={() => {
-                 activeQuestionId > 1 && setActiveQuestionId((prev) => prev - 1)
-                    setActiveQuestion(() =>
-                        questions.find(
-                        (question) => question.id === activeQuestionId
-                        ))
-                }}
+                onClick={() => 
+                 activeQuestionId > 1 && setActiveQuestionId((prev) => prev - 1)  }  
                 className={`${
                   activeQuestionId == 1 ? "cursor-not-allowed disabled" : ""
                 } bg-white border-2 border-[var(--MainLight-color)] text-[var(--MainLight-color)] font-[500] w-full sm:w-40 py-2 rounded-lg`}
@@ -401,14 +392,9 @@ export default function Page() {
                 Previous
               </button>
               <button
-                onClick={() => {
-                    activeQuestionId < questions.length && setActiveQuestionId((prev) => prev + 1);
-                  setActiveQuestion(() =>
-                    questions.find(
-                      (question) => question.id === activeQuestionId
-                    )
-                  );
-                }}
+                onClick={() => 
+                    activeQuestionId < questions.length && setActiveQuestionId((prev) => prev + 1)}
+                 
                 className="bg-[var(--MainLight-color)] border-2 border-[var(--MainLight-color)] w-full sm:w-40 py-2 rounded-lg font-[500]"
               >
                 {activeQuestionId === questions.length ? "Submit" : "Next"}

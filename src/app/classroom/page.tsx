@@ -1,16 +1,10 @@
 "use client";
-import {
-  MessageSquare,
-  Users,
-  Hand,
-  SmilePlus,
-  LayoutGrid,
-  Video,
-  Split,
-  Grid,
-  MoreHorizontal,
-} from "lucide-react";
 
+import { MdOutlineChat,MdOutlinePeopleAlt,MdOutlineAddReaction,MdGridView,MdOutlineMoreHoriz     } from "react-icons/md";
+import { HiOutlineHandRaised } from "react-icons/hi2";
+import { SlScreenDesktop } from "react-icons/sl";
+import { HiMiniCursorArrowRipple } from "react-icons/hi2";
+import { FaRegPlusSquare } from "react-icons/fa";
 import {
     Accordion,
   AccordionContent,
@@ -75,7 +69,7 @@ export default function Index() {
     <>
 
       {/* <div className="w-[94%] md:w-[90%] mx-auto flex flex-col relative bg-white min-h-lvh mt-[86px] md:mt-32"> */}
-      <div className="w-[94%] md:w-[90%] mx-auto flex flex-col relative bg-white min-h-lvh mt-8">
+      <div className="w-[94%] md:w-[90%] mx-auto flex flex-col relative text-lg md:text-xl bg-white min-h-lvh mt-8">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_0.4fr] md:gap-6 h-full">
           <div className="relative h-full bg-transparent rounded-xl">
             <img
@@ -124,7 +118,7 @@ export default function Index() {
                 <button
                   className="flex flex-col items-center gap-1 hover:scale-110 transition-all duration-500 "
                 >
-                  <MessageSquare className="h-5 w-5" />
+                  <MdOutlineChat className="h-5 w-5" />
                   <span className="text-xs">Chat</span>
                 </button>
               </li>
@@ -133,7 +127,7 @@ export default function Index() {
                   className="flex flex-col items-center gap-1 hover:scale-110 transition-all duration-500 "
                 >
                   {" "}
-                  <Users className="h-5 w-5" />
+                  <MdOutlinePeopleAlt  className="h-5 w-5" />
                   <span className="text-xs">People</span>
                 </button>
               </li>
@@ -142,7 +136,7 @@ export default function Index() {
                   className="flex flex-col items-center gap-1 hover:scale-110 transition-all duration-500"
                 >
                   {" "}
-                  <Hand className="h-5 w-5" />
+                  <HiOutlineHandRaised className="h-5 w-5" />
                   <span className="text-xs">Raise</span>
                 </button>
               </li>
@@ -151,7 +145,7 @@ export default function Index() {
                   className="flex flex-col items-center gap-1 hover:scale-110 transition-all duration-500"
                 >
                   {" "}
-                  <SmilePlus className="h-5 w-5" />
+                  <MdOutlineAddReaction  className="h-5 w-5" />
                   <span className="text-xs">React</span>
                 </button>
               </li>
@@ -160,7 +154,7 @@ export default function Index() {
                   className="flex flex-col items-center gap-1 hover:scale-110 transition-all duration-500"
                 >
                   {" "}
-                  <LayoutGrid className="h-5 w-5" />
+                  <MdGridView  className="h-5 w-5" />
                   <span className="text-xs">View</span>
                 </button>
               </li>
@@ -169,7 +163,7 @@ export default function Index() {
                   className="flex flex-col items-center gap-1 hover:scale-110 transition-all duration-500"
                 >
                   {" "}
-                  <Video className="h-5 w-5" />
+                  <SlScreenDesktop className="h-5 w-5" />
                   <span className="text-xs">Rooms</span>
                 </button>
               </li>
@@ -178,7 +172,7 @@ export default function Index() {
                   className="flex flex-col items-center gap-1 hover:scale-110 transition-all duration-500"
                 >
                   {" "}
-                  <Split className="h-5 w-5" />
+                  <HiMiniCursorArrowRipple className="h-5 w-5" />
                   <span className="text-xs">Copilot</span>
                 </button>
               </li>
@@ -187,7 +181,7 @@ export default function Index() {
                   className="flex flex-col items-center gap-1 hover:scale-110 transition-all duration-500"
                 >
                   {" "}
-                  <Grid className="h-5 w-5" />
+                  <FaRegPlusSquare  className="h-5 w-5" />
                   <span className="text-xs">Apps</span>
                 </button>
               </li>
@@ -196,7 +190,7 @@ export default function Index() {
                   className="flex flex-col items-center gap-1"
                 >
                   {" "}
-                  <MoreHorizontal className="h-5 w-5" />
+                  <MdOutlineMoreHoriz  className="h-5 w-5" />
                   <span className="text-xs">More</span>
                 </button>
               </li>
