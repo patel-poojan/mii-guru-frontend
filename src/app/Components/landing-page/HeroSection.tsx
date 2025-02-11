@@ -20,10 +20,10 @@ const HeroSection = () => {
               </p>
               <div className='mt-8 sm:mt-12'>
                 <div className='flex flex-col sm:flex-row sm:justify-center lg:justify-start gap-4'>
-                  <Button className='w-full sm:w-auto bg-yellow px-6 sm:px-8 py-3 text-base font-medium text-dark-blue hover:bg-[#163BA5] hover:text-white transition-colors'>
+                  <Button className='w-full sm:w-auto common-button-css px-6 sm:px-8 py-3 text-base font-medium transition-colors'>
                     Explore Courses
                   </Button>
-                  <Button className='w-full sm:w-auto bg-white px-6 sm:px-8 py-3 text-base font-medium text-dark-blue hover:bg-[#163BA5] hover:text-white transition-colors'>
+                  <Button className='w-full sm:w-auto common-button-css px-6 sm:px-8 py-3 text-base font-medium transition-colors'>
                     View Pricing
                   </Button>
                 </div>

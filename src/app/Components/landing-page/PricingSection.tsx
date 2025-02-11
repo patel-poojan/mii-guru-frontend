@@ -108,7 +108,7 @@ const PricingSection = () => {
               ))}
             </ul>
           </div>
-          <Button className='w-full bg-yellow px-6 rounded-b-xl sm:px-8 py-5 text-base font-medium text-dark-blue hover:bg-[#163BA5] hover:text-white transition-colors'>
+          <Button className='w-full  px-6 rounded-b-xl sm:px-8 py-5 text-base font-medium common-button-css transition-colors'>
             {plan.buttonText}
           </Button>
         </div>

@@ -16,6 +16,14 @@ body {
 }
 
 
+.common-button-css {
+  background-color: #f9d949;
+  color: #3c486b;
+}
+.common-button-css:hover {
+  background-color: #163ba5 !important;
+  color: white;
+}
 @layer base {
   :root {
     --background: 0 0% 100%;

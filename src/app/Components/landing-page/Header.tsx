@@ -10,6 +10,7 @@ import {
   SheetClose,
 } from '@/components/ui/sheet';
 import { Menu, X } from 'lucide-react';
+import CompanyLogo from '../common/CompanyLogo';
 
 const Header = () => {
   const [open, setOpen] = useState(false);
@@ -23,30 +24,15 @@ const Header = () => {
   return (
     <header className='sticky top-0 w-full bg-[#ffffff80] shadow-sm supports-[backdrop-filter]:bg-white/60 supports-[backdrop-filter]:backdrop-blur-3xl z-50'>
       {/* <header className='sticky top-0 w-full bg-transparent backdrop-blur-3XL supports-[backdrop-filter]:backdrop-blur-3xl z-50'> */}
-      <div className='mx-auto md:px-6 lg:px-20'>
-        <div className='flex justify-between items-center h-16 px-4'>
+      <div className='mx-auto md:px-6 lg:px-20 py-4'>
+        <div className='flex justify-between items-center px-4'>
           {/* Logo */}
           <div className='flex-shrink-0'>
-            <div className='bg-[#FFD84D] rounded px-3 py-1.5'>
-              <div className='flex items-center gap-2'>
-                <svg
-                  className='w-5 h-5'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  xmlns='http://www.w3.org/2000/svg'
-                >
-                  <path
-                    d='M12 4l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z'
-                    fill='currentColor'
-                  />
-                </svg>
-                <span className='font-medium text-black'>mliGuru</span>
-              </div>
-            </div>
+            <CompanyLogo className='w-[120px] sm:w-[140px] md:w-[166px] h-auto' />
           </div>
 
           {/* Desktop Navigation */}
-          <nav className='hidden md:flex items-center space-x-8'>
+          <nav className='hidden min-[900px]:flex items-center space-x-8'>
             {navLinks.map((link) => (
               <a
                 key={link.href}
@@ -66,7 +52,7 @@ const Header = () => {
 
           {/* Mobile Menu */}
           <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild className='md:hidden'>
+            <SheetTrigger asChild className='min-[900px]:hidden'>
               <Button variant='ghost' size='icon' className='text-gray-600'>
                 <Menu className='text-xl' />
               </Button>

@@ -8,6 +8,7 @@ import { IoEyeOffOutline, IoEyeOutline } from 'react-icons/io5';
 import { toast } from 'sonner';
 import { emailRegex } from '../utils/regex-collection';
 import { Checkbox } from '@/components/ui/checkbox';
+import CompanyLogo from '../Components/common/CompanyLogo';
 interface FormData {
   email: string;
   password: string;
@@ -81,23 +82,7 @@ const SignupPage = () => {
           {/* Logo and Welcome Text */}
           <div className='flex flex-col items-center gap-6 w-full '>
             <div className='flex flex-col items-center gap-4 w-full '>
-              <div className='bg-yellow-400 p-2 rounded-lg'>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  width='24'
-                  height='24'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  className='text-white'
-                >
-                  <path d='M22 10v6M2 10l10-5 10 5-10 5z' />
-                  <path d='M6 12v5c3 3 9 3 12 0v-5' />
-                </svg>
-              </div>
+              <CompanyLogo className='w-[120px] sm:w-[140px] mb-2 md:w-[166px] h-auto' />
               <h2 className='text-3xl text-black font-medium'>
                 Create your account
               </h2>
