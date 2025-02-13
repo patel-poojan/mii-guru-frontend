@@ -11,8 +11,8 @@ body {
   --Secondary-color: #FFF3E4;
   --Red-color: #F45050;
   --Blue-color:#163BA5;
-  --Small-fontSize: 18px;
-  --Regular-fontSize: 24px;
+  --Small: '18px';
+  --Regular: '24px';
 }
 
 

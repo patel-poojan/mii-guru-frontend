@@ -19,7 +19,7 @@ const CompanyLogo: React.FC<CompanyLogoProps> = ({
         alt='Company Logo'
         width={width}
         height={height}
-        className='w-auto object-contain'
+        className='w-auto object-contain rounded-md'
         priority
       />
     </div>

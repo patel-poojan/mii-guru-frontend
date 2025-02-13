@@ -59,6 +59,11 @@ export default {
   				'5': 'hsl(var(--chart-5))'
   			}
   		},
+		  fontSize: {
+			'small': '18px', // 12px
+			'regular': '20px', // 14px
+			
+		  },
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',

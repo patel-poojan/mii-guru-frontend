@@ -3,6 +3,17 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { RadioGroup } from "@/components/ui/radio-group";
+import { MdNavigateBefore, MdNavigateNext } from "react-icons/md";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 const questions = [
   {
@@ -278,6 +289,10 @@ export default function Page() {
   const [activeQuestion, setActiveQuestion] = useState(
     questions.find((question) => question.id === activeQuestionId)
   );
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+
   useEffect(() => {
     setActiveQuestion(() =>
       questions.find((question) => question.id === activeQuestionId)
@@ -301,7 +316,7 @@ export default function Page() {
   };
 
   return (
-    <div className="w-[92%] md:w-[90%]  mx-auto  mt-10 mb-10 border-none outline-none text-lg md:text-xl">
+    <div className="w-full border-none outline-none text-small md:text-regular">
       <div>
         <div id="question" key={activeQuestion.id} className=" rounded-2xl">
           <div className="flex justify-between items-start mb-6">
@@ -311,7 +326,7 @@ export default function Page() {
                 Question {activeQuestionId} of {questions.length}
               </p>
             </div>
-            <div className="bg-[var(--MainLight-color)] pl-4 md:pl-5 pr-5 md:pr-7 h-[44px] md:h-14 rounded-2xl flex items-center gap-3 md:gap-5 text-lg md:text-xl">
+            <div className="bg-[var(--MainLight-color)] pl-4 md:pl-5 pr-5 md:pr-7 h-[44px] md:h-14 rounded-2xl flex items-center gap-3 md:gap-5 text-small md:text-regular">
               <span className="mb-3 md:mb-4 w-4 h-4 scale-110 md:scale-125">⏱️</span>
               <span className="font-mono">{formatTime(timeLeft)}</span>
             </div>
@@ -348,10 +363,10 @@ export default function Page() {
                     <button
                       key={option.id}
                       onClick={() => setSelectedOption(option.id)}
-                      className={`flex items-center space-x-3 md:space-x-4 px-5 h-14 rounded-lg border bg-white
+                      className={`flex items-center space-x-3 md:space-x-4 px-5 h-14 rounded-lg border bg-white hover:scale-[1.005] hover:shadow-md transition-all duration-300
                       ${
                         selectedOption === option.id
-                          ? "border-[3px] md:border-4 border-[var(--MainLight-color)]"
+                          ? "border-[3px] md:border-[3px] border-[var(--MainLight-color)] scale-[1.005] shadow-sm"
                           : "border-gray-200"
                       }`}
                     >
@@ -379,30 +394,77 @@ export default function Page() {
                 </div>
               )}
             </div>
-            <div className="flex flex-col-reverse sm:flex-row gap-2 justify-between pt-4 mt-10">
+            <div className="flex flex-row sm:flex-row gap-3 justify-between pt-4 mt-10">
               <button
               
                 //   disabled={activeQuestionId==1}
                 onClick={() => 
                  activeQuestionId > 1 && setActiveQuestionId((prev) => prev - 1)  }  
                 className={`${
-                  activeQuestionId == 1 ? "cursor-not-allowed disabled" : ""
-                } bg-white border-2 border-[var(--MainLight-color)] text-[var(--MainLight-color)] font-[500] w-full sm:w-40 py-2 rounded-lg`}
+                  activeQuestionId == 1 ? "cursor-default disabled opacity-0" : ""
+                } bg-white border-2 border-[var(--MainLight-color)] text-[var(--MainLight-color)] font-[500] w-full sm:w-40 py-2 rounded-lg flex items-center justify-center gap-2`}
               >
-                Previous
+                <span className="pr-3 md:pr-4 flex items-center justify-center  gap-2"><MdNavigateBefore className="h-6 w-6"/> Previous</span>
               </button>
               <button
-                onClick={() => 
-                    activeQuestionId < questions.length && setActiveQuestionId((prev) => prev + 1)}
+                onClick={() =>{ 
+                    if(activeQuestionId < questions.length){
+                      setActiveQuestionId((prev) => prev + 1)
+                    }
+                    if(activeQuestionId === questions.length){
+                      setOpen(!open);
+                    }}
+                  }
                  
-                className="bg-[var(--MainLight-color)] border-2 border-[var(--MainLight-color)] w-full sm:w-40 py-2 rounded-lg font-[500]"
+                className="bg-[var(--MainLight-color)] w-full sm:w-40 py-2 rounded-lg font-[500] hover:scale-105 transition-all duration-300"
               >
-                {activeQuestionId === questions.length ? "Submit" : "Next"}
+                 <span className="pl-3 md:pl-4 flex items-center justify-center  gap-2">{activeQuestionId === questions.length ? "Submit" : "Next"}{activeQuestionId === questions.length ? <MdNavigateNext className="h-2 w-2 opacity-0"/> : <MdNavigateNext className="h-6 w-6"/>}</span>
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      <div>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              {/* <Button
+                variant="outline"
+                className="h-10 md:h-12 text-small md:text-regular bg-[var(--MainLight-color)] font-[500] float-right mt-10 px-4 rounded-lg hover:bg-[var(--MainLight-color)]"
+              >
+                Prove Your Mastery to Skip!
+              </Button> */}
+            </DialogTrigger>
+            <DialogContent className="w-[90%] sm:max-w-md p- md:x-10 rounded-xl">
+              <div className="flex justify-center">
+                <img
+                  src="/img/test/check_circle.png"
+                  alt="Release Alert"
+                  className="h-12 md:h-16 w-auto"
+                />
+              </div>
+              <DialogHeader>
+                <DialogTitle className="text-xl md:text-2xl text-center mb-4">
+                Congrats! You’ve Mastered This Topic!
+                </DialogTitle>
+                <DialogDescription className="text-center text-small md:text-regular font-[400]">
+                You’ve successfully passed the test and can now skip this chapter. Keep up the great work!
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex gap-4 mt-4">
+                <Button
+                  className="flex-1 h-10 md:h-12 text-small md:text-regular bg-[var(--MainLight-color)] hover:bg-[var(--MainLight-color)] text-black hover:scale-[1.02] transition-all duration-300"
+                  onClick={() => {
+                    setOpen(false);
+                    router.push("/classroom");
+                  }}
+                >
+                  Continue to Next Topic <MdNavigateNext className="h-8 w-8"/>
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
     </div>
   );
 }

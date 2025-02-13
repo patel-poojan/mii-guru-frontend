@@ -55,12 +55,13 @@ const CommonHeader = () => {
                   <span className='sr-only'>Open menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side='right' className='w-72 p-0 [&>button]:hidden'>
+              <SheetContent side='left' className='w-72 p-0 [&>button]:hidden'>
                 <SheetHeader className='px-4 py-4 border-b border-gray-100'>
                   <div className='flex justify-between items-center'>
-                    <SheetTitle className='text-lg font-medium text-gray-900'>
+                    {/* <SheetTitle className='text-lg font-medium text-gray-900'>
                       Menu
-                    </SheetTitle>
+                    </SheetTitle> */}
+                    <CompanyLogo className='w-[120px] sm:w-[140px] md:w-[166px] h-auto' />
                     <SheetClose className='rounded-full p-1 hover:bg-gray-100 transition-colors'>
                       <X className='h-5 w-5 text-gray-500' />
                       <span className='sr-only'>Close menu</span>
