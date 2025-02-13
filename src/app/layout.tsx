@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Poppins } from 'next/font/google';
-import { Toaster } from 'sonner';
+import ClientProvider from './Components/ClientProvider';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -23,8 +23,7 @@ export default function RootLayout({
   return (
     <html lang='en' className={poppins.className} suppressHydrationWarning>
       <body suppressHydrationWarning>
-        {children}
-        <Toaster richColors position='bottom-right' duration={3000} />
+        <ClientProvider>{children}</ClientProvider>
       </body>
     </html>
   );

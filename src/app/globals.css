@@ -7,14 +7,13 @@ body {
   background-color: white;
 }
 :root {
-  --MainLight-color: #FFD369;
-  --Secondary-color: #FFF3E4;
-  --Red-color: #F45050;
-  --Blue-color:#163BA5;
-  --Small: '18px';
-  --Regular: '24px';
+  --MainLight-color: #ffd369;
+  --Secondary-color: #fff3e4;
+  --Red-color: #f45050;
+  --Blue-color: #163ba5;
+  --Small-fontSize: 18px;
+  --Regular-fontSize: 24px;
 }
-
 
 .common-button-css {
   background-color: #f9d949;
@@ -92,21 +91,9 @@ body {
   }
 }
 ::-webkit-scrollbar {
-  width: 5px;
+  display: none;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #f3dca6;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #f3dca6;
-}
 @layer base {
   * {
     @apply border-border;

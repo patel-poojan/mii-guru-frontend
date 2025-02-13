@@ -1,5 +1,5 @@
 'use client';
-import React, { ChangeEvent, FormEvent, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,13 +8,79 @@ import { IoEyeOffOutline, IoEyeOutline } from 'react-icons/io5';
 import { toast } from 'sonner';
 import { emailRegex } from '../utils/regex-collection';
 import CompanyLogo from '../Components/common/CompanyLogo';
+import { useLogin } from '../utils/auth-api';
+import { axiosError } from '../types/axiosTypes';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
+import { Loader } from '../Components/common/Loader';
+
+// Interfaces and Types
 interface FormData {
   email: string;
   password: string;
 }
 
-// Add type for input change event
-type InputChangeEvent = ChangeEvent<HTMLInputElement>;
+interface ValidationResult {
+  isValid: boolean;
+  message?: string;
+}
+
+// Reusable Components
+const PasswordInput = ({
+  value,
+  onChange,
+  showPassword,
+  toggleVisibility,
+}: {
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  showPassword: boolean;
+  toggleVisibility: () => void;
+}) => (
+  <div className='relative'>
+    <Input
+      type={showPassword ? 'text' : 'password'}
+      name='password'
+      value={value}
+      onChange={onChange}
+      placeholder='Enter Password'
+      className='w-full h-12 px-4 rounded-md border border-[#ACACAC] focus:border-yellow focus:ring-yellow focus-visible:ring-yellow'
+    />
+    <button
+      type='button'
+      onClick={toggleVisibility}
+      className='absolute right-4 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600'
+    >
+      {showPassword ? (
+        <IoEyeOffOutline className='w-5 h-5' />
+      ) : (
+        <IoEyeOutline className='w-5 h-5' />
+      )}
+    </button>
+  </div>
+);
+
+// Validation utility
+const validateLoginForm = (formData: FormData): ValidationResult => {
+  if (!formData.email && !formData.password) {
+    return { isValid: false, message: 'Please fill in all fields' };
+  }
+
+  if (!formData.email) {
+    return { isValid: false, message: 'Please enter your email' };
+  }
+
+  if (!formData.password) {
+    return { isValid: false, message: 'Please enter your password' };
+  }
+
+  if (!emailRegex.test(formData.email)) {
+    return { isValid: false, message: 'Please enter a valid email address' };
+  }
+
+  return { isValid: true };
+};
+
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState<FormData>({
@@ -22,58 +88,73 @@ const LoginPage = () => {
     password: '',
   });
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const router = useRouter();
 
-    // Check if fields are empty
-    if (!formData.email && !formData.password) {
-      toast.warning('Please fill in all fields');
-      return;
-    }
+  const { mutate: onLogin, isPending } = useLogin({
+    onSuccess(data) {
+      const token = data.data.authentication.accessToken;
+      if (token) {
+        Cookies.set('authToken', token, {
+          path: '/',
+          sameSite: 'Lax',
+          secure: true,
+        });
+        router.push('/onboarding');
+      }
+      toast.success(data?.message);
+    },
+    onError(error: axiosError) {
+      toast.error(
+        error?.response?.data?.errors?.message ||
+          error?.response?.data?.message ||
+          'Login failed'
+      );
+    },
+  });
 
-    // Validate email
-    if (!formData.email) {
-      toast.warning('Please enter your email');
-      return;
-    }
+  const handleSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
 
-    // Validate password
-    if (!formData.password) {
-      toast.warning('Please enter your password');
-      return;
-    }
+      const validation = validateLoginForm(formData);
+      if (!validation.isValid) {
+        toast.warning(validation.message);
+        return;
+      }
 
-    // Basic email validation
-    if (!emailRegex.test(formData.email)) {
-      toast.warning('Please enter a valid email address');
-      return;
-    }
+      onLogin({
+        email: formData.email,
+        password: formData.password,
+      });
+    },
+    [formData, onLogin]
+  );
 
-    // If all validations pass
-    toast.success('Login successful!');
-    // Add your login logic here
-  };
-
-  const handleChange = (e: InputChangeEvent) => {
-    setFormData({
-      ...formData,
+  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
-  };
+    }));
+  }, []);
+
+  const togglePassword = useCallback(() => {
+    setShowPassword((prev) => !prev);
+  }, []);
+
   return (
     <div className='min-h-screen flex items-center justify-center bg-white p-4'>
+      {isPending && <Loader />}
       <Card className='w-full max-w-md rounded-[36px] p-0 border-[#ACACAC]'>
-        <CardContent className='p-10 sm:p-12'>
-          {/* Logo and Welcome Text */}
-          <div className='flex flex-col items-center gap-6 w-full '>
-            <div className='flex flex-col items-center gap-4 w-full '>
+        <CardContent className='p-6 sm:p-12'>
+          <div className='flex flex-col items-center gap-6 w-full'>
+            <div className='flex flex-col items-center gap-4 w-full'>
               <CompanyLogo className='w-[120px] sm:w-[140px] mb-2 md:w-[166px] h-auto' />
               <h2 className='text-3xl text-black font-medium'>Welcome back!</h2>
-              <p className='text-lg  text-[#636363] '>
+              <p className='text-lg text-[#636363]'>
                 Login to your account below.
               </p>
             </div>
-            {/* Login Form */}
+
             <form
               className='w-full flex flex-col gap-4'
               onSubmit={handleSubmit}
@@ -85,32 +166,23 @@ const LoginPage = () => {
                 placeholder='Enter Email'
                 className='w-full h-12 px-4 rounded-md border border-[#ACACAC] focus:border-yellow focus:ring-yellow focus-visible:ring-yellow'
               />
-              <div className='relative'>
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  name='password'
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder='Enter Password'
-                  className='w-full h-12 px-4 rounded-md border border-[#ACACAC] focus:border-yellow focus:ring-yellow focus-visible:ring-yellow'
-                />
-                <button
-                  type='button'
-                  onClick={() => setShowPassword(!showPassword)}
-                  className='absolute right-4 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600'
-                >
-                  {showPassword ? (
-                    <IoEyeOffOutline className='w-5 h-5' />
-                  ) : (
-                    <IoEyeOutline className='w-5 h-5' />
-                  )}
-                </button>
-              </div>
+
+              <PasswordInput
+                value={formData.password}
+                onChange={handleChange}
+                showPassword={showPassword}
+                toggleVisibility={togglePassword}
+              />
+
               <div className='flex justify-end'>
-                <a href='#' className='text-sm text-dark-blue'>
+                <a
+                  href='/forgetpassword'
+                  className='text-sm text-dark-blue cursor-pointer'
+                >
                   Forgot Password?
                 </a>
               </div>
+
               <Button
                 type='submit'
                 className='w-full bg-yellow py-3 hover:bg-[#E5C832] transition-all duration-200 font-semibold text-base text-white'
@@ -119,7 +191,6 @@ const LoginPage = () => {
               </Button>
             </form>
 
-            {/* Social Login */}
             <div className='w-full'>
               <div className='relative'>
                 <div className='absolute inset-0 flex items-center'>
@@ -131,6 +202,7 @@ const LoginPage = () => {
                   </span>
                 </div>
               </div>
+
               <Button
                 variant='outline'
                 className='flex mt-6 items-center w-full justify-center space-x-1 border-[#F1F1F3]'
@@ -140,7 +212,6 @@ const LoginPage = () => {
               </Button>
             </div>
 
-            {/* Sign Up Link */}
             <div className='text-center'>
               <span className='text-sm text-black'>
                 {`Don't have an account?`}

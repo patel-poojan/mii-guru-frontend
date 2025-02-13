@@ -6,8 +6,8 @@ import {
   SheetContent,
   SheetTrigger,
   SheetClose,
-  SheetTitle,
   SheetHeader,
+  SheetTitle,
 } from '@/components/ui/sheet';
 import { Menu, X } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
@@ -25,7 +25,7 @@ const CommonHeader = () => {
       className='sticky top-0 w-full bg-[#ffffff80] shadow-sm supports-[backdrop-filter]:bg-white/60 supports-[backdrop-filter]:backdrop-blur-3xl z-50'
       style={{ boxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.08)' }}
     >
-      <div className='mx-auto md:px-6 lg:px-20 py-4'>
+      <div className='mx-auto md:px-6 lg:px-20 py-3'>
         <div className='flex justify-between items-center  px-4'>
           {/* Logo */}
           <div className='flex-shrink-0'>
@@ -44,7 +44,9 @@ const CommonHeader = () => {
                   {link.label}
                 </a>
               ))}
-              <div className='h-10 w-10 bg-yellow rounded-full'></div>
+              <div className='h-10 w-10 bg-yellow rounded-full flex items-center justify-center  font-medium text-black'>
+                UN
+              </div>
             </div>
 
             {/* Mobile Menu */}
@@ -58,9 +60,9 @@ const CommonHeader = () => {
               <SheetContent side='left' className='w-72 p-0 [&>button]:hidden'>
                 <SheetHeader className='px-4 py-4 border-b border-gray-100'>
                   <div className='flex justify-between items-center'>
-                    {/* <SheetTitle className='text-lg font-medium text-gray-900'>
+                    <SheetTitle className='text-lg font-medium text-gray-900 sr-only'>
                       Menu
-                    </SheetTitle> */}
+                    </SheetTitle>
                     <CompanyLogo className='w-[120px] sm:w-[140px] md:w-[166px] h-auto' />
                     <SheetClose className='rounded-full p-1 hover:bg-gray-100 transition-colors'>
                       <X className='h-5 w-5 text-gray-500' />
@@ -72,7 +74,7 @@ const CommonHeader = () => {
                 {/* Profile Section */}
                 <div className='p-4 border-b border-gray-100'>
                   <div className='flex items-center gap-3'>
-                    <div className='h-12 w-12 bg-[#FFD84D] rounded-full flex items-center justify-center text-lg font-medium text-black'>
+                    <div className='h-12 w-12 bg-yellow rounded-full flex items-center justify-center text-lg font-medium text-black'>
                       UN
                     </div>
                     <div className='flex flex-col'>
