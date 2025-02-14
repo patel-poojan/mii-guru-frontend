@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import ExpiredLinkCard from '../Components/common/ExpiredLinkCard';
 import EmailSucessCard from '../Components/common/EmailSucessCard';
 import { Loader } from '../Components/common/Loader';
-import { useResendEmail, useVerifyEmail } from '../utils/auth-api';
+import { useResendEmailForSignup, useVerifyEmail } from '../utils/auth-api';
 import { axiosError } from '../types/axiosTypes';
 
 const Verify = () => {
@@ -41,18 +41,19 @@ const Verify = () => {
     }
   }, [token, verify]);
 
-  const { mutate: onResendEmail, isPending: isResendPending } = useResendEmail({
-    onSuccess(data) {
-      toast.success(data?.message);
-    },
-    onError(error: axiosError) {
-      toast.error(
-        error?.response?.data?.errors?.message ||
-          error?.response?.data?.message ||
-          'Resend email request failed'
-      );
-    },
-  });
+  const { mutate: onResendEmail, isPending: isResendPending } =
+    useResendEmailForSignup({
+      onSuccess(data) {
+        toast.success(data?.message);
+      },
+      onError(error: axiosError) {
+        toast.error(
+          error?.response?.data?.errors?.message ||
+            error?.response?.data?.message ||
+            'Resend email request failed'
+        );
+      },
+    });
   const resendEmailHandler = () => {
     if (emailId) {
       onResendEmail({ email: emailId });

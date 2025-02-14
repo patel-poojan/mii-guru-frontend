@@ -144,7 +144,7 @@ const SignupPage = () => {
 
   const { mutate: onSignup, isPending } = useSignup({
     onSuccess(data) {
-      router.push('/verify');
+      router.push(`/verify?email=${formData.email}`);
       toast.success(data?.message);
     },
     onError(error: axiosError) {
