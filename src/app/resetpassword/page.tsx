@@ -156,7 +156,7 @@ const ResetPasswordForm = () => {
 
   useEffect(() => {
     if (token) {
-      onVerifyToken({ token });
+      onVerifyToken(token);
     }
   }, [token, onVerifyToken]);
 

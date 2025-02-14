@@ -167,29 +167,20 @@ export const useResetPassword = ({
     onError
   );
 
-type VerifyTokenRequest = {
-  token: string;
-};
-
 export const useVerifyToken = ({
   onSuccess,
   onError,
 }: {
-  onSuccess?: (data: DefaultResponse) => void;
+  onSuccess?: (data: VerifySignupEmailResponse) => void;
   onError?: (error: axiosError) => void;
 }) =>
-  useAuthMutation<DefaultResponse, VerifyTokenRequest>(
+  useAuthMutation<VerifySignupEmailResponse, string>(
     ['auth', 'verifytoken'],
-    async (data: VerifyTokenRequest) => {
-      const response = await axiosInstance.post(
-        `/auth/verify-token/${data.token}`,
-        {}
-      );
-      return response.data;
-    },
+    (token: string) => axiosInstance.post(`/auth/verify-token/${token}`, {}),
     onSuccess,
     onError
   );
+
 type VerifySignupEmailResponse = {
   success: boolean;
   status: number;
@@ -205,22 +196,17 @@ type VerifySignupEmailResponse = {
     };
   };
 };
+
 export const useVerifyEmail = ({
   onSuccess,
   onError,
 }: {
-  onSuccess?: (data: VerifySignupEmailResponse) => void;
+  onSuccess: (data: VerifySignupEmailResponse) => void;
   onError?: (error: axiosError) => void;
 }) =>
-  useAuthMutation<VerifySignupEmailResponse, VerifyTokenRequest>(
-    ['auth', 'verifytoken', 'email'],
-    async (data: VerifyTokenRequest) => {
-      const response = await axiosInstance.post(
-        `/auth/verify-email/${data.token}`,
-        {}
-      );
-      return response.data;
-    },
+  useAuthMutation<VerifySignupEmailResponse, string>(
+    ['auth', 'verify-email'],
+    (token: string) => axiosInstance.post(`/auth/verify-email/${token}`, {}),
     onSuccess,
     onError
   );

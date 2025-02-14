@@ -24,6 +24,8 @@ const Verify = () => {
           secure: true,
         });
         router.push('/onboarding');
+      } else {
+        router.push('/login');
       }
       toast.success(data?.message);
     },
@@ -37,7 +39,7 @@ const Verify = () => {
   });
   useEffect(() => {
     if (token) {
-      verify({ token });
+      verify(token);
     }
   }, [token, verify]);
 
