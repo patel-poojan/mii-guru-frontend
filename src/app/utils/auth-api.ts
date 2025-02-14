@@ -170,6 +170,7 @@ export const useResetPassword = ({
 type VerifyTokenRequest = {
   token: string;
 };
+
 export const useVerifyToken = ({
   onSuccess,
   onError,
@@ -179,8 +180,13 @@ export const useVerifyToken = ({
 }) =>
   useAuthMutation<DefaultResponse, VerifyTokenRequest>(
     ['auth', 'verifytoken'],
-    (data: VerifyTokenRequest) =>
-      axiosInstance.post(`/auth/verify-token/${data.token}`),
+    async (data: VerifyTokenRequest) => {
+      const response = await axiosInstance.post(
+        `/auth/verify-token/${data.token}`,
+        {}
+      );
+      return response.data;
+    },
     onSuccess,
     onError
   );
@@ -208,8 +214,13 @@ export const useVerifyEmail = ({
 }) =>
   useAuthMutation<VerifySignupEmailResponse, VerifyTokenRequest>(
     ['auth', 'verifytoken', 'email'],
-    (data: VerifyTokenRequest) =>
-      axiosInstance.post(`/auth/verify-email/${data.token}`),
+    async (data: VerifyTokenRequest) => {
+      const response = await axiosInstance.post(
+        `/auth/verify-email/${data.token}`,
+        {}
+      );
+      return response.data;
+    },
     onSuccess,
     onError
   );
