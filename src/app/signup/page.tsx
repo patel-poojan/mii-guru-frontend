@@ -12,7 +12,6 @@ import CompanyLogo from '../Components/common/CompanyLogo';
 import { useRouter } from 'next/navigation';
 import { useSignup } from '../utils/auth-api';
 import { axiosError } from '../types/axiosTypes';
-import Cookies from 'js-cookie';
 import { Loader } from '../Components/common/Loader';
 
 // Separate interfaces and types
@@ -145,15 +144,7 @@ const SignupPage = () => {
 
   const { mutate: onSignup, isPending } = useSignup({
     onSuccess(data) {
-      const token = data.data.authentication.accessToken;
-      if (token) {
-        Cookies.set('authToken', token, {
-          path: '/',
-          sameSite: 'Lax',
-          secure: true,
-        });
-        router.push('/onboarding');
-      }
+      router.push('/verify');
       toast.success(data?.message);
     },
     onError(error: axiosError) {

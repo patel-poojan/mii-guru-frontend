@@ -76,7 +76,115 @@ export const useLogout = ({
       onSuccess(data);
     }
   );
-type SignupResponse = {
+
+type SignupRequest = {
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+export const useSignup = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess: (data: DefaultResponse) => void;
+  onError?: (error: axiosError) => void;
+}) =>
+  useAuthMutation<DefaultResponse, SignupRequest>(
+    ['auth', 'signup'],
+    (data: SignupRequest) => axiosInstance.post('/auth/register', data),
+    onSuccess,
+    onError
+  );
+
+type ForgetPasswordRequest = {
+  email: string;
+};
+export const useForgetPassword = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess: (data: DefaultResponse) => void;
+  onError?: (error: axiosError) => void;
+}) =>
+  useAuthMutation<DefaultResponse, ForgetPasswordRequest>(
+    ['auth', 'forgetpassword'],
+    (data: ForgetPasswordRequest) =>
+      axiosInstance.post('/auth/forgot-password', data),
+    onSuccess,
+    onError
+  );
+
+type ResendEmailRequest = {
+  email: string;
+};
+export const useResendEmail = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess: (data: DefaultResponse) => void;
+  onError?: (error: axiosError) => void;
+}) =>
+  useAuthMutation<DefaultResponse, ResendEmailRequest>(
+    ['auth', 'resend', 'email'],
+    (data: ResendEmailRequest) =>
+      axiosInstance.post('/auth/resend-email', data),
+    onSuccess,
+    onError
+  );
+export const useResendEmailForSignup = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess: (data: DefaultResponse) => void;
+  onError?: (error: axiosError) => void;
+}) =>
+  useAuthMutation<DefaultResponse, ResendEmailRequest>(
+    ['auth', 'resend-email'],
+    (data: ResendEmailRequest) =>
+      axiosInstance.post(`/auth/resend-verify-email`, data),
+    onSuccess,
+    onError
+  );
+type ResetPasswordRequest = {
+  token: string;
+  details: {
+    newPassword: string;
+    confirmPassword: string;
+  };
+};
+export const useResetPassword = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess: (data: DefaultResponse) => void;
+  onError?: (error: axiosError) => void;
+}) =>
+  useAuthMutation<DefaultResponse, ResetPasswordRequest>(
+    ['auth', 'resetpassword'],
+    (data: ResetPasswordRequest) =>
+      axiosInstance.post(`/auth/reset-password/${data.token}`, data.details),
+    onSuccess,
+    onError
+  );
+
+type VerifyTokenRequest = {
+  token: string;
+};
+export const useVerifyToken = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (data: DefaultResponse) => void;
+  onError?: (error: axiosError) => void;
+}) =>
+  useAuthMutation<DefaultResponse, VerifyTokenRequest>(
+    ['auth', 'verifytoken'],
+    (data: VerifyTokenRequest) =>
+      axiosInstance.post(`/auth/verify-token/${data.token}`),
+    onSuccess,
+    onError
+  );
+type VerifySignupEmailResponse = {
   success: boolean;
   status: number;
   message: string;
@@ -91,98 +199,17 @@ type SignupResponse = {
     };
   };
 };
-
-type SignupRequest = {
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
-export const useSignup = ({
+export const useVerifyEmail = ({
   onSuccess,
   onError,
 }: {
-  onSuccess: (data: SignupResponse) => void;
+  onSuccess?: (data: VerifySignupEmailResponse) => void;
   onError?: (error: axiosError) => void;
 }) =>
-  useAuthMutation<SignupResponse, SignupRequest>(
-    ['auth', 'signup'],
-    (data: SignupRequest) => axiosInstance.post('/auth/register', data),
-    onSuccess,
-    onError
-  );
-
-type forgetPasswordRequest = {
-  email: string;
-};
-export const useForgetPassword = ({
-  onSuccess,
-  onError,
-}: {
-  onSuccess: (data: DefaultResponse) => void;
-  onError?: (error: axiosError) => void;
-}) =>
-  useAuthMutation<DefaultResponse, forgetPasswordRequest>(
-    ['auth', 'forgetpassword'],
-    (data: forgetPasswordRequest) =>
-      axiosInstance.post('/auth/forgot-password', data),
-    onSuccess,
-    onError
-  );
-
-type resendEmailRequest = {
-  email: string;
-};
-export const useResendEmail = ({
-  onSuccess,
-  onError,
-}: {
-  onSuccess: (data: DefaultResponse) => void;
-  onError?: (error: axiosError) => void;
-}) =>
-  useAuthMutation<DefaultResponse, resendEmailRequest>(
-    ['auth', 'resend', 'email'],
-    (data: resendEmailRequest) =>
-      axiosInstance.post('/auth/resend-email', data),
-    onSuccess,
-    onError
-  );
-
-type resetPasswordRequest = {
-  token: string;
-  details: {
-    newPassword: string;
-    confirmPassword: string;
-  };
-};
-export const useResetPassword = ({
-  onSuccess,
-  onError,
-}: {
-  onSuccess: (data: DefaultResponse) => void;
-  onError?: (error: axiosError) => void;
-}) =>
-  useAuthMutation<DefaultResponse, resetPasswordRequest>(
-    ['auth', 'resetpassword'],
-    (data: resetPasswordRequest) =>
-      axiosInstance.post(`/auth/reset-password/${data.token}`, data.details),
-    onSuccess,
-    onError
-  );
-
-type verifyTokenRequest = {
-  token: string;
-};
-export const useVerifyToken = ({
-  onSuccess,
-  onError,
-}: {
-  onSuccess?: (data: DefaultResponse) => void;
-  onError?: (error: axiosError) => void;
-}) =>
-  useAuthMutation<DefaultResponse, verifyTokenRequest>(
-    ['auth', 'verifytoken'],
-    (data: verifyTokenRequest) =>
-      axiosInstance.post(`/auth/verify-token/${data.token}`),
+  useAuthMutation<VerifySignupEmailResponse, VerifyTokenRequest>(
+    ['auth', 'verifytoken', 'email'],
+    (data: VerifyTokenRequest) =>
+      axiosInstance.post(`/auth/verify-email/${data.token}`),
     onSuccess,
     onError
   );
