@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useState,
   useCallback,
+  Suspense,
 } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -135,7 +136,8 @@ const validatePasswordForm = (formData: FormData): ValidationResult => {
   return { isValid: true };
 };
 
-const ResetPasswordPage = () => {
+// Reset Password Form Component
+const ResetPasswordForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState<FormData>({
@@ -287,6 +289,15 @@ const ResetPasswordPage = () => {
         </Card>
       )}
     </div>
+  );
+};
+
+// Main component with Suspense boundary
+const ResetPasswordPage = () => {
+  return (
+    <Suspense fallback={<Loader />}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 };
 
