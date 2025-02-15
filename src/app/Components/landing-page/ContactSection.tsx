@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { emailRegex } from '@/app/utils/regex-collection';
+import { useSupport } from '@/app/utils/api/support-api';
+import { axiosError } from '../..//types/axiosTypes';
+import { Loader } from '../common/Loader';
 
 interface FormData {
   name: string;
@@ -21,7 +24,18 @@ const ContactSection = () => {
     email: '',
     message: '',
   });
-
+  const { mutate: onSupport, isPending } = useSupport({
+    onSuccess() {
+      toast.success("Thanks for reaching out! We'll get back to you soon");
+    },
+    onError(error: axiosError) {
+      toast.error(
+        error?.response?.data?.errors?.message ||
+          error?.response?.data?.message ||
+          'Request failed'
+      );
+    },
+  });
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -52,8 +66,11 @@ const ContactSection = () => {
       return;
     }
 
-    toast.success("Thanks for reaching out! We'll get back to you soon");
-    // Add your contact form submission logic here
+    onSupport({
+      name: formData.name,
+      email: formData.email,
+      message: formData.message,
+    });
   };
 
   const handleChange = (e: InputChangeEvent) => {
@@ -65,6 +82,7 @@ const ContactSection = () => {
 
   return (
     <section className='w-full bg-[#FFF3E4] py-8 sm:py-12 lg:py-16'>
+      {isPending && <Loader />}
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='max-w-6xl mx-auto'>
           <h2 className='text-center text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-blue mb-6'>

@@ -10,7 +10,7 @@ import { emailRegex, passwordRegex } from '../utils/regex-collection';
 import { Checkbox } from '@/components/ui/checkbox';
 import CompanyLogo from '../Components/common/CompanyLogo';
 import { useRouter } from 'next/navigation';
-import { useSignup } from '../utils/auth-api';
+import { useSignup } from '../utils/api/auth-api';
 import { axiosError } from '../types/axiosTypes';
 import { Loader } from '../Components/common/Loader';
 

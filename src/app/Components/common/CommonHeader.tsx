@@ -11,20 +11,38 @@ import {
 } from '@/components/ui/sheet';
 import { Menu, X } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { useLogout } from '@/app/utils/api/auth-api';
+import { Loader } from './Loader';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 const CommonHeader = () => {
   const [open, setOpen] = useState(false);
-
+  const router = useRouter();
   const navLinks = [
     { href: '#Dashboard', label: 'Dashboard' },
     { href: '#Settings', label: 'Settings' },
   ];
-
+  const { mutate: onLogout, isPending } = useLogout({
+    onSuccess(data) {
+      router.push('/');
+      toast.success(data?.message);
+    },
+  });
+  const logoutHandler = () => {
+    onLogout();
+  };
   return (
     <header
       className='sticky top-0 w-full bg-[#ffffff80] shadow-sm supports-[backdrop-filter]:bg-white/60 supports-[backdrop-filter]:backdrop-blur-3xl z-50'
       style={{ boxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.08)' }}
     >
+      {isPending && <Loader />}
       <div className='mx-auto md:px-6 lg:px-20 py-3'>
         <div className='flex justify-between items-center  px-4'>
           {/* Logo */}
@@ -44,9 +62,32 @@ const CommonHeader = () => {
                   {link.label}
                 </a>
               ))}
-              <div className='h-10 w-10 bg-yellow rounded-full flex items-center justify-center  font-medium text-black'>
-                UN
-              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button className='h-10 w-10 rounded-full bg-yellow p-0  hover:bg-yellow'>
+                    <span className='font-medium text-black'>UN</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className='w-48 p-2' align='end'>
+                  <div className='flex flex-col gap-2'>
+                    <div className='px-2 py-1.5'>
+                      <p className='text-sm font-medium text-gray-900'>
+                        User Name
+                      </p>
+                      <p className='text-xs text-gray-500'>user@email.com</p>
+                    </div>
+                    <div className='px-2'>
+                      <Button
+                        variant='outline'
+                        className='w-full justify-center'
+                        onClick={() => logoutHandler()}
+                      >
+                        Sign out
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* Mobile Menu */}
@@ -107,6 +148,7 @@ const CommonHeader = () => {
                   <SheetClose asChild>
                     <a
                       href='#logout'
+                      onClick={logoutHandler}
                       className='flex items-center justify-center w-full  text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors'
                     >
                       Sign Out

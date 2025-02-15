@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { emailRegex } from '../utils/regex-collection';
-import { useForgetPassword, useResendEmail } from '../utils/auth-api';
+import { useForgetPassword, useResendEmail } from '../utils/api/auth-api';
 import { axiosError } from '../types/axiosTypes';
 import { Loader } from '../Components/common/Loader';
 import EmailSucessCard from '../Components/common/EmailSucessCard';

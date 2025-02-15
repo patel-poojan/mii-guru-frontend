@@ -8,7 +8,7 @@ import { IoEyeOffOutline, IoEyeOutline } from 'react-icons/io5';
 import { toast } from 'sonner';
 import { emailRegex } from '../utils/regex-collection';
 import CompanyLogo from '../Components/common/CompanyLogo';
-import { useLogin } from '../utils/auth-api';
+import { useLogin } from '../utils/api/auth-api';
 import { axiosError } from '../types/axiosTypes';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';

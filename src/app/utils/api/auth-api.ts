@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
-import { axiosInstance } from './axiosInstance';
+import { axiosInstance } from '../axiosInstance';
 import Cookies from 'js-cookie';
 import { toast } from 'sonner';
-import { axiosError } from '../types/axiosTypes';
+import { axiosError } from '../../types/axiosTypes';
 
 type DefaultResponse = {
   statusCode: number;
@@ -67,16 +67,22 @@ export const useLogout = ({
   onSuccess,
 }: {
   onSuccess: (data: DefaultResponse) => void;
-}) =>
-  useAuthMutation<DefaultResponse, void>(
-    ['auth', 'logout'],
-    () => axiosInstance.delete('/auth/logout'),
-    (data) => {
+}) => {
+  return useMutation({
+    mutationKey: ['auth', 'logout'],
+    mutationFn: () => {
       Cookies.remove('authToken');
-      onSuccess(data);
-    }
-  );
-
+      const response: DefaultResponse = {
+        statusCode: 200,
+        data: null,
+        success: true,
+        message: 'Logged out successfully',
+      };
+      return Promise.resolve(response);
+    },
+    onSuccess,
+  });
+};
 type SignupRequest = {
   email: string;
   password: string;

@@ -15,7 +15,7 @@ import {
   useResendEmail,
   useResetPassword,
   useVerifyToken,
-} from '../utils/auth-api';
+} from '../utils/api/auth-api';
 import { axiosError } from '../types/axiosTypes';
 import { Loader } from '../Components/common/Loader';
 import { IoEyeOffOutline, IoEyeOutline } from 'react-icons/io5';

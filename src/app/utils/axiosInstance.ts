@@ -17,6 +17,7 @@ const authRequestInterceptor = (config: InternalAxiosRequestConfig) => {
     '/login',
     '/forgetpassword',
     '/resetpassword',
+    '/',
   ];
 
   // Check if the request URL matches any of the noAuthPages

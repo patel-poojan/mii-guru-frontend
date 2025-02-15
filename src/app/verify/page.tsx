@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import ExpiredLinkCard from '../Components/common/ExpiredLinkCard';
 import EmailSucessCard from '../Components/common/EmailSucessCard';
 import { Loader } from '../Components/common/Loader';
-import { useResendEmailForSignup, useVerifyEmail } from '../utils/auth-api';
+import { useResendEmailForSignup, useVerifyEmail } from '../utils/api/auth-api';
 import { axiosError } from '../types/axiosTypes';
 
 const Verify = () => {
