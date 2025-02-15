@@ -27,6 +27,11 @@ const ContactSection = () => {
   const { mutate: onSupport, isPending } = useSupport({
     onSuccess() {
       toast.success("Thanks for reaching out! We'll get back to you soon");
+      setFormData({
+        name: '',
+        email: '',
+        message: '',
+      });
     },
     onError(error: axiosError) {
       toast.error(
