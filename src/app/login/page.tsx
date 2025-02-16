@@ -3,7 +3,6 @@ import React, { ChangeEvent, FormEvent, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { FcGoogle } from 'react-icons/fc';
 import { IoEyeOffOutline, IoEyeOutline } from 'react-icons/io5';
 import { toast } from 'sonner';
 import { emailRegex } from '../utils/regex-collection';
@@ -13,6 +12,7 @@ import { axiosError } from '../types/axiosTypes';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import { Loader } from '../Components/common/Loader';
+import GoogleButton from '../Components/common/GoogleButton';
 
 // Interfaces and Types
 interface FormData {
@@ -202,14 +202,7 @@ const LoginPage = () => {
                   </span>
                 </div>
               </div>
-
-              <Button
-                variant='outline'
-                className='flex mt-6 items-center w-full justify-center space-x-1 border-[#F1F1F3]'
-              >
-                <FcGoogle className='w-6 h-6' />
-                <span>Google</span>
-              </Button>
+              <GoogleButton />
             </div>
 
             <div className='text-center'>
