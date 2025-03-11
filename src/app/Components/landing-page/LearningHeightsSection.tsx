@@ -34,21 +34,19 @@ const LearningHeightsSection = () => {
   ];
 
   return (
-    <div className='bg-[#FFF3E4] py-8 sm:py-12 md:py-16 px-4 sm:px-6 md:px-12'>
+    <div className='bg-[#FFC20D] py-8 sm:py-12 md:py-16 px-4 sm:px-6 md:px-12'>
       <div className='max-w-6xl mx-auto'>
         {/* Heading */}
         <div className='mb-4 sm:mb-6'>
           <h2 className='text-2xl sm:text-3xl md:text-4xl font-bold text-left relative'>
             <span className='relative inline-block'>
-              <span className='absolute -left-1 sm:-left-[5px] -top-2 sm:-top-[15px] w-12 sm:w-[66px] h-12 sm:h-[66px] bg-yellow rounded-full'></span>
-              <span className='relative text-dark-blue'>Taking </span>
+              <span className='absolute -left-1 sm:-left-[5px] -top-2 sm:-top-[15px] w-12 sm:w-[66px] h-12 sm:h-[66px] bg-[#5F5F5F] rounded-full'></span>
+              <span className='relative text-white'>Taking </span>
             </span>
-            <span className='text-dark-blue'>Your Learnings </span>
-            <span className='text-dark-blue block sm:inline'>
-              to New Heights
-            </span>
+            <span className='text-white'>Your Learnings </span>
+            <span className='text-white block sm:inline'>to New Heights</span>
           </h2>
-          <p className='text-black text-sm sm:text-base font-medium text-left max-w-3xl mt-2 sm:mt-3'>
+          <p className='text-[#5F5F5F] text-sm sm:text-base font-medium text-left max-w-3xl mt-2 sm:mt-3'>
             {`Understanding a product's capabilities requires a comprehensive
             assessment of its features, functionality, flexibility &
             integration.`}
@@ -75,8 +73,8 @@ const LearningHeightsSection = () => {
                 className='absolute rounded-[20px] -bottom-[10px] -right-[10px] w-[138px] h-[138px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10'
                 style={{
                   background: `
-                    linear-gradient(to left, #F3AC50, #F3AC50) bottom right no-repeat,
-                    linear-gradient(to top, #F3AC50, #F3AC50) bottom right no-repeat
+                    linear-gradient(to left, #5F5F5F, #5F5F5F) bottom right no-repeat,
+                    linear-gradient(to top, #5F5F5F, #5F5F5F) bottom right no-repeat
                   `,
                 }}
               />
@@ -100,10 +98,10 @@ const LearningHeightsSection = () => {
 
                   {/* Content */}
                   <div>
-                    <h3 className='text-lg sm:text-xl font-semibold text-black'>
+                    <h3 className='text-lg sm:text-xl font-semibold text-[#5F5F5F]'>
                       {feature.title}
                     </h3>
-                    <p className='text-dark-blue text-sm sm:text-base mt-1'>
+                    <p className='text-[#5F5F5F] text-sm sm:text-base mt-1'>
                       {feature.description}
                     </p>
                   </div>

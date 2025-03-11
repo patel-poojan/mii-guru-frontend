@@ -86,12 +86,12 @@ const ContactSection = () => {
   };
 
   return (
-    <section className='w-full bg-[#FFF3E4] py-8 sm:py-12 lg:py-16'>
+    <section className='w-full bg-[#FFC20D] py-8 sm:py-12 lg:py-16'>
       {isPending && <Loader />}
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='max-w-6xl mx-auto'>
-          <h2 className='text-center text-2xl sm:text-3xl lg:text-4xl font-bold text-dark-blue mb-6'>
-            Contact <span className='text-yellow'>Us</span>
+          <h2 className='text-center text-2xl sm:text-3xl lg:text-4xl font-bold text-[#5F5F5F] mb-6'>
+            Contact <span className='text-white'>Us</span>
           </h2>
 
           <div className='bg-white rounded-xl p-6 sm:p-10'>
@@ -137,7 +137,7 @@ const ContactSection = () => {
 
                 <Button
                   type='submit'
-                  className='w-full  px-6 rounded-md sm:px-8 py-4 text-base font-medium common-button-css transition-colors'
+                  className='w-full  px-6 rounded-md sm:px-8 py-4 text-base font-medium bg-[#FFC302] text-[#5F5F5F] hover:bg-[#163ba5] hover:text-white transition-colors'
                 >
                   Send Your Message
                 </Button>

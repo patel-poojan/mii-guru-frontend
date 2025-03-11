@@ -10,6 +10,7 @@ interface CompanyLogoProps {
   alt?: string;
   priority?: boolean;
   onClick?: () => void;
+  isLandingPage?: boolean;
 }
 
 const CompanyLogo: React.FC<CompanyLogoProps> = memo(
@@ -20,6 +21,7 @@ const CompanyLogo: React.FC<CompanyLogoProps> = memo(
     alt = 'Company Logo',
     priority = true,
     onClick,
+    isLandingPage = false,
   }) => {
     const router = useRouter();
 
@@ -44,7 +46,9 @@ const CompanyLogo: React.FC<CompanyLogoProps> = memo(
         }}
       >
         <Image
-          src='/img/mii-logo.svg'
+          src={`/img/${
+            isLandingPage ? 'mii-logo-landing.svg' : 'mii-logo.svg'
+          }`}
           alt={alt}
           width={width}
           height={height}

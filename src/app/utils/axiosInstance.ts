@@ -17,11 +17,11 @@ const authRequestInterceptor = (config: InternalAxiosRequestConfig) => {
     '/login',
     '/forgetpassword',
     '/resetpassword',
-    '/',
   ];
 
   // Check if the request URL matches any of the noAuthPages
-  const shouldSkipAuth = noAuthPages.some((page) => requestUrl.includes(page));
+  const shouldSkipAuth =
+    requestUrl === '/' || noAuthPages.some((page) => requestUrl.includes(page));
 
   if (!config.headers) {
     config.headers = new AxiosHeaders();
@@ -29,8 +29,11 @@ const authRequestInterceptor = (config: InternalAxiosRequestConfig) => {
 
   if (!shouldSkipAuth) {
     const authToken = Cookies.get('authToken');
+    console.log('authToken', authToken);
     if (authToken) {
       config.headers.Authorization = `Bearer ${authToken}`;
+    } else {
+      config.headers.Authorization = '';
     }
   }
 
@@ -60,10 +63,10 @@ const errorInterceptor = (error: AxiosError) => {
     return Promise.reject(error);
   }
 
-  if (error.response.status === 401) {
-    window.location.replace('/login');
-    toast.error('Authentication required, please log in');
-  }
+  // if (error.response.status === 401 || error.response.status === 403) {
+  //   window.location.replace('/login');
+  //   toast.error('Authentication required, please log in');
+  // }
   return Promise.reject(error);
 };
 
@@ -77,6 +80,8 @@ const paramsSerializer = (params: { [key: string]: string }) => {
 
 export const axiosInstance = Axios.create({
   baseURL: process.env.NEXT_PUBLIC_LOCAL_SERVER_URL,
+  timeout: 300000, // Set timeout to 5 minutes (300,000 milliseconds)
+  timeoutErrorMessage: 'timeoutErrorMessage: Request took too long to complete',
 });
 
 axiosInstance.defaults.paramsSerializer = paramsSerializer;

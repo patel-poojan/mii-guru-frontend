@@ -16,9 +16,15 @@ const Verify = () => {
   const router = useRouter();
   const { mutate: verify, isPending: isPendingVerifyEmail } = useVerifyEmail({
     onSuccess(data) {
-      const token = data.data.authentication.accessToken;
+      const token = data?.data?.access_token;
       if (token) {
         Cookies.set('authToken', token, {
+          path: '/',
+          sameSite: 'Lax',
+          secure: true,
+        });
+        const userInfo = data?.data?.user?.tracking;
+        Cookies.set('userInfo', JSON.stringify(userInfo), {
           path: '/',
           sameSite: 'Lax',
           secure: true,

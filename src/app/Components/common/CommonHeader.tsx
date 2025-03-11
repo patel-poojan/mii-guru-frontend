@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -20,9 +20,12 @@ import { useLogout } from '@/app/utils/api/auth-api';
 import { Loader } from './Loader';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 const CommonHeader = () => {
   const [open, setOpen] = useState(false);
+  const [userInfo, setUserInfo] = useState({ username: '', email: '' });
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const navLinks = [
     { href: '#Dashboard', label: 'Dashboard' },
@@ -34,9 +37,24 @@ const CommonHeader = () => {
       toast.success(data?.message);
     },
   });
+
+  // Set isClient to true when component mounts (client-side only)
+  useEffect(() => {
+    setIsClient(true);
+    const info = Cookies.get('userInfo');
+    try {
+      if (info) {
+        setUserInfo(JSON.parse(info));
+      }
+    } catch (error) {
+      console.error('Error parsing userInfo from cookie:', error);
+    }
+  }, []);
+
   const logoutHandler = () => {
     onLogout();
   };
+
   return (
     <header
       className='sticky top-0 w-full bg-[#ffffff80] shadow-sm supports-[backdrop-filter]:bg-white/60 supports-[backdrop-filter]:backdrop-blur-3xl z-50'
@@ -62,32 +80,38 @@ const CommonHeader = () => {
                   {link.label}
                 </a>
               ))}
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button className='h-10 w-10 rounded-full bg-yellow p-0  hover:bg-yellow'>
-                    <span className='font-medium text-black'>UN</span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className='w-48 p-2' align='end'>
-                  <div className='flex flex-col gap-2'>
-                    <div className='px-2 py-1.5'>
-                      <p className='text-sm font-medium text-gray-900'>
-                        User Name
-                      </p>
-                      <p className='text-xs text-gray-500'>user@email.com</p>
+              {isClient && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button className='h-10 w-10 rounded-full bg-yellow p-0  hover:bg-yellow'>
+                      <span className='font-medium text-lg text-black capitalize'>
+                        {userInfo?.username?.charAt(0) ?? 'U'}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className='w-48 p-2' align='end'>
+                    <div className='flex flex-col gap-2'>
+                      <div className='px-2 py-1.5'>
+                        <p className='text-sm font-medium text-gray-900'>
+                          {userInfo?.username ?? 'User Name'}
+                        </p>
+                        <p className='text-xs text-gray-500'>
+                          {userInfo?.email ?? 'user@email.com'}
+                        </p>
+                      </div>
+                      <div className='px-2'>
+                        <Button
+                          variant='outline'
+                          className='w-full justify-center'
+                          onClick={() => logoutHandler()}
+                        >
+                          Sign out
+                        </Button>
+                      </div>
                     </div>
-                    <div className='px-2'>
-                      <Button
-                        variant='outline'
-                        className='w-full justify-center'
-                        onClick={() => logoutHandler()}
-                      >
-                        Sign out
-                      </Button>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
+                  </PopoverContent>
+                </Popover>
+              )}
             </div>
 
             {/* Mobile Menu */}
@@ -98,7 +122,7 @@ const CommonHeader = () => {
                   <span className='sr-only'>Open menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side='left' className='w-72 p-0 [&>button]:hidden'>
+              <SheetContent side='right' className='w-72 p-0 [&>button]:hidden'>
                 <SheetHeader className='px-4 py-4 border-b border-gray-100'>
                   <div className='flex justify-between items-center'>
                     <SheetTitle className='text-lg font-medium text-gray-900 sr-only'>
@@ -113,21 +137,23 @@ const CommonHeader = () => {
                 </SheetHeader>
 
                 {/* Profile Section */}
-                <div className='p-4 border-b border-gray-100'>
-                  <div className='flex items-center gap-3'>
-                    <div className='h-12 w-12 bg-yellow rounded-full flex items-center justify-center text-lg font-medium text-black'>
-                      UN
-                    </div>
-                    <div className='flex flex-col'>
-                      <span className='text-base font-medium text-gray-900'>
-                        User Name
-                      </span>
-                      <span className='text-sm text-gray-500'>
-                        user@email.com
-                      </span>
+                {isClient && (
+                  <div className='p-4 border-b border-gray-100'>
+                    <div className='flex items-center gap-3'>
+                      <div className='h-12 w-12 bg-yellow rounded-full flex items-center text-lg justify-center text-lg font-medium text-black'>
+                        {userInfo?.username?.charAt(0) ?? 'U'}
+                      </div>
+                      <div className='flex flex-col'>
+                        <span className='text-base font-medium text-gray-900'>
+                          {userInfo?.username ?? 'User Name'}
+                        </span>
+                        <span className='text-sm text-gray-500'>
+                          {userInfo?.email ?? 'user@email.com'}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Navigation Links */}
                 <nav className='py-2' aria-label='Main navigation'>

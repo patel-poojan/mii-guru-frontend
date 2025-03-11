@@ -23,13 +23,17 @@ const Header = () => {
   ];
 
   return (
-    <header className='sticky top-0 w-full bg-[#ffffff80] shadow-sm supports-[backdrop-filter]:bg-white/60 supports-[backdrop-filter]:backdrop-blur-3xl z-50'>
+    <header className='sticky top-0 w-full bg-[#FFE186] shadow-sm supports-[backdrop-filter]:bg-[#FFE186]/60 supports-[backdrop-filter]:backdrop-blur-3xl z-50'>
+      {/* <header className='sticky top-0 w-full bg-[#FFFFFF80] shadow-sm supports-[backdrop-filter]:bg-white/60 supports-[backdrop-filter]:backdrop-blur-3xl z-50'>
       {/* <header className='sticky top-0 w-full bg-transparent backdrop-blur-3XL supports-[backdrop-filter]:backdrop-blur-3xl z-50'> */}
       <div className='mx-auto md:px-6 lg:px-20 py-3'>
         <div className='flex justify-between items-center px-4'>
           {/* Logo */}
           <div className='flex-shrink-0'>
-            <CompanyLogo className='w-[120px] sm:w-[140px] md:w-[166px] h-auto' />
+            <CompanyLogo
+              className='w-[120px] sm:w-[140px] md:w-[166px] h-auto'
+              isLandingPage={true}
+            />
           </div>
 
           {/* Desktop Navigation */}
@@ -38,7 +42,7 @@ const Header = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className='text-black hover:text-[#183CAC]'
+                className='text-[#5F5F5F] hover:text-[#183CAC]'
               >
                 {link.label}
               </a>
@@ -51,7 +55,7 @@ const Header = () => {
             </Button>
             <Button
               onClick={() => router.push('/login')}
-              className='bg-yellow px-6 py-2 text-dark-blue font-medium rounded-sm hover:bg-[#163BA5] hover:text-white transition-colors'
+              className='bg-[#FFC302] px-6 py-2 text-dark-blue font-medium rounded-sm hover:bg-[#163BA5] hover:text-white transition-colors'
             >
               Sign In
             </Button>

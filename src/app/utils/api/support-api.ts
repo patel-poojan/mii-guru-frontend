@@ -19,7 +19,7 @@ export const useSupport = ({
   useMutation({
     mutationKey: ['customer', 'support'],
     mutationFn: (data: SupportRequest): Promise<SupportResponse> => {
-      return axiosInstance.post(`/other/contact-us`, data);
+      return axiosInstance.post(`/contactus`, data);
     },
     onError,
     onSuccess,

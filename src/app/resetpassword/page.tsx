@@ -171,12 +171,9 @@ const ResetPasswordForm = () => {
         });
         return;
       }
-
       onResetPassword({
-        details: {
-          newPassword: formData.password,
-          confirmPassword: formData.confirmPassword,
-        },
+        new_password: formData.password,
+        confirm_password: formData.confirmPassword,
         token,
       });
     },

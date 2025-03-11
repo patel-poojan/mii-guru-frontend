@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { IoEyeOffOutline, IoEyeOutline } from 'react-icons/io5';
 import { toast } from 'sonner';
 import { emailRegex, passwordRegex } from '../utils/regex-collection';
-import { Checkbox } from '@/components/ui/checkbox';
+// import { Checkbox } from '@/components/ui/checkbox';
 import CompanyLogo from '../Components/common/CompanyLogo';
 import { useRouter } from 'next/navigation';
 import { useSignup } from '../utils/api/auth-api';
@@ -16,11 +16,12 @@ import GoogleButton from '../Components/common/GoogleButton';
 
 // Separate interfaces and types
 interface FormData {
+  username: string;
   email: string;
   password: string;
   confirmPassword: string;
-  agreeTerms: boolean;
-  sendUpdates: boolean;
+  // agreeTerms: boolean;
+  // sendUpdates: boolean;
 }
 
 interface ValidationResult {
@@ -30,7 +31,12 @@ interface ValidationResult {
 
 // Form validation utility
 const validateForm = (formData: FormData): ValidationResult => {
-  if (!formData.email || !formData.password) {
+  if (
+    !formData.email ||
+    !formData.password ||
+    !formData.confirmPassword ||
+    !formData.username
+  ) {
     return { isValid: false, message: 'Please fill in all fields' };
   }
 
@@ -57,9 +63,9 @@ const validateForm = (formData: FormData): ValidationResult => {
     return { isValid: false, message: 'Passwords do not match' };
   }
 
-  if (!formData.agreeTerms) {
-    return { isValid: false, message: 'Please agree to Terms & Conditions' };
-  }
+  // if (!formData.agreeTerms) {
+  //   return { isValid: false, message: 'Please agree to Terms & Conditions' };
+  // }
 
   return { isValid: true };
 };
@@ -103,41 +109,42 @@ const PasswordInput = ({
   </div>
 );
 
-const CheckboxField = ({
-  id,
-  checked,
-  onChange,
-  label,
-}: {
-  id: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  label: string;
-}) => (
-  <div className='flex items-center space-x-2'>
-    <Checkbox
-      id={id}
-      checked={checked}
-      onCheckedChange={(checked) => onChange(checked as boolean)}
-      className='h-4 w-4 border-dark-blue data-[state=checked]:bg-yellow data-[state=checked]:border-yellow'
-    />
-    <label
-      htmlFor={id}
-      className='text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black cursor-pointer'
-    >
-      {label}
-    </label>
-  </div>
-);
+// const CheckboxField = ({
+//   id,
+//   checked,
+//   onChange,
+//   label,
+// }: {
+//   id: string;
+//   checked: boolean;
+//   onChange: (checked: boolean) => void;
+//   label: string;
+// }) => (
+//   <div className='flex items-center space-x-2'>
+//     <Checkbox
+//       id={id}
+//       checked={checked}
+//       onCheckedChange={(checked) => onChange(checked as boolean)}
+//       className='h-4 w-4 border-dark-blue data-[state=checked]:bg-yellow data-[state=checked]:border-yellow'
+//     />
+//     <label
+//       htmlFor={id}
+//       className='text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black cursor-pointer'
+//     >
+//       {label}
+//     </label>
+//   </div>
+// );
 
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState<FormData>({
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
-    agreeTerms: false,
-    sendUpdates: false,
+    // agreeTerms: false,
+    // sendUpdates: false,
   });
 
   const router = useRouter();
@@ -167,9 +174,10 @@ const SignupPage = () => {
       }
 
       onSignup({
+        username: formData.username,
         email: formData.email,
         password: formData.password,
-        confirmPassword: formData.confirmPassword,
+        confirm_password: formData.confirmPassword,
       });
     },
     [formData, onSignup]
@@ -186,17 +194,17 @@ const SignupPage = () => {
     setShowPassword((prev) => !prev);
   }, []);
 
-  const handleCheckboxChange = useCallback(
-    (field: keyof Pick<FormData, 'agreeTerms' | 'sendUpdates'>) => {
-      return (checked: boolean) => {
-        setFormData((prev) => ({
-          ...prev,
-          [field]: checked,
-        }));
-      };
-    },
-    []
-  );
+  // const handleCheckboxChange = useCallback(
+  //   (field: keyof Pick<FormData, 'agreeTerms' | 'sendUpdates'>) => {
+  //     return (checked: boolean) => {
+  //       setFormData((prev) => ({
+  //         ...prev,
+  //         [field]: checked,
+  //       }));
+  //     };
+  //   },
+  //   []
+  // );
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-white p-4'>
@@ -205,7 +213,7 @@ const SignupPage = () => {
         <CardContent className='p-6 sm:p-12'>
           <div className='flex flex-col items-center gap-6 w-full'>
             <div className='flex flex-col items-center gap-4 w-full'>
-              <CompanyLogo className='w-[120px] sm:w-[140px] mb-2 md:w-[166px] h-auto' />
+              <CompanyLogo className='w-[120px] sm:w-[140px] mb-1 md:w-[166px] h-auto mx-auto flex justify-center' />
               <h2 className='text-3xl text-black font-medium'>
                 Create your account
               </h2>
@@ -215,6 +223,13 @@ const SignupPage = () => {
               className='w-full flex flex-col gap-4'
               onSubmit={handleSubmit}
             >
+              <Input
+                name='username'
+                value={formData.username}
+                onChange={handleChange}
+                placeholder='Enter Username'
+                className='w-full h-12 px-4 rounded-md border border-[#ACACAC] focus:border-yellow focus:ring-yellow focus-visible:ring-yellow'
+              />
               <Input
                 name='email'
                 value={formData.email}
@@ -241,7 +256,7 @@ const SignupPage = () => {
                 togglePassword={togglePassword}
               />
 
-              <div className='flex flex-col gap-3'>
+              {/* <div className='flex flex-col gap-3'>
                 <CheckboxField
                   id='agreeTerms'
                   checked={formData.agreeTerms}
@@ -255,7 +270,7 @@ const SignupPage = () => {
                   onChange={handleCheckboxChange('sendUpdates')}
                   label='Send me updates'
                 />
-              </div>
+              </div> */}
 
               <Button
                 type='submit'

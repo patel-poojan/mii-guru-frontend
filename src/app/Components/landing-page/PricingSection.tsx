@@ -108,7 +108,7 @@ const PricingSection = () => {
               ))}
             </ul>
           </div>
-          <Button className='w-full  px-6 rounded-b-xl sm:px-8 py-5 text-base font-medium common-button-css transition-colors'>
+          <Button className='w-full  px-6 rounded-b-xl sm:px-8 py-5 text-base font-medium bg-[#FFC302] text-[#5F5F5F] hover:bg-[#163ba5] hover:text-white transition-colors'>
             {plan.buttonText}
           </Button>
         </div>
@@ -119,8 +119,8 @@ const PricingSection = () => {
   return (
     <div className='container mx-auto px-4 py-8 md:pt-16 md:pb-20'>
       <div className='max-w-5xl mx-auto'>
-        <h2 className='text-3xl font-bold text-center mb-6'>
-          Our <span className='text-yellow'>Pricing</span>
+        <h2 className='text-3xl font-bold text-center mb-6 text-[#5F5F5F]'>
+          Our <span className='text-[#FFC302]'>Pricing</span>
         </h2>
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-8  mx-auto'>

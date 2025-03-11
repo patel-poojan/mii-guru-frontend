@@ -12,10 +12,13 @@ import CompanyLogo from '../common/CompanyLogo';
 
 const Footer = () => {
   return (
-    <footer className='w-full bg-dark-blue text-white py-8 md:py-16'>
+    <footer className='w-full bg-[#333333] text-white py-8 md:py-16'>
       <div className='container mx-auto px-4'>
         <div className='mb-6 lg:mb-0'>
-          <CompanyLogo className='w-[120px] sm:w-[140px] md:w-[166px] h-auto' />
+          <CompanyLogo
+            className='w-[120px] sm:w-[140px] md:w-[166px] h-auto'
+            isLandingPage={true}
+          />
         </div>
         <div className='flex flex-col lg:flex-row justify-between items-start lg:items-end mb-10'>
           {/* Navigation Links */}
@@ -52,7 +55,7 @@ const Footer = () => {
                 placeholder='Enter your Email'
                 className='rounded text-black lg:w-80 border-[#F1F1F3] bg-[#FCFCFD] focus:border-yellow focus:ring-yellow focus-visible:ring-yellow'
               />
-              <Button className='bg-yellow text-dark-blue rounded hover:bg-yellow/90  transition-colors whitespace-nowrap'>
+              <Button className='bg-[#FFC302] text-[#5F5F5F] rounded hover:bg-yellow/90  transition-colors whitespace-nowrap'>
                 Subscribe
               </Button>
             </div>
