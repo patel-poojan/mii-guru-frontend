@@ -1,7 +1,7 @@
 'use client';
 import CircularProgress from '@/app/Components/common/CircularProgress';
 import CustomTable from '@/app/Components/common/CustomTable';
-import React from 'react';
+import React, { useRef } from 'react';
 import { FiDownload } from 'react-icons/fi';
 
 // Define types for the student data
@@ -31,6 +31,13 @@ const SECTION_TITLE =
   'text-2xl sm:text-xl xs:text-lg text-black font-medium text-black mb-3';
 
 const ProgressReport: React.FC = () => {
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  // Add title to document
+  React.useEffect(() => {
+    document.title = 'Student Progress Report';
+  }, []);
+
   const studentData: StudentData = {
     name: 'Kristihy Lovely',
     board: 'CBSC',
@@ -136,6 +143,162 @@ const ProgressReport: React.FC = () => {
     },
   ];
 
+  // Function to handle PDF download
+  const handleDownload = () => {
+    // Create a print-specific style
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        #reportContent, #reportContent * {
+          visibility: visible;
+        }
+        #reportContent {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
+        @page {
+          size: A4;
+          margin: 10mm 10mm 10mm 10mm;
+        }
+        button {
+          display: none !important;
+        }
+        .SECTION_CLASS {
+          padding-top: 10px !important;
+          margin-bottom: 15px !important;
+        }
+        table {
+          page-break-inside: avoid;
+        }
+        h2 {
+          page-break-after: avoid;
+        }
+        /* Ensure no content is cut off between pages */
+        .page-break-avoid {
+          page-break-inside: avoid;
+        }
+        
+        /* Enhanced header and footer - forced to display */
+        
+        /* Date in header */
+        .header-date {
+          position: fixed;
+          top: 3mm;
+          left: 10mm;
+          font-family: Arial, sans-serif;
+          font-size: 10px;
+          color: #666;
+        }
+        
+        /* Footer elements */
+        .footer-student {
+          position: fixed;
+          bottom: 3mm;
+          left: 10mm;
+          font-family: Arial, sans-serif;
+          font-size: 9px;
+          color: #666;
+        }
+        
+        .footer-page-number {
+          position: fixed;
+          bottom: 3mm;
+          width: 100%;
+          text-align: center;
+          font-family: Arial, sans-serif;
+          font-size: 9px;
+          color: #666;
+          counter-increment: page;
+        }
+        
+        .footer-page-number::after {
+          content: counter(page) "/3";
+        }
+        
+        .footer-class-subject {
+          position: fixed;
+          bottom: 3mm;
+          right: 10mm;
+          font-family: Arial, sans-serif;
+          font-size: 9px;
+          color: #666;
+        }
+        
+        /* Add padding for headers and footers */
+        #reportContent {
+          padding-top: 8mm;
+          padding-bottom: 10mm;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Create elements for header and footer that will be visible regardless of browser print settings
+    const headerDate = document.createElement('div');
+    headerDate.className = 'header-date';
+    headerDate.innerText = `${new Date().toLocaleDateString()}`;
+
+    const footerStudent = document.createElement('div');
+    footerStudent.className = 'footer-student';
+    footerStudent.innerText = `${studentData.name}`;
+
+    const footerPageNumber = document.createElement('div');
+    footerPageNumber.className = 'footer-page-number';
+
+    const footerClassSubject = document.createElement('div');
+    footerClassSubject.className = 'footer-class-subject';
+    footerClassSubject.innerText = `${studentData.class} | ${studentData.subject}`;
+
+    // Add elements to the document
+    document.body.appendChild(headerDate);
+    document.body.appendChild(footerStudent);
+    document.body.appendChild(footerPageNumber);
+    document.body.appendChild(footerClassSubject);
+
+    // Display a loading animation
+    const loadingAnimation = document.createElement('div');
+    loadingAnimation.className = 'loading-animation';
+    loadingAnimation.innerHTML = `
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    `;
+    document.body.appendChild(loadingAnimation);
+
+    // Print the report
+    window.print();
+
+    // Remove the loading animation
+    document.body.removeChild(loadingAnimation);
+
+    // Display a success message
+    const successMessage = document.createElement('div');
+    successMessage.className = 'success-message';
+    successMessage.innerHTML = `
+      <div class="alert alert-success" role="alert">
+        Report downloaded successfully!
+      </div>
+    `;
+    document.body.appendChild(successMessage);
+
+    // Remove the success message after 2 seconds
+    setTimeout(() => {
+      document.body.removeChild(successMessage);
+    }, 2000);
+
+    // Clean up
+    document.head.removeChild(style);
+    document.body.removeChild(headerDate);
+    document.body.removeChild(footerStudent);
+    document.body.removeChild(footerPageNumber);
+    document.body.removeChild(footerClassSubject);
+  };
+
   return (
     <div className='mx-auto max-w-6xl'>
       {/* Header with title and download button */}
@@ -145,14 +308,14 @@ const ProgressReport: React.FC = () => {
         </div>
         <button
           className='flex items-center border border-yellow-400 text-lg sm:text-base py-2 px-3 rounded-md text-black'
-          // onClick={() => console.log('Download clicked')}
+          onClick={handleDownload}
         >
           <FiDownload className='w-4 h-4 mr-1' />
           Download
         </button>
       </div>
 
-      <div className='flex flex-col gap-4'>
+      <div id='reportContent' ref={reportRef} className='flex flex-col gap-4'>
         {/* Student Info Card with Metrics */}
         <div className={SECTION_CLASS}>
           <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-y-2 gap-x-4'>

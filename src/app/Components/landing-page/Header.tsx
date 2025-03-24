@@ -30,10 +30,7 @@ const Header = () => {
         <div className='flex justify-between items-center px-4'>
           {/* Logo */}
           <div className='flex-shrink-0'>
-            <CompanyLogo
-              className='w-[120px] sm:w-[140px] md:w-[166px] h-auto'
-              isLandingPage={true}
-            />
+            <CompanyLogo className='w-[110px] md:w-[130px] h-auto' />
           </div>
 
           {/* Desktop Navigation */}

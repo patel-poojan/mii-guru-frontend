@@ -18,7 +18,6 @@ const OnBoardingPopup = ({
   onClose: () => void;
   userId: string;
 }) => {
-  console.log('USERiD', userId);
   if (userId === '') return null;
   return (
     <Dialog open={open} onOpenChange={onClose}>

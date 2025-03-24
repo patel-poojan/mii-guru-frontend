@@ -43,7 +43,6 @@ const GoogleButton = () => {
       }
     },
     onError: () => {
-      console.log('Login Failed');
       toast.error('Google login failed');
     },
     flow: 'auth-code',

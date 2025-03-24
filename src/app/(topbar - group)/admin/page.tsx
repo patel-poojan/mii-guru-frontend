@@ -19,7 +19,6 @@ import {
   useUploadSyllabusZip,
 } from '@/app/utils/api/admin-api';
 import { axiosError } from '../../types/axiosTypes';
-import OnBoardingPopup from './Components/OnBoardingPopup';
 import { MdModeEdit } from 'react-icons/md';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -118,21 +117,21 @@ const AdminDashboard: React.FC = () => {
   const closeAvatarPopup = (): void => {
     setIsOpenAvatarPopup(false);
   };
-  const [isOpenOnBoardingPopup, setIsOpenOnBoardingPopup] = useState(false);
-  const [userId, setUseId] = useState('');
-  const openOnBoardingPopup = (): void => {
-    if (!formState.user.userId.trim()) {
-      toast.warning('Please enter user ID');
-      return;
-    } else {
-      setIsOpenOnBoardingPopup(true);
-    }
-  };
+  // const [isOpenOnBoardingPopup, setIsOpenOnBoardingPopup] = useState(false);
+  // const [userId, setUseId] = useState('');
+  // const openOnBoardingPopup = (): void => {
+  //   if (!formState.user.userId.trim()) {
+  //     toast.warning('Please enter user ID');
+  //     return;
+  //   } else {
+  //     setIsOpenOnBoardingPopup(true);
+  //   }
+  // };
 
   // Function to close the popup
-  const closeOnBoardingPopup = (): void => {
-    setIsOpenOnBoardingPopup(false);
-  };
+  // const closeOnBoardingPopup = (): void => {
+  //   setIsOpenOnBoardingPopup(false);
+  // };
 
   // Handlers
   const handleInputChange = useCallback(
@@ -723,9 +722,8 @@ const AdminDashboard: React.FC = () => {
     },
     [formState, handleFileChange]
   );
-  console.log('formState', formState);
   return (
-    <Card className='max-w-6xl mx-auto border border-[#F1F1F3] rounded-xl'>
+    <Card className='border border-[#F1F1F3] rounded-xl'>
       <CardContent className='p-4 lg:p-6'>
         <div className='space-y-8 lg:space-y-10'>
           <div>
@@ -1032,7 +1030,7 @@ const AdminDashboard: React.FC = () => {
           {/* User Maintenance and Payment Details Row */}
           <div className={COMMON_STYLES.GRID_LAYOUT}>
             {/* User Maintenance */}
-            <div>
+            {/* <div>
               <h3 className={COMMON_STYLES.TITLE}>User Maintenance</h3>
               <div
                 className={`${COMMON_STYLES.BG_DEFAULT} ${COMMON_STYLES.CARD}`}
@@ -1062,7 +1060,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Payment Details */}
             <div>
@@ -1083,13 +1081,7 @@ const AdminDashboard: React.FC = () => {
                         handleInputChange('payment', 'userId', e.target.value)
                       }
                     />
-                    <button
-                      className='flex items-center justify-center h-full px-3 bg-[#F3F3F3] text-gray-400 hover:bg-gray-200'
-                      onClick={() => {
-                        openOnBoardingPopup();
-                        setUseId(formState.user.userId);
-                      }}
-                    >
+                    <button className='flex items-center justify-center h-full px-3 bg-[#F3F3F3] text-gray-400 hover:bg-gray-200'>
                       <MdModeEdit className='w-6 h-6 text-[#656567]' />
                     </button>
                   </div>
@@ -1103,11 +1095,11 @@ const AdminDashboard: React.FC = () => {
           onClose={closeAvatarPopup}
           options={options}
         />
-        <OnBoardingPopup
+        {/* <OnBoardingPopup
           open={isOpenOnBoardingPopup}
           onClose={closeOnBoardingPopup}
           userId={userId}
-        />
+        /> */}
       </CardContent>
     </Card>
   );

@@ -633,12 +633,6 @@ const OnboardingForm = ({ userId }: { userId?: string }) => {
         apiFormData.append('timeToFinish', availability.timeToFinish);
       }
 
-      // For debugging
-      for (const pair of apiFormData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-      }
-      console.log('apiFormData', apiFormData);
-
       // Submit form data
       registerUser(apiFormData);
     },

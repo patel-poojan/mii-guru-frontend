@@ -213,7 +213,7 @@ const SignupPage = () => {
         <CardContent className='p-6 sm:p-12'>
           <div className='flex flex-col items-center gap-6 w-full'>
             <div className='flex flex-col items-center gap-4 w-full'>
-              <CompanyLogo className='w-[120px] sm:w-[140px] mb-1 md:w-[166px] h-auto mx-auto flex justify-center' />
+              <CompanyLogo className='w-[120px] sm:w-[135px] mb-1  h-auto mx-auto flex justify-center' />
               <h2 className='text-3xl text-black font-medium'>
                 Create your account
               </h2>

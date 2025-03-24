@@ -11,17 +11,21 @@ interface CompanyLogoProps {
   priority?: boolean;
   onClick?: () => void;
   isLandingPage?: boolean;
+  mobileSizes?: {
+    width: number;
+    height: number;
+  };
 }
 
 const CompanyLogo: React.FC<CompanyLogoProps> = memo(
   ({
     className = '',
-    width = 166,
-    height = 35,
+    width = 173,
+    height = 73,
     alt = 'Company Logo',
     priority = true,
     onClick,
-    isLandingPage = false,
+    mobileSizes = { width: 120, height: 50 },
   }) => {
     const router = useRouter();
 
@@ -35,26 +39,39 @@ const CompanyLogo: React.FC<CompanyLogoProps> = memo(
 
     return (
       <div
-        className={`relative cursor-pointer ${className}`}
+        className={`relative  cursor-pointer ${className}`}
         onClick={handleClick}
         role='link'
+        aria-label={`${alt} - Click to go to home page`}
         tabIndex={0}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
             handleClick();
           }
         }}
+        title='Go to home page'
       >
-        <Image
-          src={`/img/${
-            isLandingPage ? 'mii-logo-landing.svg' : 'mii-logo.svg'
-          }`}
-          alt={alt}
-          width={width}
-          height={height}
-          className='w-auto object-contain'
-          priority={priority}
-        />
+        <div className='hidden sm:block'>
+          <Image
+            src='/img/mii-logo.svg'
+            alt={alt}
+            width={width}
+            height={height}
+            className='w-auto object-contain'
+            priority={priority}
+          />
+        </div>
+        <div className='block sm:hidden'>
+          <Image
+            src='/img/mii-logo.svg'
+            alt={alt}
+            width={mobileSizes.width}
+            height={mobileSizes.height}
+            className='w-auto object-contain'
+            priority={priority}
+          />
+        </div>
       </div>
     );
   }

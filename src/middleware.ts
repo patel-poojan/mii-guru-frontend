@@ -123,5 +123,7 @@ export const config = {
     '/admin',
     '/termsandconditon',
     '/dashboard',
+    '/report',
+    '/pricing',
   ],
 };

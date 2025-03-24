@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Chart, ChartConfiguration, ChartItem, registerables } from 'chart.js';
 
 // Register all Chart.js components
@@ -10,6 +10,23 @@ const WeeklyBarChart: React.FC = () => {
   // Define proper types for the refs
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<Chart | null>(null);
+  const [windowWidth, setWindowWidth] = useState<number>(
+    typeof window !== 'undefined' ? window.innerWidth : 0
+  );
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', handleResize);
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }
+  }, []);
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -27,28 +44,35 @@ const WeeklyBarChart: React.FC = () => {
     gradient.addColorStop(0, '#ffb347');
     gradient.addColorStop(1, '#ffcc33');
 
+    // Determine if on mobile
+    const isMobile = windowWidth < 768;
+
+    // Create full and abbreviated day names
+    const fullDayNames = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+    const shortDayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
     // Chart configuration with TypeScript
     const config: ChartConfiguration = {
       type: 'bar',
       data: {
-        labels: [
-          'Monday',
-          'Tuesday',
-          'Wednesday',
-          'Thursday',
-          'Friday',
-          'Saturday',
-          'Sunday',
-        ],
+        labels: isMobile ? shortDayNames : fullDayNames,
         datasets: [
           {
-            data: [60, 70, 90, 90, 85, 50, 50],
+            data: [5, 6, 8, 7, 8, 4, 4],
             backgroundColor: gradient,
-            borderRadius: 6,
             borderSkipped: false,
-            // Increase column width
-            barPercentage: 0.8,
-            categoryPercentage: 0.8,
+            // Adjust column width based on screen size
+            barPercentage: isMobile ? 0.9 : 0.8,
+            categoryPercentage: isMobile ? 0.9 : 0.8,
+            borderRadius: 3,
           },
         ],
       },
@@ -66,21 +90,26 @@ const WeeklyBarChart: React.FC = () => {
           },
           tooltip: {
             enabled: true,
-            padding: 12,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            padding: isMobile ? 8 : 12,
+            backgroundColor: 'rgba(40, 40, 40, 0.9)',
             titleFont: {
-              size: 14,
+              size: isMobile ? 12 : 14,
               weight: 'bold',
             },
             bodyFont: {
-              size: 13,
+              size: isMobile ? 11 : 13,
             },
+            boxPadding: isMobile ? 6 : 8,
+            usePointStyle: true,
+            displayColors: false,
             callbacks: {
               title: (items) => {
-                return items[0].label;
+                // Show full day name in tooltip even on mobile
+                const index = shortDayNames.indexOf(items[0].label as string);
+                return index !== -1 ? fullDayNames[index] : items[0].label;
               },
               label: (context) => {
-                return `Value: ${context.raw}%`;
+                return `Study Hours: ${context.raw} hrs`;
               },
             },
           },
@@ -88,38 +117,79 @@ const WeeklyBarChart: React.FC = () => {
         scales: {
           x: {
             grid: {
-              display: false,
-            },
-            ticks: {
-              font: {
-                size: 12,
-                weight: 'bold',
-              },
-              color: '#555',
-            },
-            border: {
-              display: false,
-            },
-          },
-          y: {
-            grid: {
+              display: true,
               color: '#e0e0e0',
               lineWidth: 1,
               drawTicks: false,
             },
             ticks: {
               font: {
-                size: 12,
+                size: isMobile ? 10 : 12,
+                weight: 'bold',
               },
-              color: '#666',
-              padding: 8,
-              callback: (value) => `${value}%`,
+              color: '#555',
+              maxRotation: 0,
+              minRotation: 0,
             },
             border: {
+              display: true,
+              width: 1,
+              color: '#666',
+              dash: [3, 3],
+            },
+            title: {
               display: false,
             },
-            max: 100,
           },
+          y: {
+            grid: {
+              display: true,
+              color: '#e0e0e0',
+              lineWidth: 1,
+              drawTicks: false,
+            },
+            ticks: {
+              font: {
+                size: isMobile ? 10 : 12,
+              },
+              color: '#666',
+              padding: isMobile ? 4 : 8,
+              callback: (value) => `${value}hrs`,
+              stepSize: 4,
+            },
+            border: {
+              display: true,
+              width: 1,
+              color: '#666',
+              dash: [3, 3],
+            },
+            title: {
+              display: false,
+            },
+            max: 24,
+            beginAtZero: true,
+          },
+        },
+        // Set background color to transparent
+        backgroundColor: 'transparent',
+        // Set padding to zero
+        layout: {
+          padding: {
+            top: 10,
+            bottom: 5,
+            left: isMobile ? 0 : 10,
+            right: isMobile ? 0 : 10,
+          },
+        },
+        // Make hover interactions more touch-friendly
+        hover: {
+          mode: 'nearest',
+          intersect: false,
+        },
+        // More responsive interactions
+        interaction: {
+          mode: 'index',
+          intersect: false,
         },
       },
     };
@@ -133,10 +203,10 @@ const WeeklyBarChart: React.FC = () => {
         chartInstance.current.destroy();
       }
     };
-  }, []);
+  }, [windowWidth]); // Redraw chart when window size changes
 
   return (
-    <div className='w-full h-64 relative p-2 bg-white rounded-lg shadow-sm'>
+    <div className='w-full h-48 sm:h-56 md:h-64 relative bg-transparent'>
       <canvas ref={chartRef} />
     </div>
   );

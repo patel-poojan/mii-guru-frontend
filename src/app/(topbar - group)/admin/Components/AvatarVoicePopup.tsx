@@ -112,7 +112,6 @@ const AvatarVoiceMaintenance: React.FC<PopupProps> = ({
         }
       },
       onError(error: axiosError) {
-        console.log('error', error);
         toast.error(
           error?.response?.data?.errors?.message ||
             error?.response?.data?.message ||
@@ -126,7 +125,6 @@ const AvatarVoiceMaintenance: React.FC<PopupProps> = ({
   } = useAvatarVoiceMaintenance({
     onSuccess(data) {
       onClose();
-      console.log('kpp', data);
       toast.success(data?.message);
     },
     onError(error: axiosError) {

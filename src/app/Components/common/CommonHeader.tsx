@@ -21,6 +21,7 @@ import { Loader } from './Loader';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
+import ProfileIcon from './ProfileIcon';
 
 const CommonHeader = () => {
   const [open, setOpen] = useState(false);
@@ -65,7 +66,7 @@ const CommonHeader = () => {
         <div className='flex justify-between items-center  px-4'>
           {/* Logo */}
           <div className='flex-shrink-0'>
-            <CompanyLogo className='w-[120px] sm:w-[140px] md:w-[166px] h-auto' />
+            <CompanyLogo className='w-[110px] md:w-[130px] h-auto' />
           </div>
 
           <div className='flex items-center'>
@@ -83,10 +84,8 @@ const CommonHeader = () => {
               {isClient && (
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button className='h-10 w-10 rounded-full bg-yellow p-0  hover:bg-yellow'>
-                      <span className='font-medium text-lg text-black capitalize'>
-                        {userInfo?.username?.charAt(0) ?? 'U'}
-                      </span>
+                    <Button className='bg-transparent hover:bg-transparent shadow-none h-fit p-0'>
+                      <ProfileIcon h={10} w={10} className='hover:bg-yellow' />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className='w-48 p-2' align='end'>
@@ -140,9 +139,7 @@ const CommonHeader = () => {
                 {isClient && (
                   <div className='p-4 border-b border-gray-100'>
                     <div className='flex items-center gap-3'>
-                      <div className='h-12 w-12 bg-yellow rounded-full flex items-center text-lg justify-center text-lg font-medium text-black'>
-                        {userInfo?.username?.charAt(0) ?? 'U'}
-                      </div>
+                      <ProfileIcon h={12} w={12} />
                       <div className='flex flex-col'>
                         <span className='text-base font-medium text-gray-900'>
                           {userInfo?.username ?? 'User Name'}

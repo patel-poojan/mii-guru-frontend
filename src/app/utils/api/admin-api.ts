@@ -18,7 +18,6 @@ export const useAddAvatar = ({
   useMutation({
     mutationKey: ['add', 'avatar'],
     mutationFn: (data: FormData): Promise<DefaultResponse> => {
-      console.log('data', data);
       return adminAxiosInstance.post(`/upload/avatar`, data);
     },
     onError,
@@ -34,7 +33,6 @@ export const useAddVoice = ({
   useMutation({
     mutationKey: ['add', 'voice'],
     mutationFn: (data: FormData): Promise<DefaultResponse> => {
-      console.log('data', data);
       return adminAxiosInstance.post(`/upload/voice`, data);
     },
     onError,

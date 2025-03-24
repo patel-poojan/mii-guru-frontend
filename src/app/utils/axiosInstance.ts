@@ -29,7 +29,6 @@ const authRequestInterceptor = (config: InternalAxiosRequestConfig) => {
 
   if (!shouldSkipAuth) {
     const authToken = Cookies.get('authToken');
-    console.log('authToken', authToken);
     if (authToken) {
       config.headers.Authorization = `Bearer ${authToken}`;
     } else {
