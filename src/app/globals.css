@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif; 
+  /* font-family: Roboto; */
   background-color: white;
 }
 :root {
@@ -90,10 +91,28 @@ body {
     --cerebral-grey: 0 0% 80%; /* This is the HSL equivalent of #CCCCCC */
   }
 }
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   display: none;
+} */
+
+::-webkit-scrollbar {
+  width: 7px; 
+  height: 10px; 
 }
 
+::-webkit-scrollbar-track {
+  background:transparent;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c2c1c1;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #aaaaaa;
+}
 @layer base {
   * {
     @apply border-border;

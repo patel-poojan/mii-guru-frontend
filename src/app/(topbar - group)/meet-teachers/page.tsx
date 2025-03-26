@@ -1,19 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import axios from "axios";
 import {
   Dialog,
   DialogContent,
-  // DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Card, CardContent } from '@/components/ui/card';
-import { MdOutlineNavigateBefore, MdOutlineNavigateNext } from 'react-icons/md';
+} from "@/components/ui/dialog";
+import { RxDash } from "react-icons/rx";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface FacultyMember {
   id: number;
@@ -22,6 +21,7 @@ interface FacultyMember {
   imageUrl: string;
   syllabus: WeekSection[];
 }
+
 interface WeekSection {
   weeks: string;
   title: string;
@@ -29,7 +29,62 @@ interface WeekSection {
   topics: string[];
 }
 
+interface SyllabusResponse {
+  success: boolean;
+  status: number;
+  message: string;
+  data: {
+    subject: string;
+    class_grade: string;
+    duration: string;
+    weekly_schedule: WeeklySchedule[];
+  };
+}
+
+interface WeeklySchedule {
+  week: number;
+  topics: string;
+  description: string;
+  days: string[];
+  hours_per_session: number;
+  topic_id: string;
+  _matched_topic?: string;
+  _match_attempted?: boolean;
+}
+
 export default function Index() {
+  const [syllabusData, setSyllabusData] = useState<SyllabusResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const base_url = "http://3.6.140.234:8002";
+  const AUTH_TOKEN =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwYXJ0aGt1a2FkaXlhNzFAZ21haWwuY29tIiwiZXhwIjoxNzQzNDEyMzgzLjM4MzI0N30.s3RBtzAD0hFtLUNQ1bZx5GpF3c43NfdlW3-XRzPwPUM";
+const subject ="biology"
+const class_grade = "9"
+  useEffect(() => {
+    const fetchSyllabusData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          `${base_url}/user/syllabus/${subject}?class_grade=${class_grade}`,
+          {
+            headers: {
+              Authorization: `Bearer ${AUTH_TOKEN}`,
+            },
+          }
+        );
+        setSyllabusData(response.data);
+      } catch (err) {
+        console.log("Error fetching syllabus data:", err);
+        setError("Failed to load syllabus data. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSyllabusData();
+  }, []);
+
   const [faculty] = useState<FacultyMember[]>([
     {
       id: 1,
@@ -49,55 +104,7 @@ export default function Index() {
             'Rational & Irrational Numbers',
           ],
         },
-        {
-          weeks: 'Week 3-4',
-          title: 'Algebra',
-          subtitle:
-            'Linear Equations, Polynomials, Factorization, Quadratic Equations',
-          topics: [
-            'Linear Equations',
-            'Polynomials',
-            'Factorization',
-            'Quadratic Equations',
-          ],
-        },
-        {
-          weeks: 'Week 5-6',
-          title: 'Geometry',
-          subtitle: 'Triangles, Circles, Quadrilaterals, Coordinate Geometry',
-          topics: [
-            'Triangles',
-            'Circles',
-            'Quadrilaterals',
-            'Coordinate Geometry',
-          ],
-        },
-        {
-          weeks: 'Week 7-8',
-          title: 'Mensuration',
-          subtitle: 'Area & Volume of 2D and 3D shapes',
-          topics: ['Area of 2D shapes', 'Volume of 3D shapes'],
-        },
-        {
-          weeks: 'Week 9-10',
-          title: 'Probability & Statistics',
-          subtitle: 'Mean, Median, Mode, Probability Basics',
-          topics: ['Mean', 'Median', 'Mode', 'Probability Basics'],
-        },
-        {
-          weeks: 'Week 11-12',
-          title: 'Trigonometry & Introduction to Calculus',
-          subtitle:
-            'Ratios, Identities, Heights & Distances, Limits, Differentiation, Integration',
-          topics: [
-            'Ratios',
-            'Identities',
-            'Heights & Distances',
-            'Limits',
-            'Differentiation',
-            'Integration',
-          ],
-        },
+        // ... other syllabus sections
       ],
     },
     {
@@ -117,60 +124,7 @@ export default function Index() {
             'Gravitation',
           ],
         },
-        {
-          weeks: 'Week 3-4',
-          title: 'Energy & Work',
-          subtitle: 'Energy Forms, Conservation, and Power',
-          topics: [
-            'Work and Energy',
-            'Conservation of Energy',
-            'Power',
-            'Simple Machines',
-          ],
-        },
-        {
-          weeks: 'Week 5-6',
-          title: 'Waves & Sound',
-          subtitle: 'Wave Properties, Sound Waves, and Applications',
-          topics: [
-            'Wave Properties',
-            'Sound Waves',
-            'Doppler Effect',
-            'Musical Instruments',
-          ],
-        },
-        {
-          weeks: 'Week 7-8',
-          title: 'Heat & Thermodynamics',
-          subtitle: 'Temperature, Heat Transfer, and Laws',
-          topics: [
-            'Temperature & Heat',
-            'Heat Transfer',
-            'Laws of Thermodynamics',
-          ],
-        },
-        {
-          weeks: 'Week 9-10',
-          title: 'Electricity & Magnetism',
-          subtitle: 'Electric Charges, Circuits, and Magnetic Fields',
-          topics: [
-            'Electric Charges',
-            'Electric Circuits',
-            'Magnetism',
-            'Electromagnetic Induction',
-          ],
-        },
-        {
-          weeks: 'Week 11-12',
-          title: 'Modern Physics',
-          subtitle: 'Atomic Structure, Light, and Nuclear Physics',
-          topics: [
-            'Atomic Structure',
-            'Photoelectric Effect',
-            'Nuclear Physics',
-            'Relativity Basics',
-          ],
-        },
+        // ... other syllabus sections
       ],
     },
     {
@@ -190,61 +144,7 @@ export default function Index() {
             'Cell Transport',
           ],
         },
-        {
-          weeks: 'Week 3-4',
-          title: 'Human Physiology I',
-          subtitle: 'Digestive and Respiratory Systems',
-          topics: [
-            'Digestive System',
-            'Nutrition',
-            'Respiratory System',
-            'Gas Exchange',
-          ],
-        },
-        {
-          weeks: 'Week 5-6',
-          title: 'Human Physiology II',
-          subtitle: 'Circulatory and Nervous Systems',
-          topics: [
-            'Circulatory System',
-            'Blood',
-            'Nervous System',
-            'Brain Functions',
-          ],
-        },
-        {
-          weeks: 'Week 7-8',
-          title: 'Genetics',
-          subtitle: 'Inheritance and DNA',
-          topics: [
-            'DNA Structure',
-            'Inheritance',
-            'Genetic Disorders',
-            'Evolution',
-          ],
-        },
-        {
-          weeks: 'Week 9-10',
-          title: 'Ecology',
-          subtitle: 'Ecosystems and Environmental Biology',
-          topics: [
-            'Ecosystems',
-            'Food Chains',
-            'Biodiversity',
-            'Environmental Conservation',
-          ],
-        },
-        {
-          weeks: 'Week 11-12',
-          title: 'Plant Biology',
-          subtitle: 'Plant Structure, Function, and Reproduction',
-          topics: [
-            'Plant Anatomy',
-            'Photosynthesis',
-            'Plant Reproduction',
-            'Plant Responses',
-          ],
-        },
+        // ... other syllabus sections
       ],
     },
     {
@@ -265,62 +165,36 @@ export default function Index() {
             'Rational & Irrational Numbers',
           ],
         },
-        {
-          weeks: 'Week 3-4',
-          title: 'Algebra',
-          subtitle:
-            'Linear Equations, Polynomials, Factorization, Quadratic Equations',
-          topics: [
-            'Linear Equations',
-            'Polynomials',
-            'Factorization',
-            'Quadratic Equations',
-          ],
-        },
-        {
-          weeks: 'Week 5-6',
-          title: 'Geometry',
-          subtitle: 'Triangles, Circles, Quadrilaterals, Coordinate Geometry',
-          topics: [
-            'Triangles',
-            'Circles',
-            'Quadrilaterals',
-            'Coordinate Geometry',
-          ],
-        },
-        {
-          weeks: 'Week 7-8',
-          title: 'Mensuration',
-          subtitle: 'Area & Volume of 2D and 3D shapes',
-          topics: ['Area of 2D shapes', 'Volume of 3D shapes'],
-        },
-        {
-          weeks: 'Week 9-10',
-          title: 'Probability & Statistics',
-          subtitle: 'Mean, Median, Mode, Probability Basics',
-          topics: ['Mean', 'Median', 'Mode', 'Probability Basics'],
-        },
-        {
-          weeks: 'Week 11-12',
-          title: 'Trigonometry & Introduction to Calculus',
-          subtitle:
-            'Ratios, Identities, Heights & Distances, Limits, Differentiation, Integration',
-          topics: [
-            'Ratios',
-            'Identities',
-            'Heights & Distances',
-            'Limits',
-            'Differentiation',
-            'Integration',
-          ],
-        },
+        // ... other syllabus sections
       ],
     },
   ]);
-
-  const [openedTeacherId, setOpenedTeacherId] = useState<number>(1);
-  const currentTeacher = faculty.find(
-    (teacher) => teacher.id === openedTeacherId
+  
+  const [ , setOpenedTeacherId] = useState<number>();
+  const [topic_id, setTopicId] = useState<string>("");
+  
+  const handleTopicClick = (id:string) => {
+    setTopicId(id);
+  }
+  
+  useEffect(() => {
+    if (topic_id) {
+      window.alert(topic_id);
+    }
+  }, [topic_id]);
+  const SyllabusSkeleton = () => (
+    <div className="w-full mx-auto space-y-4 pl-3 md:pl-0">
+      <ol className="relative border-l-2 border-gray-300 border-dashed">
+        {[1, 2, 3, 4].map((_, index) => (
+          <li key={index} className="mb-10 ms-6 md:ms-8">
+            <div className="absolute w-3 h-3 bg-gray-400 rounded-full mt-1 -start-1.5 border border-white"></div>
+            <Skeleton className="mb-3 h-8 w-32 rounded-lg bg-primary/30 " />
+            <Skeleton className="mb-2 h-6 w-full max-w-md bg-primary/20" />
+            <Skeleton className="mb-4 h-5 w-full max-w-xl bg-primary/20" />
+          </li>
+        ))}
+      </ol>
+    </div>
   );
   return (
     <>
@@ -356,131 +230,58 @@ export default function Index() {
                   </div>
                 </button>
               </DialogTrigger>
-              <DialogContent className='h-[96%] w-[96%] rounded-xl md:rounded-2xl p-3 md:p-8 overflow-y-auto'>
-                <DialogHeader>
-                  <DialogTitle className='text-xl text-left font-[600] tracking-normal  border-b-2 pb-4  border-[var(--MainLight-color)] flex flex-col md:flex-row'>
-                    Study Plan & Syllabus{' '}
-                    <span className='text-[var(--MainLight-color)] md:ml-2'>
-                      {' '}
-                      {
-                        faculty.find(
-                          (teacher) => teacher.id === openedTeacherId
-                        )?.subject
-                      }{' '}
-                      -{' '}
-                      {
-                        faculty.find(
-                          (teacher) => teacher.id === openedTeacherId
-                        )?.name
-                      }
-                    </span>
-                  </DialogTitle>
-                  {/* <DialogDescription>xyz</DialogDescription> */}
-                </DialogHeader>
-                <div className='min-h-screen w-full mx-auto grid grid-cols-1 md:grid-cols-[1fr_0.2fr] md:gap-4'>
-                  <div className='w-full mx-auto space-y-4 mt-2'>
-                    {faculty
-                      .find((teacher) => teacher.id === openedTeacherId)
-                      ?.syllabus.map((section, index) => (
-                        // {faculty.find()openedTeacherId.syllabus.map((section, index) => (
-                        <Card
-                          key={index}
-                          className='group shadow-md transition-all duration-300 bg-[var(--Secondary-color)] border-none'
-                        >
-                          <CardContent className='p-4 md:p-6'>
-                            <div className='space-y-2'>
-                              <div className='flex items-start justify-between w-full'>
-                                <div className='w-full'>
-                                  <h2 className='text-lg md:text-xl font-[600] text-gray-900 border-b-4 pb-2 mb-2 border-white'>
-                                    {section.weeks}
-                                  </h2>
-                                  <h3 className=' font-[600] text-gray-800'>
-                                    {section.title}
-                                  </h3>
-                                </div>
-                              </div>
-                              <p className='text-sm md:text-base text-gray-600'>
-                                <li>{section.subtitle}</li>
-                              </p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                  </div>
-                  <div className='hidden md:flex flex-col w-full gap-3'>
-                    <Image
-                      src={
-                        currentTeacher?.imageUrl.toString() ||
-                        '/placeholder.svg'
-                      }
-                      width={500}
-                      height={500}
-                      alt='teacher'
-                      className=' rounded-xl mx-auto'
-                    />
-                    <div className='flex justify-center gap-6'>
-                      <Button
-                        className='h-10 md:h-10 w-10 text-small md:text-regular px-4 bg-[var(--MainLight-color)] hover:bg-[var(--MainLight-color)] text-gray-900 font-medium'
-                        disabled={openedTeacherId === 1}
-                        onClick={() => {
-                          // if (openedTeacherId === faculty.length) {
-                          //   setOpenedTeacherId(1);
-                          // } else {
-                          setOpenedTeacherId(openedTeacherId - 1);
-                          // }
-                        }}
-                      >
-                        <MdOutlineNavigateBefore className='h-10 w-10 scale-[2]' />
-                      </Button>
-                      <Button
-                        className='h-10 md:h-10 w-10  px-4 bg-[var(--MainLight-color)] hover:bg-[var(--MainLight-color)] text-gray-900 font-medium'
-                        disabled={openedTeacherId === faculty.length}
-                        onClick={() => {
-                          // if (openedTeacherId === 2) {
-                          //   setOpenedTeacherId(1);
-                          // } else {
-                          setOpenedTeacherId(openedTeacherId + 1);
-                          // }
-                        }}
-                      >
-                        <MdOutlineNavigateNext className='h-10 w-10 scale-[2]' />
-                      </Button>
-                    </div>
-                  </div>
 
-                  <div className='flex justify-between py-4 pb-8 col-span-2'>
-                    <Button
-                      className={`"h-10 md:h-12 text-small md:text-regular px-4 bg-[var(--MainLight-color)] hover:bg-[var(--MainLight-color)] text-gray-900 font-medium ${
-                        openedTeacherId === 1 ? 'opacity-0 cursor-default' : ''
-                      }`}
-                      disabled={openedTeacherId === 1}
-                      onClick={() => {
-                        // if (openedTeacherId === 1) {
-                        //   setOpenedTeacherId(1);
-                        // } else {
-                        setOpenedTeacherId(openedTeacherId - 1);
-                        // }
-                      }}
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      className='h-10 md:h-12 text-small md:text-regular px-4 bg-[var(--MainLight-color)] hover:bg-[var(--MainLight-color)] text-gray-900 font-medium'
-                      disabled={openedTeacherId === faculty.length}
-                      onClick={() => {
-                        // if (openedTeacherId === faculty.length) {
-                        //   setOpenedTeacherId(1);
-                        // } else {
-                        setOpenedTeacherId(openedTeacherId + 1);
-                        // }
-                      }}
-                    >
-                      Next Teacher
-                    </Button>
-                  </div>
+              <DialogContent className="h-[96%] lg:h-[90%] w-[96%] lg:w-[60%] rounded-xl md:rounded-2xl p-0 flex flex-col">
+                <div className="sticky top-0 z-10 bg-white p-6 pb-4 border-b-2 border-[var(--MainLight-color)] rounded-t-xl">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl text-left font-[600] tracking-normal flex flex-col md:flex-row">
+                      Study Plan & Syllabus{" "}
+                      <span className="text-[var(--MainLight-color)] md:ml-2">
+                        {syllabusData?.data?.subject ? 
+                          syllabusData.data.subject.substring(0, 1).toUpperCase() + 
+                          syllabusData.data.subject.substring(1) : 
+                          teacher.subject}
+                      </span>{" "}
+                      <span className="text-[var(--MainLight-color)] md:ml-2">
+                        ({syllabusData?.data?.duration || "3 months"})
+                      </span>
+                    </DialogTitle>
+                  </DialogHeader>
                 </div>
-
-                <DialogFooter></DialogFooter>
+                
+                <div className="flex-1 overflow-y-auto p-3 md:p-8 pt-4">
+                  {loading ? (
+                    <SyllabusSkeleton />
+                  ) : error ? (
+                    <div className="flex text-lg justify-center items-center font-[600] text-center h-40 text-red-300">
+                      <p>{error}</p>
+                    </div>
+                  ) : (
+                    <div className="w-full mx-auto space-y-4 pl-3 md:pl-0">
+                      <ol className="relative border-l-2 border-[var(--MainLight-color)] border-dashed">
+                        {syllabusData?.data?.weekly_schedule?.map((ele) => (
+                          <li key={ele.topic_id || ele.week} className="mb-7 ms-6 md:ms-8">
+                            <div className="absolute w-3 h-3 bg-black/50 rounded-full mt-1 -start-1.5 border border-white"></div>
+                            <h1 className="mb-3 text-base font-[600] leading-none bg-[var(--Secondary-color)] w-fit rounded-lg px-3 py-2">
+                              Week {ele.week}{" "}-{" "}{ele.week + 1}
+                            </h1>
+                            <button 
+                              className="mb-1 text-lg font-[500] text-gray-900" 
+                              onClick={() => handleTopicClick(ele?.topic_id)}
+                            >
+                              {ele.topics}
+                            </button>
+                            <p className="mb-4 text-base font-normal text-gray-500 flex gap-1 place-items-start">
+                              <RxDash className="scale-x-150 size-5 text-black font-[600]" />
+                              {ele.description}
+                            </p>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+                </div>
+                <DialogFooter className="p-1"></DialogFooter>
               </DialogContent>
             </Dialog>
           ))}
