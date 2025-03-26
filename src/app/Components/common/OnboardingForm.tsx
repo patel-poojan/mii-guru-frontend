@@ -479,7 +479,10 @@ const OnboardingForm = ({ userId }: { userId?: string }) => {
           sameSite: 'Lax',
           secure: true,
         });
-        router.push('/meet-teachers');
+
+        setTimeout(() => {
+          router.push('/meet-teachers');
+        }, 200);
       }
     },
     onError(error: axiosError) {

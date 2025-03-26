@@ -29,9 +29,10 @@ type User = {
   is_verified: boolean;
   created_at: string;
   provider: string;
-  roles: string[];
+  roles: string;
   last_login: string;
   tracking: UserTracking;
+  photo: string;
 };
 
 // Main authentication response interface
@@ -102,6 +103,9 @@ export const useLogout = ({
     mutationFn: () => {
       Cookies.remove('authToken');
       Cookies.remove('userInfo');
+      Cookies.remove('role');
+      Cookies.remove('photo');
+      localStorage.clear();
       const response: DefaultResponse = {
         statusCode: 200,
         data: null,

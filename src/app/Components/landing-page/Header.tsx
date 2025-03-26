@@ -65,7 +65,7 @@ const Header = () => {
                 <Menu className='text-xl' />
               </Button>
             </SheetTrigger>
-            <SheetContent side='left' className='w-72 p-0 [&>button]:hidden'>
+            <SheetContent side='right' className='w-72 p-0 [&>button]:hidden'>
               <SheetHeader className='border-b p-4 text-left'>
                 <div className='flex justify-between items-center'>
                   <SheetTitle className='text-lg font-medium'>

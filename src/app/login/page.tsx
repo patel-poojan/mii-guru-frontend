@@ -13,6 +13,7 @@ import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import { Loader } from '../Components/common/Loader';
 import GoogleButton from '../Components/common/GoogleButton';
+import { storeProfileImage } from '../utils/storeProfileImage';
 
 // Interfaces and Types
 interface FormData {
@@ -99,13 +100,29 @@ const LoginPage = () => {
           sameSite: 'Lax',
           secure: true,
         });
+        const role = data?.data?.user?.roles;
+        Cookies.set('role', JSON.stringify(role), {
+          path: '/',
+          sameSite: 'Lax',
+          secure: true,
+        });
         const userInfo = data?.data?.user?.tracking;
         Cookies.set('userInfo', JSON.stringify(userInfo), {
           path: '/',
           sameSite: 'Lax',
           secure: true,
         });
-        router.push('/termsandconditon');
+        const photo = data?.data?.user?.photo;
+        // Cookies.set('photo', JSON.stringify(photo), {
+        //   path: '/',
+        //   sameSite: 'Lax',
+        //   secure: true,
+        // });
+        storeProfileImage(photo);
+        console.log('photo', photo);
+        setTimeout(() => {
+          router.push('/termsandconditon');
+        }, 200);
       }
       toast.success(data?.message);
     },

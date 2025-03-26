@@ -26,7 +26,6 @@ import ProfileIcon from './ProfileIcon';
 const CommonHeader = () => {
   const [open, setOpen] = useState(false);
   const [userInfo, setUserInfo] = useState({ username: '', email: '' });
-  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const navLinks = [
     { href: '#Dashboard', label: 'Dashboard' },
@@ -39,19 +38,14 @@ const CommonHeader = () => {
     },
   });
 
-  // Set isClient to true when component mounts (client-side only)
   useEffect(() => {
-    setIsClient(true);
-    const info = Cookies.get('userInfo');
-    try {
+    if (typeof window !== 'undefined') {
+      const info = Cookies.get('userInfo');
       if (info) {
         setUserInfo(JSON.parse(info));
       }
-    } catch (error) {
-      console.error('Error parsing userInfo from cookie:', error);
     }
   }, []);
-
   const logoutHandler = () => {
     onLogout();
   };
@@ -81,36 +75,34 @@ const CommonHeader = () => {
                   {link.label}
                 </a>
               ))}
-              {isClient && (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button className='bg-transparent hover:bg-transparent shadow-none h-fit p-0'>
-                      <ProfileIcon h={10} w={10} className='hover:bg-yellow' />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className='w-48 p-2' align='end'>
-                    <div className='flex flex-col gap-2'>
-                      <div className='px-2 py-1.5'>
-                        <p className='text-sm font-medium text-gray-900'>
-                          {userInfo?.username ?? 'User Name'}
-                        </p>
-                        <p className='text-xs text-gray-500'>
-                          {userInfo?.email ?? 'user@email.com'}
-                        </p>
-                      </div>
-                      <div className='px-2'>
-                        <Button
-                          variant='outline'
-                          className='w-full justify-center'
-                          onClick={() => logoutHandler()}
-                        >
-                          Sign out
-                        </Button>
-                      </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button className='bg-transparent hover:bg-transparent shadow-none h-fit p-0'>
+                    <ProfileIcon h={10} w={10} className='hover:bg-yellow' />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className='w-48 p-2' align='end'>
+                  <div className='flex flex-col gap-2'>
+                    <div className='px-2 py-1.5'>
+                      <p className='text-sm font-medium text-gray-900 capitalize'>
+                        {userInfo?.username ?? 'User Name'}
+                      </p>
+                      <p className='text-xs text-gray-500'>
+                        {userInfo?.email ?? 'user@email.com'}
+                      </p>
                     </div>
-                  </PopoverContent>
-                </Popover>
-              )}
+                    <div className='px-2'>
+                      <Button
+                        variant='outline'
+                        className='w-full justify-center'
+                        onClick={() => logoutHandler()}
+                      >
+                        Sign out
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* Mobile Menu */}
@@ -127,7 +119,7 @@ const CommonHeader = () => {
                     <SheetTitle className='text-lg font-medium text-gray-900 sr-only'>
                       Menu
                     </SheetTitle>
-                    <CompanyLogo className='w-[120px] sm:w-[140px] md:w-[166px] h-auto' />
+                    <CompanyLogo className='w-[110px] sm:w-[130px] md:w-[150px] h-auto' />
                     <SheetClose className='rounded-full p-1 hover:bg-gray-100 transition-colors'>
                       <X className='h-5 w-5 text-gray-500' />
                       <span className='sr-only'>Close menu</span>
@@ -136,21 +128,20 @@ const CommonHeader = () => {
                 </SheetHeader>
 
                 {/* Profile Section */}
-                {isClient && (
-                  <div className='p-4 border-b border-gray-100'>
-                    <div className='flex items-center gap-3'>
-                      <ProfileIcon h={12} w={12} />
-                      <div className='flex flex-col'>
-                        <span className='text-base font-medium text-gray-900'>
-                          {userInfo?.username ?? 'User Name'}
-                        </span>
-                        <span className='text-sm text-gray-500'>
-                          {userInfo?.email ?? 'user@email.com'}
-                        </span>
-                      </div>
+
+                <div className='p-4 border-b border-gray-100'>
+                  <div className='flex items-center gap-3'>
+                    <ProfileIcon h={12} w={12} />
+                    <div className='flex flex-col'>
+                      <span className='text-base font-medium text-gray-900'>
+                        {userInfo?.username ?? 'User Name'}
+                      </span>
+                      <span className='text-sm text-gray-500'>
+                        {userInfo?.email ?? 'user@email.com'}
+                      </span>
                     </div>
                   </div>
-                )}
+                </div>
 
                 {/* Navigation Links */}
                 <nav className='py-2' aria-label='Main navigation'>

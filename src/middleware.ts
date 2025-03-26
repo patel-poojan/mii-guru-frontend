@@ -1,116 +1,145 @@
 import { jwtDecode } from 'jwt-decode';
 import { NextResponse, NextRequest } from 'next/server';
 
+// Define constants for paths to avoid typos and improve maintainability
+const PATHS = {
+  LOGIN: '/login',
+  ADMIN: '/admin',
+  DASHBOARD: '/dashboard',
+  TERMS: '/termsandconditon',
+  ONBOARDING: '/onboarding',
+  MEET_TEACHERS: '/meet-teachers',
+};
+
+// Helper functions to improve readability
+const parseJSONSafely = <T>(jsonString: string, defaultValue: T): T => {
+  try {
+    return JSON.parse(jsonString) as T;
+  } catch (error) {
+    console.log(`Parsing failed: ${error}`);
+    return defaultValue;
+  }
+};
+
+const isAdmin = (role: string | null | undefined): boolean => {
+  if (!role) return false;
+
+  return (
+    role === 'admin' ||
+    (typeof role === 'string' && role.trim().toLowerCase() === 'admin')
+  );
+};
+
+const redirectTo = (request: NextRequest, path: string) => {
+  return NextResponse.redirect(new URL(path, request.url));
+};
+
 export default function middleware(request: NextRequest) {
   const pathName = request.nextUrl.pathname;
+
   try {
-    // Retrieve the token from cookies
+    // Retrieve cookies
     const token = request.cookies.get('authToken')?.value || '';
     const userInfo = request.cookies.get('userInfo')?.value || '';
-    // If no token is found and not on login page, redirect to the home page
-    if (pathName === '/login' && !token) {
+    const role = parseJSONSafely(request.cookies.get('role')?.value || '', '');
+
+    // Handle no token cases
+    if (pathName === PATHS.LOGIN && !token) {
       return NextResponse.next();
     }
 
     if (!token) {
-      return NextResponse.redirect(new URL('/', request.url));
+      return redirectTo(request, PATHS.LOGIN);
     }
 
-    // Decode the token and check its expiration
+    // Validate token
     const decoded = jwtDecode<{ exp: number }>(token);
-    const isTokenValid = decoded.exp * 1000 > new Date().getTime();
+    const isTokenValid = decoded.exp * 1000 > Date.now();
 
-    // If token is expired, redirect to home page
     if (!isTokenValid) {
-      if (pathName === '/login') {
+      return pathName === PATHS.LOGIN
+        ? NextResponse.next()
+        : redirectTo(request, PATHS.LOGIN);
+    }
+
+    // Admin role handling
+    if (isAdmin(role)) {
+      if (pathName === PATHS.ADMIN) {
         return NextResponse.next();
       }
-      return NextResponse.redirect(new URL('/', request.url));
+      return redirectTo(request, PATHS.ADMIN);
     }
 
-    // If user is on login page with a valid token, redirect to appropriate page based on their progress
-    if (pathName === '/login' && isTokenValid) {
-      return NextResponse.redirect(new URL('/onboarding', request.url));
+    // Non-admin trying to access admin page
+    if (pathName === PATHS.ADMIN) {
+      return redirectTo(request, PATHS.DASHBOARD);
     }
 
-    // Parse user info for tracking data
-    let objectOfUserInfo;
-
-    try {
-      if (userInfo) {
-        objectOfUserInfo = JSON.parse(userInfo);
-      } else {
-        objectOfUserInfo = {
-          termsAccepted: false,
-          onboardingCompleted: false,
-          introductionViewed: false,
-        };
-      }
-    } catch (error) {
-      // If userInfo is invalid JSON, treat as if the user has not accepted terms
-      console.error('Error parsing userInfo:', error);
-      objectOfUserInfo = {
-        termsAccepted: false,
-        onboardingCompleted: false,
-        introductionViewed: false,
-      };
+    // Logged-in user trying to access login page
+    if (pathName === PATHS.LOGIN && isTokenValid) {
+      return redirectTo(request, PATHS.ONBOARDING);
     }
 
-    const isTermsAccepted = objectOfUserInfo?.termsAccepted === true;
-    const isOnboardingCompleted =
-      objectOfUserInfo?.onboardingCompleted === true;
-    const isIntroductionViewed = objectOfUserInfo?.introductionViewed === true;
+    // User onboarding flow
+    const userProgress = parseJSONSafely(userInfo, {
+      termsAccepted: false,
+      onboardingCompleted: false,
+      introductionViewed: false,
+    });
 
-    // Handle the flow based on completion status
+    const { termsAccepted, onboardingCompleted, introductionViewed } =
+      userProgress;
 
-    // Step 1: If user tries to access any of the three onboarding pages after completing all steps
-    if (isTermsAccepted && isOnboardingCompleted && isIntroductionViewed) {
-      if (
-        pathName === '/termsandconditon' ||
-        pathName === '/onboarding' ||
-        pathName === '/meet-teachers'
-      ) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+    // All steps completed
+    if (termsAccepted && onboardingCompleted && introductionViewed) {
+      const onboardingPages = [
+        PATHS.TERMS,
+        PATHS.ONBOARDING,
+        PATHS.MEET_TEACHERS,
+      ];
+      if (onboardingPages.includes(pathName)) {
+        return redirectTo(request, PATHS.DASHBOARD);
       }
       return NextResponse.next();
     }
 
-    // Step 2: Terms and Conditions
-    if (!isTermsAccepted) {
-      // If user hasn't accepted terms, they should only access the terms page
-      if (pathName !== '/termsandconditon' && pathName !== '/login') {
-        return NextResponse.redirect(new URL('/termsandconditon', request.url));
-      }
-      return NextResponse.next();
+    // Step 1: Terms and Conditions
+    if (
+      !termsAccepted &&
+      pathName !== PATHS.TERMS &&
+      pathName !== PATHS.LOGIN
+    ) {
+      return redirectTo(request, PATHS.TERMS);
     }
 
-    // Step 3: Onboarding
-    if (isTermsAccepted && !isOnboardingCompleted) {
-      // If user has accepted terms but not completed onboarding, redirect to onboarding
-      if (pathName !== '/onboarding' && pathName !== '/login') {
-        return NextResponse.redirect(new URL('/onboarding', request.url));
-      }
-      return NextResponse.next();
+    // Step 2: Onboarding
+    if (
+      termsAccepted &&
+      !onboardingCompleted &&
+      pathName !== PATHS.ONBOARDING &&
+      pathName !== PATHS.LOGIN
+    ) {
+      return redirectTo(request, PATHS.ONBOARDING);
     }
 
-    // Step 4: Introduction/Meet Teachers
-    if (isTermsAccepted && isOnboardingCompleted && !isIntroductionViewed) {
-      // If user has completed onboarding but not viewed introduction, redirect to meet-teachers
-      if (pathName !== '/meet-teachers' && pathName !== '/login') {
-        return NextResponse.redirect(new URL('/meet-teachers', request.url));
-      }
-      return NextResponse.next();
+    // Step 3: Meet Teachers
+    if (
+      termsAccepted &&
+      onboardingCompleted &&
+      !introductionViewed &&
+      pathName !== PATHS.MEET_TEACHERS &&
+      pathName !== PATHS.LOGIN
+    ) {
+      return redirectTo(request, PATHS.MEET_TEACHERS);
     }
 
-    // If all checks pass, allow access to the requested page
+    // If all checks pass
     return NextResponse.next();
   } catch (error) {
-    // If there's an error (e.g., invalid token), redirect to the home page
-    if (pathName === '/login') {
-      return NextResponse.next();
-    }
-    console.error('Error in middleware:', error);
-    return NextResponse.redirect(new URL('/', request.url));
+    console.error('Middleware error:', error);
+    return pathName === PATHS.LOGIN
+      ? NextResponse.next()
+      : redirectTo(request, PATHS.LOGIN);
   }
 }
 

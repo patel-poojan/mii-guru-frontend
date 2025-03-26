@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -89,6 +89,7 @@ const COMMON_STYLES = {
 const AdminDashboard: React.FC = () => {
   // State
   const [isUploadIndex, setIsUploadIndex] = useState(false);
+  const initialFetchRef = useRef(false);
   const [formState, setFormState] = useState<FormState>({
     avatar: { name: '', file: { file: null } },
     voice: { description: '', file: { file: null } },
@@ -398,14 +399,20 @@ const AdminDashboard: React.FC = () => {
         );
       },
     });
+
   useEffect(() => {
-    // Fetch data on component mount
-    onGetClasses();
-    onGetSubjects();
-    onGetAvatar();
-    onGetVoice();
+    // Only fetch data on first mount, not on subsequent re-renders
+    if (!initialFetchRef.current) {
+      // Execute API calls
+      onGetClasses();
+      onGetSubjects();
+      onGetAvatar();
+      onGetVoice();
+
+      // Set the ref to true so it doesn't run again
+      initialFetchRef.current = true;
+    }
   }, [onGetClasses, onGetSubjects, onGetAvatar, onGetVoice]);
-  // Post API Calls
   const { mutate: onUploadAvatar, isPending: isPendingUploadAvatar } =
     useAddAvatar({
       onSuccess(data) {

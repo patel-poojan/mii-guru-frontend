@@ -27,7 +27,9 @@ const Page = () => {
           sameSite: 'Lax',
           secure: true,
         });
-        router.push('/onboarding');
+        setTimeout(() => {
+          router.push('/onboarding');
+        }, 200);
       }
     },
     onError(error: axiosError) {
@@ -360,7 +362,7 @@ const Page = () => {
       </div>
 
       {/* Contact Section and Agreement */}
-      <div className={sectionClass}>
+      <div className={`${sectionClass} !mb-0`}>
         <h2 className={headingClass}>6. Contact Us</h2>
         <p className={paragraphClass}>
           Please contact us if you need to change or correct your Personal

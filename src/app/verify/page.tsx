@@ -8,6 +8,7 @@ import EmailSucessCard from '../Components/common/EmailSucessCard';
 import { Loader } from '../Components/common/Loader';
 import { useResendEmailForSignup, useVerifyEmail } from '../utils/api/auth-api';
 import { axiosError } from '../types/axiosTypes';
+import { storeProfileImage } from '../utils/storeProfileImage';
 
 const Verify = () => {
   const searchParams = useSearchParams();
@@ -23,13 +24,28 @@ const Verify = () => {
           sameSite: 'Lax',
           secure: true,
         });
+        const role = data?.data?.user?.roles;
+        Cookies.set('role', JSON.stringify(role), {
+          path: '/',
+          sameSite: 'Lax',
+          secure: true,
+        });
         const userInfo = data?.data?.user?.tracking;
         Cookies.set('userInfo', JSON.stringify(userInfo), {
           path: '/',
           sameSite: 'Lax',
           secure: true,
         });
-        router.push('/onboarding');
+        const photo = data?.data?.user?.photo;
+        // Cookies.set('photo', JSON.stringify(photo), {
+        //   path: '/',
+        //   sameSite: 'Lax',
+        //   secure: true,
+        // });
+        storeProfileImage(photo);
+        setTimeout(() => {
+          router.push('/termsandconditon');
+        }, 200);
       } else {
         router.push('/login');
       }
