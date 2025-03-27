@@ -1,5 +1,11 @@
 'use client';
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useMemo,
+} from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -87,6 +93,15 @@ const COMMON_STYLES = {
 } as const;
 
 const AdminDashboard: React.FC = () => {
+  const zipCollection = useMemo(
+    () => [
+      'application/zip',
+      'application/x-zip',
+      'application/x-zip-compressed',
+      'application/octet-stream',
+    ],
+    []
+  );
   // State
   const [isUploadIndex, setIsUploadIndex] = useState(false);
   const initialFetchRef = useRef(false);
@@ -246,15 +261,16 @@ const AdminDashboard: React.FC = () => {
           ) {
             errors.push('Content file must be in PDF format');
           }
-          if (
-            !isUploadIndex &&
-            formState.content.file.file &&
-            !['application/pdf', 'application/zip'].includes(
-              formState.content.file.file.type
-            )
-          ) {
-            errors.push('Content file must be in PDF or ZIP format');
+          if (!isUploadIndex && formState.content.file.file) {
+            const fileType = formState.content.file.file.type;
+            const isPdf = fileType === 'application/pdf';
+            const isZip = zipCollection.includes(fileType);
+
+            if (!isPdf && !isZip) {
+              errors.push('Content file must be in PDF or ZIP format');
+            }
           }
+
           break;
 
         case 'maintenance':
@@ -593,8 +609,8 @@ const AdminDashboard: React.FC = () => {
               formData.append('pdf_file', file as Blob);
               await onUploadSyllabusPdf(formData);
             }
-          } else if (fileType === 'application/zip') {
-            // Handle ZIP file upload
+          } else if (zipCollection.includes(fileType)) {
+            // Handle ZIP file upload with all possible MIME types
             formData.append('zip_file', file as Blob);
             await onUploadSyllabusZip(formData);
           } else {
@@ -639,6 +655,7 @@ const AdminDashboard: React.FC = () => {
       onUploadSyllabusZip,
       onUploadVoice,
       validateForm,
+      zipCollection,
     ]
   );
 
@@ -838,7 +855,9 @@ const AdminDashboard: React.FC = () => {
                 <div className='flex flex-col sm:flex-row items-start sm:items-stretch gap-4 h-full w-full'>
                   {renderFileUpload(
                     'content',
-                    'application/pdf',
+                    isUploadIndex
+                      ? 'application/pdf'
+                      : 'application/pdf,application/zip,application/x-zip,application/x-zip-compressed,application/octet-stream',
                     '/img/backup.svg'
                   )}
                   <div className='flex-1 w-full'>
@@ -942,11 +961,22 @@ const AdminDashboard: React.FC = () => {
                       <SelectValue placeholder='Select Class' />
                     </SelectTrigger>
                     <SelectContent>
-                      {options.classOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
+                      {isPendingGetClasses ? (
+                        <div className='p-2 text-center'>
+                          <span className='animate-pulse'>Loading...</span>
+                        </div>
+                      ) : options.classOptions &&
+                        options.classOptions.length > 0 ? (
+                        options.classOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className='p-2 text-center text-gray-500'>
+                          No classes available
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -965,11 +995,22 @@ const AdminDashboard: React.FC = () => {
                       <SelectValue placeholder='Select Subject' />
                     </SelectTrigger>
                     <SelectContent>
-                      {options.subjectOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
+                      {isPendingGetSubjects ? (
+                        <div className='p-2 text-center'>
+                          <span className='animate-pulse'>Loading...</span>
+                        </div>
+                      ) : options.subjectOptions &&
+                        options.subjectOptions.length > 0 ? (
+                        options.subjectOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className='p-2 text-center text-gray-500'>
+                          No subjects available
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -990,11 +1031,22 @@ const AdminDashboard: React.FC = () => {
                       <SelectValue placeholder='Select Avatar' />
                     </SelectTrigger>
                     <SelectContent>
-                      {options.avatarOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
+                      {isPendingGetAvatar ? (
+                        <div className='p-2 text-center'>
+                          <span className='animate-pulse'>Loading...</span>
+                        </div>
+                      ) : options.avatarOptions &&
+                        options.avatarOptions.length > 0 ? (
+                        options.avatarOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className='p-2 text-center text-gray-500'>
+                          No avatars available
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -1013,11 +1065,22 @@ const AdminDashboard: React.FC = () => {
                       <SelectValue placeholder='Select Voice' />
                     </SelectTrigger>
                     <SelectContent>
-                      {options.voiceOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
+                      {isPendingGetVoice ? (
+                        <div className='p-2 text-center'>
+                          <span className='animate-pulse'>Loading...</span>
+                        </div>
+                      ) : options.voiceOptions &&
+                        options.voiceOptions.length > 0 ? (
+                        options.voiceOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className='p-2 text-center text-gray-500'>
+                          No voice options available
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>

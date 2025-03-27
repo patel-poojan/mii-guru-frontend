@@ -1,6 +1,6 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import Cookies from 'js-cookie';
 import ExpiredLinkCard from '../Components/common/ExpiredLinkCard';
@@ -15,8 +15,13 @@ const Verify = () => {
   const token = searchParams.get('token') || '';
   const emailId = searchParams.get('email') || '';
   const router = useRouter();
+  // Add a state to track if verification has completed
+  const [verificationComplete, setVerificationComplete] = useState(false);
+  const [verificationFailed, setVerificationFailed] = useState(false);
+
   const { mutate: verify, isPending: isPendingVerifyEmail } = useVerifyEmail({
     onSuccess(data) {
+      setVerificationComplete(true);
       const token = data?.data?.access_token;
       if (token) {
         Cookies.set('authToken', token, {
@@ -37,11 +42,6 @@ const Verify = () => {
           secure: true,
         });
         const photo = data?.data?.user?.photo;
-        // Cookies.set('photo', JSON.stringify(photo), {
-        //   path: '/',
-        //   sameSite: 'Lax',
-        //   secure: true,
-        // });
         storeProfileImage(photo);
         setTimeout(() => {
           router.push('/termsandconditon');
@@ -52,6 +52,8 @@ const Verify = () => {
       toast.success(data?.message);
     },
     onError(error: axiosError) {
+      setVerificationComplete(true);
+      setVerificationFailed(true);
       const errorMessage =
         error?.response?.data?.errors?.message ||
         error?.response?.data?.message ||
@@ -59,9 +61,14 @@ const Verify = () => {
       toast.error(errorMessage);
     },
   });
+
   useEffect(() => {
     if (token) {
       verify(token);
+    } else {
+      // If no token, mark verification as complete but failed
+      setVerificationComplete(true);
+      setVerificationFailed(true);
     }
   }, [token, verify]);
 
@@ -78,6 +85,7 @@ const Verify = () => {
         );
       },
     });
+
   const resendEmailHandler = () => {
     if (emailId) {
       onResendEmail({ email: emailId });
@@ -85,12 +93,19 @@ const Verify = () => {
       toast.error('something went wrong');
     }
   };
-  // Expired Link Component
+
+  // Show loader while verification is in progress
+  if (isPendingVerifyEmail || isResendPending) {
+    return (
+      <div className='min-h-dvh flex items-center justify-center p-4'>
+        <Loader />
+      </div>
+    );
+  }
 
   return (
-    <div className='min-h-dvh flex items-center justify-center  p-4'>
-      {isResendPending || isPendingVerifyEmail ? <Loader /> : <></>}
-      {token && !isPendingVerifyEmail ? (
+    <div className='min-h-dvh flex items-center justify-center p-4'>
+      {verificationComplete && token && verificationFailed ? (
         <ExpiredLinkCard onResend={resendEmailHandler} email={emailId} />
       ) : (
         <EmailSucessCard email={emailId} onResend={resendEmailHandler} />

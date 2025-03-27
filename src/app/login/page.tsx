@@ -119,7 +119,6 @@ const LoginPage = () => {
         //   secure: true,
         // });
         storeProfileImage(photo);
-        console.log('photo', photo);
         setTimeout(() => {
           router.push('/termsandconditon');
         }, 200);

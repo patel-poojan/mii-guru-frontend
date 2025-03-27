@@ -210,13 +210,13 @@ const OnboardingForm = ({ userId }: { userId?: string }) => {
   };
 
   const AVAILABLE_DAYS: SelectOption[] = [
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-    'Sun',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Tuesday',
+    'Friday',
+    'Saturday',
+    'Sunday',
   ].map((day) => ({
     value: day.toLowerCase(),
     label: day,
