@@ -7,9 +7,7 @@ on:
       
 jobs:
   build:
-    runs-on: 
-      - ubuntu-latest
-      - staging
+    runs-on: ubuntu-latest
     
     env:
       NEXT_PUBLIC_LOCAL_SERVER_URL: ${{ secrets.NEXT_PUBLIC_LOCAL_SERVER_URL }}
