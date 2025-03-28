@@ -25,20 +25,47 @@ function PresentationSection({
   setIsPptOpen,
   presentationData,
   isLoading,
+  presentationTrigger, // New prop for triggering re-renders
 }: {
   isPptOpen: boolean;
   setIsPptOpen: (value: boolean) => void;
   presentationData?: PresentationData;
   isLoading: boolean;
+  presentationTrigger?: number; // Optional trigger value
 }) {
   const [loading, setLoading] = useState(isLoading);
+  const [content, setContent] = useState<string | null>(null);
+
+  // Use presentationTrigger in the dependency array to force re-render
+  useEffect(() => {
+    if (presentationData?.data?.html_content) {
+      const cleanedContent = presentationData.data.html_content
+        .replace("```html", "")
+        .replace("```", "");
+      setContent(cleanedContent);
+    }
+  }, [presentationData, presentationTrigger]); // Added presentationTrigger
+
+  // Loading effect also depends on presentationTrigger
   useEffect(() => {
     setLoading(true);
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1000); // Change the delay as needed
+    }, 500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [presentationData, presentationTrigger]); // Added presentationTrigger
+  // const highlightCurrentWord = (content: string, wordTimestamps: WordTimestamp[], currentTime: number) => {
+  //   return content.split(" ").map((word, index) => {
+  //     const timestamp = wordTimestamps.find(
+  //       (w) => currentTime >= w.start && currentTime <= w.end
+  //     );
+  //     return (
+  //       <span key={index} className={timestamp ? "highlight" : ""}>
+  //         {word}{" "}
+  //       </span>
+  //     );
+  //   });
+  // };
   return (
     <Dialog open={isPptOpen} onOpenChange={setIsPptOpen}>
       <DialogTrigger asChild>
@@ -46,9 +73,12 @@ function PresentationSection({
           {loading ? (
             <Skeleton className="w-full h-full bg-primary/20" />
           ) : (
-            <div dangerouslySetInnerHTML={{
-              __html: `${presentationData?.data?.html_content?.replace("```html", "").replace("```", "")}`,
-            }} />
+            <div 
+              key={presentationTrigger} // Added key to force re-render
+              dangerouslySetInnerHTML={{
+                __html: content || '',
+              }} 
+            />
           )}
         </div>
       </DialogTrigger>
@@ -57,9 +87,12 @@ function PresentationSection({
           {loading ? (
             <Skeleton className="w-full bg-red-300 h-[30rem]" />
           ) : (
-            <div dangerouslySetInnerHTML={{
-              __html: `${presentationData?.data?.html_content?.replace("```html", "").replace("```", "")}`,
-            }} />
+            <div 
+              key={presentationTrigger} // Added key to force re-render
+              dangerouslySetInnerHTML={{
+                __html: content || '',
+              }} 
+            />
           )}
         </div>
         <DialogTitle className="text-center h-0 w-0 hidden"></DialogTitle>
@@ -68,4 +101,4 @@ function PresentationSection({
   );
 }
 
-export default PresentationSection;
+export default React.memo(PresentationSection);

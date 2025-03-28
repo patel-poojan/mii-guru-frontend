@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function Avtar({
-  // audioData,
+  audio,
     playing,
     setPlaying,
     handlePlayPauseBtnClick,
@@ -31,6 +31,7 @@ function Avtar({
     setIsHoveredOnImageOnControl,
     // topicID,
 }:{
+  audio: string | null;
   playing: boolean;
   setPlaying: (playing: boolean) => void;
   handlePlayPauseBtnClick: () => void;
@@ -85,11 +86,8 @@ function Avtar({
     <div className="hidden">
                 <ReactPlayer
                   ref={playerRef}
-                  // url={
-                  //   "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"
-                  // }
-                  url={'/audios/classroom/1742558025_0a64700c_c933_4098_9820_f0bc2278481b.mp3'}
-                  // url={audioData}
+                  // url={'/audios/classroom/1742558025_0a64700c_c933_4098_9820_f0bc2278481b.mp3'}
+                  url={audio || ""}
                   playing={playing}
                   autoPlay={true}
                   controls={true}

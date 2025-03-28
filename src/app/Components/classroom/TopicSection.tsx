@@ -17,11 +17,11 @@ import {
 } from "@/components/ui/dialog";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { FaCheck } from "react-icons/fa";
 // import { CgSandClock } from "react-icons/cg";
 import { GoDotFill } from "react-icons/go";
 import { Skeleton } from "@/components/ui/skeleton";
+import { axiosInstance } from "@/app/utils/axiosInstance";
 
 interface Topic {
   id: number;
@@ -55,8 +55,8 @@ function TopicSection({
   topics,
   open,
   setOpen,
-  baseUrl,
-  AUTH_TOKEN,
+  // baseUrl,
+  // AUTH_TOKEN,
   subjectName = "biology",
 }: {
   topics: Topic[];
@@ -74,44 +74,37 @@ function TopicSection({
     async function fetchProgress() {
       setLoading(true);
       try {
-        const response = await axios.get(`${baseUrl}/user/progress`, {
-          headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
-        });
-        const data = response.data;
+        const response = await axiosInstance.get(`/user/progress`);
+        const data = response;
+  
         if (!data) {
           console.error("No progress data found");
           return;
         }
-
-        if (data) {
-          const subjectProgress = data?.data?.subjects?.find(
-            (subject: SubjectProgress) =>
-              subject.subject_name.toLowerCase() ===
-              subjectName.toLowerCase().trim()
-          );
-          const newTopicsList = topics?.map((topic, idx) => {
-            if (idx < subjectProgress?.completed_topics) {
-              return {
-                ...topic,
-                completed: true,
-              };
-            }
-            return {
-              ...topic,
-              completed: false,
-            };
-          });
-          setTopicsList(newTopicsList);
-        }
+  
+        const subjectProgress = data?.data?.subjects?.find(
+          (subject: SubjectProgress) =>
+            subject.subject_name.toLowerCase() === subjectName.toLowerCase().trim()
+        );
+  
+        const newTopicsList = topics?.map((topic, idx) => ({
+          ...topic,
+          completed: idx < (subjectProgress?.completed_topics || 0),
+        }));
+  
+        setTopicsList(newTopicsList);
       } catch (error) {
         console.error("Error fetching progress:", error);
       } finally {
         setLoading(false);
       }
     }
-
+  
     fetchProgress();
   }, [topics]);
+console.log("topics", topics);
+  console.log("topicsList", topicsList);
+  // localStorage.setItem("currentTopicID",)
 
   return (
     <>

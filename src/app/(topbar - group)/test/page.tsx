@@ -4,9 +4,10 @@ import Image from "next/image";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { MdNavigateBefore, MdNavigateNext } from "react-icons/md";
 import { Skeleton } from "@/components/ui/skeleton";
-import axios from "axios";
 import PassDialogPopup from "@/app/Components/quiz/PassDialogPopup";
 import FailDialogPopup from "@/app/Components/quiz/FailDialogPopup";
+import { toast } from "sonner";
+import { axiosInstance } from "@/app/utils/axiosInstance";
 
 interface QuestionOption {
   [key: string]: string;
@@ -50,27 +51,27 @@ interface QuizSubmissionRequest {
   };
 }
 
-interface QuizSubmissionResponse {
-  success: boolean;
-  status: number;
-  message: string;
-  data: {
-    correct_count: number;
-    incorrect_count: number;
-    total_questions: number;
-    percentage: number;
-    passed: boolean;
-    question_results: {
-      [key: string]: {
-        question_id: string;
-        selected_option: string;
-        correct_option: string | null;
-        is_correct: boolean;
-        message: string;
-      };
-    };
-  };
-}
+// interface QuizSubmissionResponse {
+//   success: boolean;
+//   status: number;
+//   message: string;
+//   data: {
+//     correct_count: number;
+//     incorrect_count: number;
+//     total_questions: number;
+//     percentage: number;
+//     passed: boolean;
+//     question_results: {
+//       [key: string]: {
+//         question_id: string;
+//         selected_option: string;
+//         correct_option: string | null;
+//         is_correct: boolean;
+//         message: string;
+//       };
+//     };
+//   };
+// }
 export default function Page() {
   const [user_id] = useState("67dd6df741e4ccc85f62416e");
   const [topicID] = useState("67dd4f3bada69ae06e9769c7");
@@ -89,45 +90,41 @@ export default function Page() {
   const [openFailModel, setOpenFailModel] = useState(false);
 
   const [userAnswers, setUserAnswers] = useState<{ [key: string]: string }>({});
-  const base_url = "http://3.6.140.234:8002";
-  const AUTH_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwYXJ0aGt1a2FkaXlhNzFAZ21haWwuY29tIiwiZXhwIjoxNzQzNDEyMzgzLjM4MzI0N30.s3RBtzAD0hFtLUNQ1bZx5GpF3c43NfdlW3-XRzPwPUM";
+  // const base_url = "http://3.6.140.234:8002";
+  // const AUTH_TOKEN =
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwYXJ0aGt1a2FkaXlhNzFAZ21haWwuY29tIiwiZXhwIjoxNzQzNDEyMzgzLjM4MzI0N30.s3RBtzAD0hFtLUNQ1bZx5GpF3c43NfdlW3-XRzPwPUM";
     const fetchQuestions = async () => {
       setLoading(true);
+      setError(null);
+    
       try {
-        const response = await axios.get(
-          `${base_url}/syllabus/quiz/${topicID}`,
-          {
-            headers: {
-              Authorization: `Bearer ${AUTH_TOKEN}`,
-            },
-          }
-        );
-
-        if (
-          !response.data ||
-          !response.data.data ||
-          !Array.isArray(response.data.data.questions)
-        ) {
-          throw new Error("Failed to load questions");
+        const response = await axiosInstance.get(`/syllabus/quiz/${topicID}`);
+        
+        if (!response.data || !Array.isArray(response.data.questions)) {
+          toast.error("Invalid quiz data received.");
+          setError("Failed to load quiz data. Please try again later.");
+          return;
         }
-
+    
         const formattedData = {
-          quiz_id: response.data.data.quiz_id,
-          questions: response.data.data.questions,
+          quiz_id: response.data.quiz_id,
+          questions: response.data.questions,
         };
-
+    
         setQuestions(formattedData);
         setActiveQuestionId(formattedData.questions[0].question_id);
         setActiveQuestion(formattedData.questions[0]);
         setTimeLeft(formattedData.questions.length * 60);
       } catch (err) {
         console.error("Error fetching questions:", err);
-        setError(`Failed to load questions: ${(err as Error).message}`);
+        
+        toast.error("Failed to fetch quiz questions.");
+        setError("Failed to fetch quiz questions. Please try again.");
       } finally {
         setLoading(false);
       }
     };
+      
     useEffect(() => {
       fetchQuestions();
     }, [topicID]);
@@ -146,7 +143,7 @@ export default function Page() {
   }, [activeQuestionId, questions.questions, loading]);
 
   const [timeLeft, setTimeLeft] = useState(questions.questions.length * 60);
-  const [isQuizSubmitted,] = useState(false);
+  const [isQuizSubmitted] = useState(false);
 
   useEffect(() => {
     if (timeLeft > 0 && !isQuizSubmitted) {
@@ -191,54 +188,44 @@ export default function Page() {
 
   const evaluateResults = async () => {
     try {
-      const submissionData: QuizSubmissionRequest = {
-        user_id: user_id,
-        quiz_id: questions.quiz_id,
-        topic_id: topicID,
-        questions: Object.entries(userAnswers).reduce(
-          (acc, [questionId, selectedOption], index) => {
-            acc[index + 1] = {
-              question_id: questionId,
-              selected_option: selectedOption,
-            };
-            return acc;
-          },
-          {} as QuizSubmissionRequest["questions"]
-        ),
-      };
+        const submissionData: QuizSubmissionRequest = {
+            user_id: user_id,
+            quiz_id: questions.quiz_id,
+            topic_id: topicID,
+            questions: Object.entries(userAnswers).reduce(
+                (acc, [questionId, selectedOption], index) => {
+                    acc[index + 1] = {
+                        question_id: questionId,
+                        selected_option: selectedOption,
+                    };
+                    return acc;
+                },
+                {} as QuizSubmissionRequest["questions"]
+            ),
+        };
 
-      const response = await axios.post<QuizSubmissionResponse>(
-        `${base_url}/quiz/checker`,
-        submissionData,
-        {
-          headers: {
-            Authorization: `Bearer ${AUTH_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+        const response = await axiosInstance.post("/quiz/checker", submissionData);
 
-      if (response.data.success) {
-        if (response.data.data.passed) {
-          setOpenPassModel(true);
+        if (response.data.success) {
+            if (response.data.data.passed) {
+                setOpenPassModel(true);
+            } else {
+                setOpenFailModel(true);
+            }
         } else {
-          setOpenFailModel(true);
+            setOpenFailModel(true);
         }
-      } else {
-        setOpenFailModel(true);
-      }
     } catch (error) {
-      console.error("Error submitting quiz:", error);
-      alert("Failed to submit quiz. Please try again.");
+        console.error("Error submitting quiz:", error);
+        toast.error("Failed to submit quiz. Please try again.");
+        alert("Failed to submit quiz. Please try again.");
     }
-  };
+};
+
   const handleRetryQuiz = () => {
     setOpenFailModel(false);
-    fetchQuestions(); // Restart the quiz by fetching questions again
+    fetchQuestions(); 
   };
-  // if (loading) {
-  //   return <div className="text-center p-10">Loading quiz questions...</div>;
-  // }
 
   if (loading) {
     return (
@@ -260,15 +247,15 @@ export default function Page() {
               <Skeleton className="h-4 w-1/2 mb-10 animate-pulse rounded-md bg-white" />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Skeleton className="h-12 w-full rounded-lg animate-pulse rounded-md bg-white" />
-                <Skeleton className="h-12 w-full rounded-lg animate-pulse rounded-md bg-white" />
-                <Skeleton className="h-12 w-full rounded-lg animate-pulse rounded-md bg-white" />
-                <Skeleton className="h-12 w-full rounded-lg animate-pulse rounded-md bg-white" />
+                <Skeleton className="h-12 w-full rounded-lg animate-pulse bg-white" />
+                <Skeleton className="h-12 w-full rounded-lg animate-pulse bg-white" />
+                <Skeleton className="h-12 w-full rounded-lg animate-pulse bg-white" />
+                <Skeleton className="h-12 w-full rounded-lg animate-pulse bg-white" />
               </div>
               <div className="flex flex-row sm:flex-row gap-3 justify-between pt-4 mt-6">
-              <Skeleton className="opacity-0 md:opacity-100 h-12 w-40 rounded-lg animate-pulse rounded-md bg-white" />
-              <Skeleton className="h-12 w-40 rounded-lg animate-pulse rounded-md bg-white" />
-            </div>
+                <Skeleton className="opacity-0 md:opacity-100 h-12 w-40 rounded-lg animate-pulse bg-white" />
+                <Skeleton className="h-12 w-40 rounded-lg animate-pulse bg-white" />
+              </div>
             </div>
           </div>
         </div>
@@ -312,7 +299,9 @@ export default function Page() {
           </div>
           <div className="relative bg-[var(--Secondary-color)] p-4 md:p-10 rounded-2xl overflow-hidden">
             <div>
-              <p className="font-semibold mb-6 md:mb-8">{activeQuestion.question}</p>
+              <p className="font-semibold mb-6 md:mb-8">
+                {activeQuestion.question}
+              </p>
               {activeQuestion.description && (
                 <p className="text-gray-600 mb-10">
                   {activeQuestion.description}

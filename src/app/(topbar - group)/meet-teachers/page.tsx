@@ -1,8 +1,7 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import axios from "axios";
 import {
   Dialog,
   DialogContent,
@@ -13,32 +12,20 @@ import {
 } from "@/components/ui/dialog";
 import { RxDash } from "react-icons/rx";
 import { Skeleton } from "@/components/ui/skeleton";
+import { axiosInstance } from "@/app/utils/axiosInstance";
 
 interface FacultyMember {
   id: number;
   name: string;
   subject: string;
   imageUrl: string;
-  syllabus: WeekSection[];
-}
-
-interface WeekSection {
-  weeks: string;
-  title: string;
-  subtitle: string;
-  topics: string[];
 }
 
 interface SyllabusResponse {
-  success: boolean;
-  status: number;
-  message: string;
-  data: {
-    subject: string;
-    class_grade: string;
-    duration: string;
-    weekly_schedule: WeeklySchedule[];
-  };
+  subject: string;
+  class_grade: string;
+  duration: string;
+  weekly_schedule: WeeklySchedule[];
 }
 
 interface WeeklySchedule {
@@ -53,25 +40,52 @@ interface WeeklySchedule {
 }
 
 export default function Index() {
-  const [syllabusData, setSyllabusData] = useState<SyllabusResponse | null>(null);
+  //   const [syllabusData, setSyllabusData] = useState<SyllabusResponse | null>(null);
+  //   const [loading, setLoading] = useState(false);
+  //   const [error, setError] = useState<string | null>(null);
+  //   const base_url = "http://3.6.140.234:8002";
+  //   const AUTH_TOKEN =
+  //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwYXJ0aGt1a2FkaXlhNzFAZ21haWwuY29tIiwiZXhwIjoxNzQzNDEyMzgzLjM4MzI0N30.s3RBtzAD0hFtLUNQ1bZx5GpF3c43NfdlW3-XRzPwPUM";
+  // const subject ="biology"
+  // const class_grade = "9"
+  //   useEffect(() => {
+  //     const fetchSyllabusData = async () => {
+  //       setLoading(true);
+  //       try {
+  //         const response = await axios.get(
+  //           `${base_url}/user/syllabus/${subject}?class_grade=${class_grade}`,
+  //           {
+  //             headers: {
+  //               Authorization: `Bearer ${AUTH_TOKEN}`,
+  //             },
+  //           }
+  //         );
+  //         setSyllabusData(response.data);
+  //       } catch (err) {
+  //         console.log("Error fetching syllabus data:", err);
+  //         setError("Failed to load syllabus data. Please try again later.");
+  //       } finally {
+  //         setLoading(false);
+  //       }
+  //     };
+
+  //     fetchSyllabusData();
+  //   }, []);
+
+  const [syllabusData, setSyllabusData] = useState<SyllabusResponse | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const base_url = "http://3.6.140.234:8002";
-  const AUTH_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwYXJ0aGt1a2FkaXlhNzFAZ21haWwuY29tIiwiZXhwIjoxNzQzNDEyMzgzLjM4MzI0N30.s3RBtzAD0hFtLUNQ1bZx5GpF3c43NfdlW3-XRzPwPUM";
-const subject ="biology"
-const class_grade = "9"
+  const subject = "biology";
+  const class_grade = "9";
+
   useEffect(() => {
     const fetchSyllabusData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `${base_url}/user/syllabus/${subject}?class_grade=${class_grade}`,
-          {
-            headers: {
-              Authorization: `Bearer ${AUTH_TOKEN}`,
-            },
-          }
+        const response = await axiosInstance.get(
+          `/user/syllabus/${subject}?class_grade=${class_grade}`
         );
         setSyllabusData(response.data);
       } catch (err) {
@@ -88,95 +102,33 @@ const class_grade = "9"
   const [faculty] = useState<FacultyMember[]>([
     {
       id: 1,
-      name: 'Mrs Anna',
-      subject: 'Maths',
-      imageUrl: '/img/meet-teachers/mrs_anna.png',
-      syllabus: [
-        {
-          weeks: 'Week 1-2',
-          title: 'Numbers & Operations',
-          subtitle:
-            'Fractions, Decimals, BODMAS, Rational & Irrational Numbers',
-          topics: [
-            'Fractions',
-            'Decimals',
-            'BODMAS',
-            'Rational & Irrational Numbers',
-          ],
-        },
-        // ... other syllabus sections
-      ],
+      name: "Mrs Anna",
+      subject: "Maths",
+      imageUrl: "/img/meet-teachers/mrs_anna.png",
     },
     {
       id: 2,
-      name: 'Miss Rashmi',
-      subject: 'Physics',
-      imageUrl: '/img/meet-teachers/miss_rohini.png',
-      syllabus: [
-        {
-          weeks: 'Week 1-2',
-          title: 'Mechanics',
-          subtitle: "Motion, Forces, and Newton's Laws",
-          topics: [
-            'Kinematics',
-            "Newton's Laws of Motion",
-            'Friction',
-            'Gravitation',
-          ],
-        },
-        // ... other syllabus sections
-      ],
+      name: "Miss Rashmi",
+      subject: "Physics",
+      imageUrl: "/img/meet-teachers/miss_rohini.png",
     },
     {
       id: 3,
-      name: 'Mr David',
-      subject: 'Biology',
-      imageUrl: '/img/meet-teachers/mr_ankit.png',
-      syllabus: [
-        {
-          weeks: 'Week 1-2',
-          title: 'Cell Biology',
-          subtitle: 'Cell Structure, Function, and Division',
-          topics: [
-            'Cell Structure',
-            'Cell Organelles',
-            'Cell Division',
-            'Cell Transport',
-          ],
-        },
-        // ... other syllabus sections
-      ],
+      name: "Mr David",
+      subject: "Biology",
+      imageUrl: "/img/meet-teachers/mr_ankit.png",
     },
     {
       id: 4,
-      name: 'Mrs Anna',
-      subject: 'Maths',
-      imageUrl: '/img/meet-teachers/mrs_anna.png',
-      syllabus: [
-        {
-          weeks: 'Week 1-2',
-          title: 'Numbers & Operations',
-          subtitle:
-            'Fractions, Decimals, BODMAS, Rational & Irrational Numbers',
-          topics: [
-            'Fractions',
-            'Decimals',
-            'BODMAS',
-            'Rational & Irrational Numbers',
-          ],
-        },
-        // ... other syllabus sections
-      ],
+      name: "Mrs Anna",
+      subject: "Maths",
+      imageUrl: "/img/meet-teachers/mrs_anna.png",
     },
   ]);
-  
-  const [ , setOpenedTeacherId] = useState<number>();
-  const [topic_id, setTopicId] = useState<string>("");
-  
-  const handleTopicClick = (id:string) => {
-    setTopicId(id);
-  }
-  
+
+  const [, setOpenedTeacherId] = useState<number>();
+  const [topic_id] = useState<string>("");
+
   useEffect(() => {
     if (topic_id) {
       window.alert(topic_id);
@@ -198,35 +150,35 @@ const class_grade = "9"
   );
   return (
     <>
-      <div className='w-full text-small md:text-regular'>
-        <h1 className='text-2xl md:text-4xl font-bold opacity-80 text-gray-700 mb-10'>
+      <div className="w-full text-small md:text-regular">
+        <h1 className="text-2xl md:text-4xl font-bold opacity-80 text-gray-700 mb-10">
           Meet your teachers
         </h1>
 
-        <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-10'>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-10">
           {faculty.map((teacher) => (
             <Dialog key={teacher.id}>
               <DialogTrigger asChild>
                 <button
-                  className='flex flex-col items-center '
+                  className="flex flex-col items-center "
                   onClick={() => setOpenedTeacherId(teacher.id)}
                 >
-                  <div className='relative w-full aspect-[4/5]'>
-                    <div className='relative h-full w-full'>
+                  <div className="relative w-full aspect-[4/5]">
+                    <div className="relative h-full w-full">
                       <Image
-                        src={teacher.imageUrl || '/placeholder.svg'}
+                        src={teacher.imageUrl || "/placeholder.svg"}
                         alt={`${teacher.name}'s profile`}
                         fill
-                        className='object-cover'
+                        className="object-cover"
                       />
                     </div>
                   </div>
 
-                  <div className='w-full bg-[var(--Secondary-color)] mt-0 p-4 text-center space-y-1'>
-                    <h3 className='font-semibold text-md md:text-2xl'>
+                  <div className="w-full bg-[var(--Secondary-color)] mt-0 p-4 text-center space-y-1">
+                    <h3 className="font-semibold text-md md:text-2xl">
                       {teacher.name}
                     </h3>
-                    <p className='text-gray-600'>{teacher.subject}</p>
+                    <p className="text-gray-600">{teacher.subject}</p>
                   </div>
                 </button>
               </DialogTrigger>
@@ -236,20 +188,24 @@ const class_grade = "9"
                   <DialogHeader>
                     <DialogTitle className="text-xl text-left font-[600] tracking-normal flex flex-col md:flex-row">
                       Study Plan & Syllabus{" "}
-                      <span className="text-[var(--MainLight-color)] md:ml-2">
-                        {syllabusData?.data?.subject ? 
-                          syllabusData.data.subject.substring(0, 1).toUpperCase() + 
-                          syllabusData.data.subject.substring(1) : 
-                          teacher.subject}
-                      </span>{" "}
-                      <span className="text-[var(--MainLight-color)] md:ml-2">
-                        ({syllabusData?.data?.duration || "3 months"})
+                      <span>
+                        <span className="text-[var(--MainLight-color)] md:ml-2">
+                          {syllabusData?.subject
+                            ? syllabusData.subject
+                                .substring(0, 1)
+                                .toUpperCase() +
+                              syllabusData.subject.substring(1)
+                            : teacher.subject}
+                        </span>{" "}
+                        <span className="opacity-30 md:ml-2">
+                          ({syllabusData?.duration || "3 months"})
+                        </span>
                       </span>
                     </DialogTitle>
                   </DialogHeader>
                 </div>
-                
-                <div className="flex-1 overflow-y-auto p-3 md:p-8 pt-4">
+
+                <div className="flex-1 overflow-y-auto p-3 md:p-8 md:pt-2 pt-4">
                   {loading ? (
                     <SyllabusSkeleton />
                   ) : error ? (
@@ -259,24 +215,34 @@ const class_grade = "9"
                   ) : (
                     <div className="w-full mx-auto space-y-4 pl-3 md:pl-0">
                       <ol className="relative border-l-2 border-[var(--MainLight-color)] border-dashed">
-                        {syllabusData?.data?.weekly_schedule?.map((ele) => (
-                          <li key={ele.topic_id || ele.week} className="mb-7 ms-6 md:ms-8">
-                            <div className="absolute w-3 h-3 bg-black/50 rounded-full mt-1 -start-1.5 border border-white"></div>
-                            <h1 className="mb-3 text-base font-[600] leading-none bg-[var(--Secondary-color)] w-fit rounded-lg px-3 py-2">
-                              Week {ele.week}{" "}-{" "}{ele.week + 1}
-                            </h1>
-                            <button 
-                              className="mb-1 text-lg font-[500] text-gray-900" 
-                              onClick={() => handleTopicClick(ele?.topic_id)}
+                        {syllabusData?.weekly_schedule &&
+                        syllabusData?.weekly_schedule?.length > 0 ? (
+                          syllabusData?.weekly_schedule.map((ele) => (
+                            <li
+                              key={ele.topic_id || ele.week}
+                              className="mb-7 ms-6 md:ms-8"
                             >
-                              {ele.topics}
-                            </button>
-                            <p className="mb-4 text-base font-normal text-gray-500 flex gap-1 place-items-start">
-                              <RxDash className="scale-x-150 size-5 text-black font-[600]" />
-                              {ele.description}
+                              <div className="absolute w-3 h-3 bg-black/50 rounded-full mt-1 -start-1.5 border border-white"></div>
+                              <h1 className="mb-3 text-base font-[600] leading-none bg-[var(--Secondary-color)] w-fit rounded-lg px-3 py-2">
+                                Week {ele.week} - {ele.week + 1}
+                              </h1>
+                              <h1 className="mb-1 text-lg text-left font-[500] text-gray-900">
+                                {ele.topics}
+                              </h1>
+                              <p className="mb-4 text-base font-normal text-left text-gray-500 flex gap-1 place-items-start">
+                                <RxDash className="scale-x-150 size-5 text-black font-[600]" />
+                                {ele.description}
+                              </p>
+                            </li>
+                          ))
+                        ) : (
+                          <div className="flex text-lg justify-center items-center font-[600] text-center h-40 text-red-300">
+                            <p>
+                              No syllabus data found for{" "}
+                              {syllabusData?.subject || teacher.subject}
                             </p>
-                          </li>
-                        ))}
+                          </div>
+                        )}
                       </ol>
                     </div>
                   )}
@@ -287,7 +253,7 @@ const class_grade = "9"
           ))}
         </div>
 
-        <h1 className='text-small md:text-regular opacity-80 text-gray-800 my-10'>
+        <h1 className="text-small md:text-regular opacity-80 text-gray-800 my-10">
           You can have a conversation with her and introduce yourself and brief
           her about your study plans.
         </h1>

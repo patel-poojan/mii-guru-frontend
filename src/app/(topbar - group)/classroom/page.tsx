@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
-import axios from "axios";
 import ControlButtons from "@/app/Components/classroom/ControlButtons";
 import TopicSection from "@/app/Components/classroom/TopicSection";
 import Avtar from "@/app/Components/classroom/Avtar";
 import PresentationSection from "@/app/Components/classroom/PresentationSection";
 import ChatCoPilot from "@/app/Components/classroom/ChatCoPilot";
+import { axiosInstance } from "@/app/utils/axiosInstance";
 interface WeeklyTopic {
   week: number;
   topics: string;
@@ -63,11 +63,12 @@ export default function Index() {
     useState(false);
   // const [isChatOpen, setIsChatOpen] = useState(false);
 
-  const [data] = useState(null);
+  const [data,setData] = useState<string | null>(null);
   console.log("data", data);
   const [syllabusData, setSyllabusData] = useState<SyllabusResponse | null>(null);
   console.log("syllabusData", syllabusData);
   const [presentationData, setPresentationData] = useState<PresentationData | null>();
+  const [, setPresentationTrigger] = useState(0);
   console.log("presentationData", presentationData);
   const [loading, setLoading] = useState(false);
   const [, setError] = useState<string | null>(null);
@@ -78,74 +79,68 @@ export default function Index() {
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwYXJ0aGt1a2FkaXlhNzFAZ21haWwuY29tIiwiZXhwIjoxNzQzNDEyMzgzLjM4MzI0N30.s3RBtzAD0hFtLUNQ1bZx5GpF3c43NfdlW3-XRzPwPUM";
   const subject = "biology";
   const class_grade = "9";
+  
   const trackAudioAction = async (
     action: string,
     position: number,
     speed: number
   ) => {
     try {
-      const endpoint = `http://3.6.140.234:8002/api/topic/audio/track/${action}/${topicID}`;
+      const endpoint = `/api/topic/audio/track/${action}/${topicID}`;
       const currentTime = Date.now();
 
       const payload = {
         event_type: action,
-        position_seconds: position,
-        speed: speed,
+        position_seconds: position || 0,
+        speed: speed || 1,
         timestamp: currentTime,
       };
-      // // Add to history for debugging/logging
-      // setPlaybackHistory(prev => [...prev, {
-      //   action,
-      //   timestamp: currentTime,
-      //   position,
-      //   speed
-      // }]);
-      await axios.post(endpoint, payload, {
-        headers: {
-          Authorization: `Bearer ${AUTH_TOKEN}`,
-        },
-      });
+
+      await axiosInstance.post(endpoint, payload);
+      setPresentationTrigger(currentTime);
       setLastTrackingTime(currentTime);
     } catch (err) {
       console.error(`Error tracking ${action}:`, err);
     }
   };
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const response = await axios.get(
-  //         `http://3.6.140.234:8002/api/topic/audio/${topicID}`,
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${AUTH_TOKEN}`,
-  //           },
-  //         }
-  //       );
-  //       setData(response.data);
-  //     } catch (err) {
-  //       console.error("Error fetching audio data:", err);
-  //       setError("Failed to load audio. Please try again later.");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
 
-  //   fetchData();
-  // }, []);
+  useEffect(() => {
+    const fetchAudio = async () => {
+      setLoading(true);
+      try {
+        const response = await axiosInstance.get(`/api/topic/audio/${topicID}`, {
+          responseType: "blob", 
+        });
+
+        const audioUrl = URL.createObjectURL(response.data);
+        setData(audioUrl);
+      } catch (err) {
+        console.error("Error fetching audio data:", err);
+        setError("Failed to load audio. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAudio();
+
+    // Cleanup function to revoke the URL
+    return () => {
+      if (data) {
+        URL.revokeObjectURL(data);
+      }
+    };
+  }, [topicID]);
+  
+  
 
   useEffect(() => {
     const fetchPresentationData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `http://3.6.140.234:8002/syllabus/presentation/${topicID}`,
-          {
-            headers: {
-              Authorization: `Bearer ${AUTH_TOKEN}`,
-            },
-          }
+        const response = await axiosInstance.get(
+          `/syllabus/presentation/${topicID}`
         );
         setPresentationData(response.data);
       } catch (err) {
@@ -157,21 +152,17 @@ export default function Index() {
     };
 
     fetchPresentationData();
-  }, []);
+  }, [topicID]);
+
 
   useEffect(() => {
     const fetchSyllabusData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `${base_url}/user/syllabus/${subject}?class_grade=${class_grade}`,
-          {
-            headers: {
-              Authorization: `Bearer ${AUTH_TOKEN}`,
-            },
-          }
+        const response = await axiosInstance.get(
+          `/user/syllabus/${subject}?class_grade=${class_grade}`
         );
-        setSyllabusData(response.data);
+        setSyllabusData(response);
       } catch (err) {
         console.log("Error fetching syllabus data:", err);
         setError("Failed to load syllabus data. Please try again later.");
@@ -187,9 +178,7 @@ export default function Index() {
     const newPlayingState = !playing;
     setPlaying(newPlayingState);
 
-    const currentPosition = playerRef.current
-      ? playerRef.current.getCurrentTime()
-      : 0;
+    const currentPosition = playerRef.current? playerRef?.current?.getCurrentTime(): 0;
 
     if (newPlayingState) {
       if (isFirstPlay) {
@@ -362,7 +351,7 @@ export default function Index() {
           <div className="max-w-3xl mx-auto  ">
             <div className="relative hidden md:flex items-center gap-4 my-2 md:my-6 md:mt-0 mb-6 w-full rounded-xl">
               <Avtar
-                // audioData={data}
+                audio={data}
                 playing={playing}
                 setPlaying={setPlaying}
                 isForwardEnabled={isForwardEnabled} 

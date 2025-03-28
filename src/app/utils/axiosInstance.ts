@@ -51,7 +51,16 @@ const authRequestInterceptor = (config: InternalAxiosRequestConfig) => {
 
 //   return config;
 // };
-const responseInterceptor = (response: AxiosResponse) => response.data;
+const responseInterceptor = (response: AxiosResponse) => {
+  if (response.config.responseType === 'blob') {
+    return response;
+  }
+  if(
+    response.config.url?.includes('/syllabus/presentation') ){
+    return response;
+  }
+  return response.data ?? response;
+};
 
 const errorInterceptor = (error: AxiosError) => {
   if (!error.response) {

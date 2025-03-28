@@ -29,12 +29,12 @@ const ChatCoPilot = ({ base_url, topicID, AUTH_TOKEN, isChatFullScreen, setIsCha
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null)
   useEffect(() => {
-    fetchChatHistory();
+    fetchChatHistoryByTopicID();
   }, [topicID]);
 
-  const fetchChatHistory = async () => {
+  const fetchChatHistoryByTopicID = async () => {
     try {
-      const response = await axios.get(`${base_url}/chat/history/${topicID}`, {
+      const response = await axios.get(`${base_url}/chatbot/history/c51c3bc0-aa29-4af8-a355-8dbdaaf3345f`, {
         headers: { Authorization: `Bearer ${AUTH_TOKEN}` }
       });
       if (response.data.success) {
