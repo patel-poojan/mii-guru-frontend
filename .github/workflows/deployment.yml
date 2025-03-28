@@ -67,7 +67,7 @@ jobs:
       - name: Install dependencies (on self-hosted)
         run: |
           cd /home/ubuntu/frontend/actions-runner/_work/mii-guru-frontend/mii-guru-frontend
-          npm install
+          npm install --legacy-peer-deps
 
       - name: Start or Restart PM2
         run: |
