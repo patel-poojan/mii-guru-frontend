@@ -1,0 +1,79 @@
+name: Deployment Staging
+
+on:
+  push:
+    branches:
+      - main
+      
+jobs:
+  build:
+    runs-on: 
+      - ubuntu-latest
+      - staging
+    
+    env:
+      NEXT_PUBLIC_LOCAL_SERVER_URL: ${{ secrets.NEXT_PUBLIC_LOCAL_SERVER_URL }}
+      NEXT_PUBLIC_LOCAL_SERVER_URL_ADMIN: ${{ secrets.NEXT_PUBLIC_LOCAL_SERVER_URL_ADMIN }}
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.14.0"
+          cache: "npm"
+
+      - name: Install dependencies (for build only)
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Debug - List directory contents
+        run: ls -la
+
+      - name: Archive build artifacts (excluding node_modules)
+        run: |
+          tar -czvf next-build.tar.gz .next public
+          echo "build-path=next-build.tar.gz" >> $GITHUB_ENV
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: ${{ env.build-path }}
+          retention-days: 1
+
+  deploy:
+    needs: build
+    runs-on: 
+      - self-hosted
+      - staging
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: /home/ubuntu/frontend/actions-runner/_work/mii-guru-frontend/mii-guru-frontend
+
+      - name: Extract build artifacts
+        run: tar -xzvf /home/ubuntu/frontend/actions-runner/_work/mii-guru-frontend/mii-guru-frontend/next-build.tar.gz -C /home/ubuntu/frontend/actions-runner/_work/mii-guru-frontend/mii-guru-frontend
+
+      - name: Install dependencies (on self-hosted)
+        run: |
+          cd /home/ubuntu/frontend/actions-runner/_work/mii-guru-frontend/mii-guru-frontend
+          npm install
+
+      - name: Start or Restart PM2
+        run: |
+          cd /home/ubuntu/frontend/actions-runner/_work/mii-guru-frontend/mii-guru-frontend
+          pm2 start npm --name "next-app" -- start || pm2 restart "next-app"
+          pm2 save
+          pm2 list
