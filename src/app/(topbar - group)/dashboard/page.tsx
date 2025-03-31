@@ -12,7 +12,7 @@ import React, { useEffect } from 'react';
 import { FaLock, FaPlus } from 'react-icons/fa';
 import { FaArrowRightLong } from 'react-icons/fa6';
 import { FiBookOpen } from 'react-icons/fi';
-import { MdOutlinePersonAddAlt } from 'react-icons/md';
+// import { MdOutlinePersonAddAlt } from 'react-icons/md';
 import { toast } from 'sonner';
 
 type DashboardDataType = {
@@ -86,7 +86,7 @@ const Page = () => {
     );
     return response.data;
   };
-const router = useRouter();
+  const router = useRouter();
   const {
     data: dashboardData,
     isLoading: loadDashboardData,
@@ -167,7 +167,10 @@ const router = useRouter();
                 </div>
               </div>
             </div>
-            <div className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer' onClick={() => router.push('/classroom')}>
+            <div
+              className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer'
+              onClick={() => router.push('/classroom')}
+            >
               Resume Course <FaArrowRightLong />
             </div>
           </div>
@@ -222,7 +225,10 @@ const router = useRouter();
                 </div> */}
               </div>
             </div>
-            <div className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer' onClick={() => router.push('/classroom')}>
+            <div
+              className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer'
+              onClick={() => router.push('/classroom')}
+            >
               Resume Course <FaArrowRightLong />
             </div>
           </div>
@@ -261,7 +267,10 @@ const router = useRouter();
                 </div>
               </div>
             </div>
-            <div className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer' onClick={() => router.push('/classroom')}>
+            <div
+              className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer'
+              onClick={() => router.push('/classroom')}
+            >
               Resume Course <FaArrowRightLong />
             </div>
           </div>
@@ -303,7 +312,10 @@ const router = useRouter();
               </div>
             </div>
           </div>
-          <div className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer' onClick={() => router.push('/classroom')}>
+          <div
+            className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer'
+            onClick={() => router.push('/classroom')}
+          >
             Resume Course <FaArrowRightLong />
           </div>
         </div>
@@ -503,14 +515,14 @@ const router = useRouter();
           <div className='text-black font-medium text-xl md:text-2xl mb-2 sm:mb-0'>
             Launch Classroom
           </div>
-          <div className='flex flex-row gap-2 md:gap-3 items-center'>
+          {/* <div className='flex flex-row gap-2 md:gap-3 items-center'>
             <div className='text-black font-normal text-base md:text-lg'>
               Invite your friends
             </div>
             <div className='p-1.5 rounded bg-[#F0F0F0]'>
               <MdOutlinePersonAddAlt className='text-lg text-black' />
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Main Content */}
