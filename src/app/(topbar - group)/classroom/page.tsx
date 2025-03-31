@@ -8,7 +8,7 @@ import PresentationSection from "@/app/Components/classroom/PresentationSection"
 import ChatCoPilot from "@/app/Components/classroom/ChatCoPilot";
 import { axiosInstance } from "@/app/utils/axiosInstance";
 import Cookies from 'js-cookie';
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 
 interface Topic {
   topic_id: string;
@@ -43,7 +43,7 @@ interface SyllabusResponse {
 }
 
 export default function Index() {
-  const router = useRouter();
+  // const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isPptOpen, setIsPptOpen] = useState(false);
 
