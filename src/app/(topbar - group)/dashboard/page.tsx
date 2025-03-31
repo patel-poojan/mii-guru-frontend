@@ -115,6 +115,9 @@ const Page = () => {
         return '/img/other-logo.svg';
     }
   };
+  const handleUpdate = () => {
+    router.push('/update-profile');
+  };
 
   // Function to handle empty or few subjects
   const renderSubjectGridItems = () => {
@@ -174,7 +177,10 @@ const Page = () => {
               Resume Course <FaArrowRightLong />
             </div>
           </div>
-          <div className='col-span-1 sm:col-span-2 bg-[#F2F2F2] p-4 lg:p-6 rounded-xl flex flex-col justify-center items-center gap-2 cursor-pointer '>
+          <div
+            className='col-span-1 sm:col-span-2 bg-[#F2F2F2] p-4 lg:p-6 rounded-xl flex flex-col justify-center items-center gap-2 cursor-pointer '
+            onClick={handleUpdate}
+          >
             <FaPlus className='text-[#CCCCCC] text-4xl' />
             <div className='text-black text-lg font-medium'>Add subject</div>
           </div>
@@ -352,7 +358,10 @@ const Page = () => {
               {dashboardData?.progress?.subjects[0].subject_name}
             </p>
           </div>
-          <div className='col-span-2 bg-white rounded-xl p-4 lg:p-6 flex flex-col gap-1 items-center justify-center  cursor-pointer'>
+          <div
+            className='col-span-2 bg-white rounded-xl p-4 lg:p-6 flex flex-col gap-1 items-center justify-center  cursor-pointer'
+            onClick={handleUpdate}
+          >
             <FaPlus className='text-[#CCCCCC] text-4xl' />
             <div className='text-black text-lg font-medium'>Add subject</div>
           </div>
