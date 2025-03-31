@@ -7,6 +7,7 @@ import WeeklyBarChart from '@/app/Components/common/WeeklyBarChart';
 import { axiosInstance } from '@/app/utils/axiosInstance';
 import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 import { FaLock, FaPlus } from 'react-icons/fa';
 import { FaArrowRightLong } from 'react-icons/fa6';
@@ -85,7 +86,7 @@ const Page = () => {
     );
     return response.data;
   };
-
+const router = useRouter();
   const {
     data: dashboardData,
     isLoading: loadDashboardData,
@@ -166,7 +167,7 @@ const Page = () => {
                 </div>
               </div>
             </div>
-            <div className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer'>
+            <div className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer' onClick={() => router.push('/classroom')}>
               Resume Course <FaArrowRightLong />
             </div>
           </div>
@@ -221,7 +222,7 @@ const Page = () => {
                 </div> */}
               </div>
             </div>
-            <div className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer'>
+            <div className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer' onClick={() => router.push('/classroom')}>
               Resume Course <FaArrowRightLong />
             </div>
           </div>
@@ -260,7 +261,7 @@ const Page = () => {
                 </div>
               </div>
             </div>
-            <div className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer'>
+            <div className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer' onClick={() => router.push('/classroom')}>
               Resume Course <FaArrowRightLong />
             </div>
           </div>
@@ -302,7 +303,7 @@ const Page = () => {
               </div>
             </div>
           </div>
-          <div className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer'>
+          <div className='text-[#F3AC50] font-medium text-sm flex items-center gap-2 cursor-pointer' onClick={() => router.push('/classroom')}>
             Resume Course <FaArrowRightLong />
           </div>
         </div>

@@ -18,31 +18,24 @@ import {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FaCheck } from "react-icons/fa";
-// import { CgSandClock } from "react-icons/cg";
 import { GoDotFill } from "react-icons/go";
 import { Skeleton } from "@/components/ui/skeleton";
 import { axiosInstance } from "@/app/utils/axiosInstance";
 
 interface Topic {
-  id: number;
+  topic_id: string;
+  week: number;
   title: string;
   content: string;
 }
+
 interface TopicsList {
-  id: number;
+  topic_id: string;
   title: string;
   content: string;
   completed: boolean;
 }
-// interface ProgressData {
-//   subjects: {
-//     subject_name: string;
-//     total_topics: number;
-//     completed_topics: number;
-//     completion_percentage: number;
-//     last_activity: string;
-//   }[];
-// }
+
 interface SubjectProgress {
   subject_name: string;
   total_topics: number;
@@ -55,15 +48,13 @@ function TopicSection({
   topics,
   open,
   setOpen,
-  // baseUrl,
-  // AUTH_TOKEN,
+  setTopicID,
   subjectName = "biology",
 }: {
   topics: Topic[];
   open: boolean;
   setOpen: (open: boolean) => void;
-  baseUrl: string;
-  AUTH_TOKEN: string;
+  setTopicID: (topicID: string) => void;
   subjectName?: string;
 }) {
   const router = useRouter();
@@ -76,22 +67,23 @@ function TopicSection({
       try {
         const response = await axiosInstance.get(`/user/progress`);
         const data = response;
-  
+
         if (!data) {
           console.error("No progress data found");
           return;
         }
-  
+
         const subjectProgress = data?.data?.subjects?.find(
           (subject: SubjectProgress) =>
-            subject.subject_name.toLowerCase() === subjectName.toLowerCase().trim()
+            subject.subject_name.toLowerCase() ===
+            subjectName.toLowerCase().trim()
         );
-  
+
         const newTopicsList = topics?.map((topic, idx) => ({
           ...topic,
           completed: idx < (subjectProgress?.completed_topics || 0),
         }));
-  
+
         setTopicsList(newTopicsList);
       } catch (error) {
         console.error("Error fetching progress:", error);
@@ -99,26 +91,30 @@ function TopicSection({
         setLoading(false);
       }
     }
-  
+
     fetchProgress();
   }, [topics]);
-console.log("topics", topics);
-  console.log("topicsList", topicsList);
-  // localStorage.setItem("currentTopicID",)
 
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6 z-[200]">
-        <h1 className="text-2xl font-bold">Biology - Day 12</h1>
+        <h1 className="text-2xl font-bold">
+          {subjectName.substring(0, 1).toUpperCase() +
+            subjectName.substring(1).toLowerCase()}
+        </h1>
         <div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              {loading?<Skeleton className="h-9 md:h-9 w-24 rounded-lg bg-primary/20" />:<Button
-                variant="outline"
-                className="h-9 md:h-9 text-base font-[500] bg-[var(--MainLight-color)] font-[500] float-right px-4 rounded-lg hover:bg-[var(--MainLight-color)]"
-              >
-                Skip Topic
-              </Button>}
+              {loading ? (
+                <Skeleton className="h-9 md:h-9 w-24 rounded-lg bg-primary/20" />
+              ) : (
+                <Button
+                  variant="outline"
+                  className="h-9 md:h-9 text-base font-[500] bg-[var(--MainLight-color)] font-[500] float-right px-4 rounded-lg hover:bg-[var(--MainLight-color)]"
+                >
+                  Skip Topic
+                </Button>
+              )}
             </DialogTrigger>
             <DialogContent className="w-[90%] sm:max-w-lg p- md:x-10 rounded-xl">
               <div className="flex justify-center">
@@ -158,34 +154,29 @@ console.log("topics", topics);
       <div className="space-y-2 border p-4 rounded-xl mb-10 md:mb-0 max-h-[35rem] overflow-y-scroll">
         <h2 className="text-xl md:text-2xl font-semibold mb-4">Topics</h2>
         <Accordion type="single" collapsible className="w-full">
-          {loading
-            ? Array.from({ length: 5 }).map((_, index) => (
-                <div key={index} className="flex items-center gap-2 py-3">
-                  <Skeleton className="h-8 w-8 rounded-full" />
-                  <Skeleton className="h-8 w-full" />
-                </div>
-              ))
-            : topicsList.map((topic) => {
-                return (
-                  <AccordionItem key={topic.id} value={`topic-${topic.id}`}>
-                    <AccordionTrigger
-                      className={`text-left text-lg md:text-lg font-[500] md:font-semibold`}
-                    >
-                      <span className="flex gap-2 place-items-start">
-                        {topic.completed ? (
-                          <FaCheck className="text-[var(--MainLight-color)] mt-1" />
-                        ) : (
-                          <GoDotFill className="size-4 text-black/20 mt-1" />
-                        )}{" "}
-                        {topic.title}
-                      </span>
-                    </AccordionTrigger>
-                    <AccordionContent className="text-base md:text-base text-gray-600">
-                      {topic.content}
-                    </AccordionContent>
-                  </AccordionItem>
-                );
-              })}
+          {!loading &&
+            topicsList.map((topic, index) => (
+              <AccordionItem
+                key={topic.topic_id ?? `topic-${index}`}
+                value={`topic-${topic.topic_id ?? index}`}
+                onClick={() => topic.completed && setTopicID(topic.topic_id)}
+                title={`${topic.completed ? `Go to ${topic.title}` : ""} `}
+              >
+                <AccordionTrigger className="text-left text-lg md:text-lg font-[500] md:font-semibold">
+                  <span className="flex gap-2 place-items-start">
+                    {topic.completed ? (
+                      <FaCheck className="text-[var(--MainLight-color)] mt-1" />
+                    ) : (
+                      <GoDotFill className="size-4 text-black/20 mt-1" />
+                    )}
+                    {topic.title}
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="text-base md:text-base text-gray-600">
+                  {topic.content}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
         </Accordion>
       </div>
     </>

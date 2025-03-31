@@ -51,9 +51,9 @@ function Avtar({
   isHoveredOnImageOnControl: boolean;
   setIsHoveredOnImageOnControl: (value: boolean) => void;
 }) {
-  const [audioUrl, ] = useState<string | null>(null);
+  // const [audioUrl, ] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  console.log("audioUrl", audioUrl);
+  // console.log("audioUrl", audioUrl);
   useEffect(() => {
     // Simulate loading time
     const timer = setTimeout(() => {
@@ -105,7 +105,7 @@ function Avtar({
                   }}
                   onEnded={() => {
                     setPlaying(false);
-                    trackAudioAction("complete", duration, playbackSpeed);
+                    trackAudioAction("stop", duration, playbackSpeed);
                   }}
                 />
               </div>
