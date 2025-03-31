@@ -13,6 +13,8 @@ import {
 import { RxDash } from "react-icons/rx";
 import { Skeleton } from "@/components/ui/skeleton";
 import { axiosInstance } from "@/app/utils/axiosInstance";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 interface FacultyMember {
   id: number;
@@ -40,43 +42,15 @@ interface WeeklySchedule {
 }
 
 export default function Index() {
-  //   const [syllabusData, setSyllabusData] = useState<SyllabusResponse | null>(null);
-  //   const [loading, setLoading] = useState(false);
-  //   const [error, setError] = useState<string | null>(null);
-  //   const base_url = "http://3.6.140.234:8002";
-  //   const AUTH_TOKEN =
-  //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwYXJ0aGt1a2FkaXlhNzFAZ21haWwuY29tIiwiZXhwIjoxNzQzNDEyMzgzLjM4MzI0N30.s3RBtzAD0hFtLUNQ1bZx5GpF3c43NfdlW3-XRzPwPUM";
-  // const subject ="biology"
-  // const class_grade = "9"
-  //   useEffect(() => {
-  //     const fetchSyllabusData = async () => {
-  //       setLoading(true);
-  //       try {
-  //         const response = await axios.get(
-  //           `${base_url}/user/syllabus/${subject}?class_grade=${class_grade}`,
-  //           {
-  //             headers: {
-  //               Authorization: `Bearer ${AUTH_TOKEN}`,
-  //             },
-  //           }
-  //         );
-  //         setSyllabusData(response.data);
-  //       } catch (err) {
-  //         console.log("Error fetching syllabus data:", err);
-  //         setError("Failed to load syllabus data. Please try again later.");
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     };
-
-  //     fetchSyllabusData();
-  //   }, []);
-
   const [syllabusData, setSyllabusData] = useState<SyllabusResponse | null>(
     null
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [openedTeacherId, setOpenedTeacherId] = useState<number | null>(null);
+  const [autoCycleIndex, setAutoCycleIndex] = useState<number>(0);
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+  const router = useRouter();
   const subject = "biology";
   const class_grade = "9";
 
@@ -125,8 +99,22 @@ export default function Index() {
       imageUrl: "/img/meet-teachers/mrs_anna.png",
     },
   ]);
+  useEffect(() => {
+    if (autoCycleIndex < faculty.length) {
+      setOpenedTeacherId(faculty[autoCycleIndex].id);
+      setIsPopupOpen(true);
 
-  const [, setOpenedTeacherId] = useState<number>();
+      const timeout = setTimeout(() => {
+        setIsPopupOpen(false);
+
+        setTimeout(() => {
+          setAutoCycleIndex((prevIndex) => prevIndex + 1);
+        }, 2000); 
+      }, 5000); 
+
+      return () => clearTimeout(timeout);
+    }
+  }, [autoCycleIndex]);
   const [topic_id] = useState<string>("");
 
   useEffect(() => {
@@ -134,6 +122,32 @@ export default function Index() {
       window.alert(topic_id);
     }
   }, [topic_id]);
+
+  const handleDashboardBtnClick = async () => {
+    try {
+      const response = await axiosInstance.post("/auth/update-tracking", {
+        introductionViewed: true,
+      });
+
+      if (response?.data?.tracking) {
+        const userInfo = response.data.tracking;
+        Cookies.set("userInfo", JSON.stringify(userInfo), {
+          path: "/",
+          sameSite: "Lax",
+          secure: true,
+        });
+
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 200);
+      } else {
+        router.push("/meet-teachers");
+      }
+    } catch (error) {
+      console.error("Error updating tracking:", error);
+    }
+  };
+
   const SyllabusSkeleton = () => (
     <div className="w-full mx-auto space-y-4 pl-3 md:pl-0">
       <ol className="relative border-l-2 border-gray-300 border-dashed">
@@ -151,19 +165,33 @@ export default function Index() {
   return (
     <>
       <div className="w-full text-small md:text-regular">
-        <h1 className="text-2xl md:text-4xl font-bold opacity-80 text-gray-700 mb-10">
-          Meet your teachers
-        </h1>
+        <div className="flex justify-between items-start">
+          <h1 className="text-2xl md:text-4xl font-bold opacity-80 text-gray-700 mb-10">
+            Meet your teachers
+          </h1>
+          <button
+            className="bg-[var(--MainLight-color)] shadow-md text-lg h-10 md:h-10 px-6 rounded-lg"
+            onClick={handleDashboardBtnClick}
+          >
+            Dashboard
+          </button>
+        </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-10">
           {faculty.map((teacher) => (
-            <Dialog key={teacher.id}>
+            <Dialog
+              key={teacher.id}
+              open={isPopupOpen && openedTeacherId === teacher.id}
+              onOpenChange={setIsPopupOpen}
+            >
               <DialogTrigger asChild>
                 <button
-                  className="flex flex-col items-center "
+                  className={`flex flex-col items-center ${openedTeacherId== teacher.id ? "bg-[var(--MainLight-color)] scale-105 border-none outline-none" : "bg-white"} rounded-xl md:rounded-2xl p-0 space-y-1 cursor-pointer ${openedTeacherId == teacher.id ? "shadow-md" : "shadow-sm"
+                    
+                    }  `}
                   onClick={() => setOpenedTeacherId(teacher.id)}
                 >
-                  <div className="relative w-full aspect-[4/5]">
+                  <div className="relative w-full aspect-[4/5] outline-none border-none">
                     <div className="relative h-full w-full">
                       <Image
                         src={teacher.imageUrl || "/placeholder.svg"}
@@ -198,7 +226,7 @@ export default function Index() {
                             : teacher.subject}
                         </span>{" "}
                         <span className="opacity-30 md:ml-2">
-                          ({syllabusData?.duration || "3 months"})
+                          ({syllabusData?.duration+" months" || ""})
                         </span>
                       </span>
                     </DialogTitle>

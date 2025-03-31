@@ -74,7 +74,16 @@ interface QuizSubmissionRequest {
 // }
 export default function Page() {
   const [user_id] = useState("67dd6df741e4ccc85f62416e");
-  const [topicID] = useState("67dd4f3bada69ae06e9769c7");
+  const [topicID,setTopicID] = useState("67dd4f3bada69ae06e9769bb");
+  useEffect(() => {
+      if (typeof window !== 'undefined') {
+        const storedTopicId = localStorage.getItem('topicID');
+        if (storedTopicId) {
+          setTopicID(storedTopicId);
+        }
+      }
+    }, []);
+
   const [questions, setQuestions] =
     useState<QuestionsResponse>(defaultQuizData);
   const [loading, setLoading] = useState(true);
@@ -281,7 +290,8 @@ export default function Page() {
         >
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h1 className="text-2xl font-bold mb-1">Biology Mock Test</h1>
+              {/* <h1 className="text-2xl font-bold mb-1">Biology Mock Test</h1> */}
+              <h1 className="text-2xl font-bold mb-1">Mock Test</h1>
               <p className="text-gray-600">
                 Question {currentQuestionIndex + 1} of{" "}
                 {questions.questions.length}
@@ -299,7 +309,7 @@ export default function Page() {
           </div>
           <div className="relative bg-[var(--Secondary-color)] p-4 md:p-10 rounded-2xl overflow-hidden">
             <div>
-              <p className="font-semibold mb-6 md:mb-8">
+              <p className="font-semibold mb-6 md:mb-8 tracking-wide">
                 {activeQuestion.question}
               </p>
               {activeQuestion.description && (

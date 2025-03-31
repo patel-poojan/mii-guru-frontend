@@ -7,11 +7,21 @@ import Avtar from "@/app/Components/classroom/Avtar";
 import PresentationSection from "@/app/Components/classroom/PresentationSection";
 import ChatCoPilot from "@/app/Components/classroom/ChatCoPilot";
 import { axiosInstance } from "@/app/utils/axiosInstance";
+import Cookies from 'js-cookie';
+
+interface Topic {
+  topic_id: string;
+  week: number;
+  title: string;
+  content: string;
+}
 interface WeeklyTopic {
+  topic_id: string; // Added topic_id for consistency
   week: number;
   topics: string;
   description: string;
 }
+
 interface PresentationData {
   success: boolean;
   status: number;
@@ -23,21 +33,28 @@ interface PresentationData {
     class_name: string;
     html_content: string;
   };
-} 
+}
+
 interface SyllabusResponse {
   data?: {
     weekly_schedule?: WeeklyTopic[];
   };
 }
+
 export default function Index() {
   const [open, setOpen] = useState(false);
   const [isPptOpen, setIsPptOpen] = useState(false);
 
-  const [topics, setTopics] = useState([
-    { id: 1, title: "Loading...", content: "Content 1" },
+  const [topics, setTopics] = useState<Topic[]>([
+    { topic_id: "1",week:1, title: "Loading...", content: "Content 1" },
   ]);
 
-  const [topicID] = useState("67dd4f3bada69ae06e9769c7");
+  const [topicID,setTopicID] = useState("67dd4f3bada69ae06e9769bb");
+  // localStorage.setItem("topicID", topicID);
+  // useEffect(() => {
+  //   localStorage.setItem("topicID", topicID);
+  // }
+  // , [topicID]);
 
   // Audio player states
   const playerRef = useRef<ReactPlayer>(null);
@@ -64,19 +81,15 @@ export default function Index() {
   // const [isChatOpen, setIsChatOpen] = useState(false);
 
   const [data,setData] = useState<string | null>(null);
-  console.log("data", data);
   const [syllabusData, setSyllabusData] = useState<SyllabusResponse | null>(null);
-  console.log("syllabusData", syllabusData);
   const [presentationData, setPresentationData] = useState<PresentationData | null>();
   const [, setPresentationTrigger] = useState(0);
-  console.log("presentationData", presentationData);
   const [loading, setLoading] = useState(false);
   const [, setError] = useState<string | null>(null);
   const [isChatFullScreen, setIsChatFullScreen] = useState(false);
 
   const base_url = "http://3.6.140.234:8002";
-  const AUTH_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwYXJ0aGt1a2FkaXlhNzFAZ21haWwuY29tIiwiZXhwIjoxNzQzNDEyMzgzLjM4MzI0N30.s3RBtzAD0hFtLUNQ1bZx5GpF3c43NfdlW3-XRzPwPUM";
+  const [AUTH_TOKEN] =useState(Cookies.get('authToken') || ""); 
   const subject = "biology";
   const class_grade = "9";
   
@@ -103,7 +116,34 @@ export default function Index() {
       console.error(`Error tracking ${action}:`, err);
     }
   };
-
+  useEffect(() => {
+    const handleTabClose = async () => {
+      if (playing && playerRef.current) {
+        try {
+          const currentTime = playerRef.current.getCurrentTime() || 0;
+  
+          // Ensure API call completes before unload
+          navigator.sendBeacon(
+            `/api/topic/audio/track/pause/${topicID}`,
+            JSON.stringify({
+              event_type: "pause",
+              position_seconds: currentTime,
+              speed: playbackSpeed || 1,
+              timestamp: Date.now(),
+            })
+          );
+        } catch (error) {
+          console.error("Error pausing audio on tab close:", error);
+        }
+      }
+    };
+  
+    window.addEventListener("beforeunload", handleTabClose);
+  
+    return () => {
+      window.removeEventListener("beforeunload", handleTabClose);
+    };
+  }, [playing, playerRef, topicID, playbackSpeed]);
 
   useEffect(() => {
     const fetchAudio = async () => {
@@ -172,7 +212,7 @@ export default function Index() {
     };
 
     fetchSyllabusData();
-  }, []);
+  }, [topicID]);
 
   const handlePlayPauseBtnClick = () => {
     const newPlayingState = !playing;
@@ -280,7 +320,7 @@ export default function Index() {
         trackAudioAction("stop", finalPosition, playbackSpeed);
       }
     };
-  }, [sessionStartTime]);
+  }, [sessionStartTime,topicID]);
 
   const handleDuration = (duration: number) => {
     setDuration(duration);
@@ -293,19 +333,18 @@ export default function Index() {
   // };
 
   // const speedOptions = [0.5, 1, 1.5, 2];
-  useEffect(
-    () =>
+  useEffect(() => {
+    if (syllabusData?.data?.weekly_schedule) {
       setTopics(
-        syllabusData?.data?.weekly_schedule?.map((topic) => {
-          return {
-            id: topic.week,
-            title: topic.topics,
-            content: topic.description,
-          };
-        }) || []
-      ),
-    [syllabusData]
-  );
+        syllabusData.data.weekly_schedule.map((topic) => ({
+          topic_id: topic.topic_id, // Ensure topic_id is included
+          week: topic.week, // Ensure week is included
+          title: topic.topics, // Rename topics → title
+          content: topic.description, // Rename description → content
+        }))
+      );
+    }
+  }, [syllabusData,topicID]);
   return (
     <div className="w-full flex flex-col relative text-small md:text-regular max-h-lvh ">
       <div className="grid grid-cols-1 md:grid-cols-[1fr_0.4fr] md:gap-6 h-full">
@@ -377,9 +416,8 @@ export default function Index() {
               topics={topics}
               open={open}
               setOpen={setOpen}
+              setTopicID={setTopicID}
               // topicID={topicID}
-              baseUrl={base_url}
-              AUTH_TOKEN={AUTH_TOKEN}
             />
           </div>
         </div>
