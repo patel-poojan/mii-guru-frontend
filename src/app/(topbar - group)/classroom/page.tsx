@@ -8,6 +8,7 @@ import PresentationSection from "@/app/Components/classroom/PresentationSection"
 import ChatCoPilot from "@/app/Components/classroom/ChatCoPilot";
 import { axiosInstance } from "@/app/utils/axiosInstance";
 import Cookies from 'js-cookie';
+import { useRouter } from "next/navigation";
 
 interface Topic {
   topic_id: string;
@@ -42,6 +43,7 @@ interface SyllabusResponse {
 }
 
 export default function Index() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isPptOpen, setIsPptOpen] = useState(false);
 
@@ -88,7 +90,7 @@ export default function Index() {
   const [, setError] = useState<string | null>(null);
   const [isChatFullScreen, setIsChatFullScreen] = useState(false);
 
-  const base_url = "http://3.6.140.234:8002";
+  const base_url = process.env.NEXT_PUBLIC_BASE_URL || "https://api.miiguru.com";
   const [AUTH_TOKEN] =useState(Cookies.get('authToken') || ""); 
   const subject = "biology";
   const class_grade = "9";
