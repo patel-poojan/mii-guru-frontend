@@ -22,10 +22,17 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import ProfileIcon from './ProfileIcon';
-
+import { MdOutlineModeEdit } from 'react-icons/md';
+import { PiSignOutBold } from 'react-icons/pi';
 const CommonHeader = () => {
   const [open, setOpen] = useState(false);
-  const [userInfo, setUserInfo] = useState({ username: '', email: '' });
+  const [userInfo, setUserInfo] = useState({
+    username: '',
+    email: '',
+    introductionViewed: false,
+    onboardingCompleted: false,
+    termsAccepted: false,
+  });
   const router = useRouter();
   const navLinks = [
     { href: '#Dashboard', label: 'Dashboard' },
@@ -49,7 +56,9 @@ const CommonHeader = () => {
   const logoutHandler = () => {
     onLogout();
   };
-
+  const handleUpdate = () => {
+    router.push('/update-profile');
+  };
   return (
     <header
       className='sticky top-0 w-full bg-[#ffffff80] shadow-sm supports-[backdrop-filter]:bg-white/60 supports-[backdrop-filter]:backdrop-blur-3xl z-50'
@@ -91,13 +100,24 @@ const CommonHeader = () => {
                         {userInfo?.email ?? 'user@email.com'}
                       </p>
                     </div>
-                    <div className='px-2'>
+                    <div className='px-2 flex flex-col gap-2'>
+                      {userInfo?.introductionViewed &&
+                      userInfo?.onboardingCompleted &&
+                      userInfo?.termsAccepted ? (
+                        <Button
+                          variant='outline'
+                          className='w-full justify-center py-2 text-black font-medium flex items-center gap-2'
+                          onClick={handleUpdate}
+                        >
+                          Edit <MdOutlineModeEdit className='text-black' />
+                        </Button>
+                      ) : null}
                       <Button
                         variant='outline'
-                        className='w-full justify-center'
+                        className='w-full justify-center py-2 text-black font-medium flex items-center gap-2'
                         onClick={() => logoutHandler()}
                       >
-                        Sign out
+                        Sign out <PiSignOutBold className='text-black' />
                       </Button>
                     </div>
                   </div>
@@ -159,15 +179,28 @@ const CommonHeader = () => {
 
                 {/* Footer Actions */}
                 <div className='absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100'>
-                  <SheetClose asChild>
-                    <a
-                      href='#logout'
-                      onClick={logoutHandler}
-                      className='flex items-center justify-center w-full  text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors'
-                    >
-                      Sign Out
-                    </a>
-                  </SheetClose>
+                  <div className='flex flex-col gap-3'>
+                    {userInfo?.introductionViewed &&
+                    userInfo?.onboardingCompleted &&
+                    userInfo?.termsAccepted ? (
+                      <Button
+                        variant='outline'
+                        className='w-full justify-center py-2 text-gray-700 font-medium flex items-center gap-2'
+                        onClick={handleUpdate}
+                      >
+                        Edit <MdOutlineModeEdit className='text-black' />
+                      </Button>
+                    ) : null}
+                    <SheetClose asChild>
+                      <Button
+                        variant='outline'
+                        onClick={logoutHandler}
+                        className='w-full justify-center py-2 text-gray-700 font-medium flex items-center gap-2'
+                      >
+                        Sign Out <PiSignOutBold className='text-black' />
+                      </Button>
+                    </SheetClose>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>

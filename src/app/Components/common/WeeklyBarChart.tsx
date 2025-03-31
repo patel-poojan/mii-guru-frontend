@@ -27,6 +27,20 @@ const WeeklyBarChart = ({
   // Track empty state
   const [hasNoStudyHours, setHasNoStudyHours] = useState<boolean>(false);
 
+  // Helper function to format hours and minutes
+  const formatTimeHoursMinutes = (decimalHours: number) => {
+    const hours = Math.floor(decimalHours);
+    const minutes = Math.round((decimalHours - hours) * 60);
+
+    if (hours === 0) {
+      return `${minutes} min`;
+    } else if (minutes === 0) {
+      return `${hours} hr${hours !== 1 ? 's' : ''}`;
+    } else {
+      return `${hours} hr${hours !== 1 ? 's' : ''} ${minutes} min`;
+    }
+  };
+
   // Handle window resize with debounce for optimization
   useEffect(() => {
     const handleResize = () => {
@@ -148,7 +162,7 @@ const WeeklyBarChart = ({
                 const index = context.dataIndex;
                 const item = processedData[index];
                 const hours = item ? item.duration_hours : 0;
-                return `Study Hours: ${hours} hrs`;
+                return `Study Time: ${formatTimeHoursMinutes(hours)}`;
               },
               afterLabel: (context) => {
                 const index = context.dataIndex;
@@ -200,7 +214,10 @@ const WeeklyBarChart = ({
               },
               color: hasNoStudyHours ? '#aaa' : '#666',
               padding: isMobile ? 4 : 8,
-              callback: (value) => `${value}hrs`,
+              callback: (value) => {
+                // Format the y-axis ticks to show "hr" instead of "hrs"
+                return value === 0 ? '0' : `${value}hr`;
+              },
               stepSize: 4,
             },
             border: {

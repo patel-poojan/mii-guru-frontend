@@ -40,9 +40,18 @@ const GoogleButton = () => {
             sameSite: 'Lax',
             secure: true,
           });
+          Cookies.set(
+            'isSubscription',
+            data?.data?.user?.is_subscription ? 'true' : 'false',
+            {
+              path: '/',
+              sameSite: 'Lax',
+              secure: true,
+            }
+          );
           setTimeout(() => {
             router.push('/onboarding');
-          }, 500);
+          }, 200);
         } else {
           router.push('/login');
         }

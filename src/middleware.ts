@@ -9,6 +9,7 @@ const PATHS = {
   TERMS: '/termsandconditon',
   ONBOARDING: '/onboarding',
   MEET_TEACHERS: '/meet-teachers',
+  PRICING: '/pricing',
 };
 
 // Helper functions to improve readability
@@ -42,6 +43,9 @@ export default function middleware(request: NextRequest) {
     const token = request.cookies.get('authToken')?.value || '';
     const userInfo = request.cookies.get('userInfo')?.value || '';
     const role = parseJSONSafely(request.cookies.get('role')?.value || '', '');
+    const isSubscriptionStr =
+      request.cookies.get('isSubscription')?.value || 'false';
+    const isSubscription = isSubscriptionStr === 'true';
 
     // Handle no token cases
     if (pathName === PATHS.LOGIN && !token) {
@@ -72,6 +76,20 @@ export default function middleware(request: NextRequest) {
 
     // Non-admin trying to access admin page
     if (pathName === PATHS.ADMIN) {
+      return redirectTo(request, PATHS.DASHBOARD);
+    }
+
+    // Subscription check
+    // If no subscription, only allow access to pricing page
+    if (!isSubscription) {
+      if (pathName === PATHS.PRICING) {
+        return NextResponse.next();
+      }
+      return redirectTo(request, PATHS.PRICING);
+    }
+
+    // If user has subscription and tries to access pricing, redirect to dashboard
+    if (isSubscription && pathName === PATHS.PRICING) {
       return redirectTo(request, PATHS.DASHBOARD);
     }
 
@@ -154,5 +172,6 @@ export const config = {
     '/dashboard',
     '/report',
     '/pricing',
+    '/update-profile',
   ],
 };

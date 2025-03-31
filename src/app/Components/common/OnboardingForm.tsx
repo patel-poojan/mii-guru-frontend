@@ -1,11 +1,5 @@
 'use client';
-import React, {
-  ChangeEvent,
-  FormEvent,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -25,9 +19,15 @@ import { useUpdateUserTracking } from '@/app/utils/api/user-api';
 import { axiosError } from '../../types/axiosTypes';
 import { Loader } from '@/app/Components/common/Loader';
 import Cookies from 'js-cookie';
-import { useRouter } from 'next/navigation';
-import { useRegisterUser } from '@/app/utils/api/onboarding-api';
+import { usePathname, useRouter } from 'next/navigation';
+import {
+  useRegisterUser,
+  useUpdateProfile,
+} from '@/app/utils/api/onboarding-api';
 import useWindowDimensions from '@/app/utils/windowSize';
+import { axiosInstance } from '@/app/utils/axiosInstance';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 // Types for select options
 interface SelectOption {
   value: string;
@@ -81,18 +81,51 @@ interface EducationOptions {
   grades: SelectOption[];
   subjects: string[];
 }
+interface UserDetailsResponse {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  dob: string;
+  photo: string | null;
+  parents_details: {
+    fatherName: string;
+    motherName: string;
+    currentAddress: string;
+    city: string;
+    country: string;
+  };
+  educational_details: {
+    schoolName: string;
+    board: string;
+    mediumOfStudy: string;
+    classGrade: string;
+    major: string | null;
+  };
+  course_selection: {
+    subjects: string[];
+    otherSubjects: string;
+    otherActivities: string;
+  };
+  availability: {
+    selectedDays: string[];
+    timeAvailable: string;
+    timeToFinish: string;
+  };
+  verified: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
-const OnboardingForm = ({ userId }: { userId?: string }) => {
-  const info = Cookies.get('userInfo') || '';
-  const userInfo = useMemo(() => {
-    try {
-      return info ? JSON.parse(info) : {};
-    } catch (error) {
-      console.error('Error parsing userInfo from cookie:', error);
-      return {};
-    }
-  }, [info]);
+const OnboardingForm = () => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   const router = useRouter();
+  const pathname = usePathname();
+  const isUpdate = pathname.includes('update-profile');
   const [formData, setFormData] = useState<FormData>({
     name: '',
     dob: undefined,
@@ -118,6 +151,35 @@ const OnboardingForm = ({ userId }: { userId?: string }) => {
       timeToFinish: '',
     },
   });
+  useEffect(() => {
+    // Move cookie parsing to client-side only
+    const info = Cookies.get('userInfo') || '';
+    try {
+      const parsedInfo = info ? JSON.parse(info) : {};
+
+      // Set initial form data from userInfo
+      if (parsedInfo && typeof parsedInfo === 'object') {
+        const username = parsedInfo.username || '';
+        const email = parsedInfo.email || '';
+
+        if (username || email) {
+          setFormData((prevData) => ({
+            ...prevData,
+            name: username || prevData.name,
+            email: email || prevData.email,
+          }));
+        }
+      }
+    } catch (error: unknown) {
+      // Then you can type guard or type assert within the catch block
+      if (axios.isAxiosError(error)) {
+        // Now you can safely access axios error properties
+        console.error(error.response?.data?.message);
+      } else {
+        console.error('An unexpected error occurred:', error);
+      }
+    }
+  }, []);
   const { width: screenWidth } = useWindowDimensions();
   const customSelectStyles: ReactSelectStylesConfig<
     SelectOption,
@@ -231,26 +293,154 @@ const OnboardingForm = ({ userId }: { userId?: string }) => {
       [name]: value,
     }));
   };
-  useEffect(() => {
-    // Only run this effect once when component mounts
+  function createEmptyUserResponse(): UserDetailsResponse {
+    return {
+      id: '',
+      name: '',
+      email: '',
+      phone: '',
+      dob: '',
+      photo: null,
+      parents_details: {
+        fatherName: '',
+        motherName: '',
+        currentAddress: '',
+        city: '',
+        country: '',
+      },
+      educational_details: {
+        schoolName: '',
+        board: '',
+        mediumOfStudy: '',
+        classGrade: '',
+        major: null,
+      },
+      course_selection: {
+        subjects: [],
+        otherSubjects: '',
+        otherActivities: '',
+      },
+      availability: {
+        selectedDays: [],
+        timeAvailable: '',
+        timeToFinish: '',
+      },
+      verified: false,
+      created_at: '',
+      updated_at: '',
+    };
+  }
+  const fetchProfile = async () => {
     try {
-      // Check if userInfo is a valid object before accessing properties
-      if (userInfo && typeof userInfo === 'object') {
-        const username = userInfo.username || '';
-        const email = userInfo.email || '';
+      const response: UserDetailsResponse = await axiosInstance.get(`/user`);
 
-        if (username || email) {
-          setFormData((prevData) => ({
-            ...prevData,
-            name: username || prevData.name,
-            email: email || prevData.email,
-          }));
-        }
+      // First check if response exists
+      if (!response) {
+        return createEmptyUserResponse();
       }
-    } catch (error) {
-      console.error('Error setting user info:', error);
+
+      // Check if response has the expected structure
+      const userData = response;
+
+      // Validate and ensure the response has the minimal expected structure
+      return {
+        id: userData.id || '',
+        name: userData.name || '',
+        email: userData.email || '',
+        phone: userData.phone || '',
+        dob: userData.dob || '',
+        photo: userData.photo || null,
+        parents_details: {
+          fatherName: userData.parents_details?.fatherName || '',
+          motherName: userData.parents_details?.motherName || '',
+          currentAddress: userData.parents_details?.currentAddress || '',
+          city: userData.parents_details?.city || '',
+          country: userData.parents_details?.country || '',
+        },
+        educational_details: {
+          schoolName: userData.educational_details?.schoolName || '',
+          board: userData.educational_details?.board || '',
+          mediumOfStudy: userData.educational_details?.mediumOfStudy || '',
+          classGrade: userData.educational_details?.classGrade || '',
+          major: userData.educational_details?.major || null,
+        },
+        course_selection: {
+          subjects: Array.isArray(userData.course_selection?.subjects)
+            ? userData.course_selection.subjects
+            : [],
+          otherSubjects: userData.course_selection?.otherSubjects || '',
+          otherActivities: userData.course_selection?.otherActivities || '',
+        },
+        availability: {
+          selectedDays: Array.isArray(userData.availability?.selectedDays)
+            ? userData.availability.selectedDays
+            : [],
+          timeAvailable: userData.availability?.timeAvailable || '',
+          timeToFinish: userData.availability?.timeToFinish || '',
+        },
+        verified: userData.verified || false,
+        created_at: userData.created_at || '',
+        updated_at: userData.updated_at || '',
+      };
+    } catch (error: unknown) {
+      // Then you can type guard or type assert within the catch block
+      if (axios.isAxiosError(error)) {
+        // Now you can safely access axios error properties
+        console.error(error.response?.data?.message);
+      } else {
+        console.error('An unexpected error occurred:', error);
+      }
     }
-  }, []);
+    return createEmptyUserResponse(); // Ensure a return value in all cases
+  };
+
+  const { data: usersDetails, isLoading: loadUsersDetails } =
+    useQuery<UserDetailsResponse>({
+      queryKey: ['fetch', 'profile'],
+      queryFn: fetchProfile,
+      enabled: isUpdate,
+    });
+  useEffect(() => {
+    if (usersDetails && isUpdate) {
+      const userData = usersDetails;
+      setFormData({
+        name: userData.name || '',
+        email: userData.email || '',
+        phone: userData.phone || '',
+        dob: userData.dob ? new Date(userData.dob) : undefined,
+        photo: null, // Can't set File object from API data
+        fatherName: userData.parents_details?.fatherName || '',
+        motherName: userData.parents_details?.motherName || '',
+        currentAddress: userData.parents_details?.currentAddress || '',
+        city: userData.parents_details?.city || '',
+        country: userData.parents_details?.country || '',
+        schoolName: userData.educational_details?.schoolName || '',
+        board: userData.educational_details?.board?.toLowerCase() || '',
+        mediumOfStudy:
+          userData.educational_details?.mediumOfStudy?.toLowerCase() || '',
+        classGrade: userData.educational_details?.classGrade || '',
+        major: userData.educational_details?.major || '',
+        subjects: Array.isArray(userData.course_selection?.subjects)
+          ? userData.course_selection.subjects.map(
+              (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+            )
+          : [],
+        otherSubjects: userData.course_selection?.otherSubjects || '',
+        otherActivities: userData.course_selection?.otherActivities || '',
+        availability: {
+          selectedDays: Array.isArray(userData.availability?.selectedDays)
+            ? userData.availability.selectedDays.map((d: string) =>
+                d.toLowerCase()
+              )
+            : [],
+          timeAvailable: userData.availability?.timeAvailable || '',
+          timeToFinish:
+            userData.availability?.timeToFinish?.split(' ')[0] || '',
+        },
+      });
+    }
+  }, [usersDetails, isUpdate]);
+
   const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0];
     if (file) {
@@ -339,7 +529,9 @@ const OnboardingForm = ({ userId }: { userId?: string }) => {
         styles={customSelectStyles}
         options={AVAILABLE_DAYS}
         placeholder='Select Days'
+        // Ensure consistent null value for SSR and client
         value={null}
+        isSearchable={false}
         onChange={(option) => {
           if (option) {
             setFormData((prev) => ({
@@ -360,7 +552,6 @@ const OnboardingForm = ({ userId }: { userId?: string }) => {
       />
     );
   });
-
   const TimeToFinishSelect = React.memo(function TimeToFinishSelect() {
     const timeOptions: SelectOption[] = [1, 2, 3, 4, 5, 6].map((months) => ({
       value: months.toString(),
@@ -508,6 +699,20 @@ const OnboardingForm = ({ userId }: { userId?: string }) => {
         );
       },
     });
+  const { mutate: updateProfile, isPending: isPendingToUpdate } =
+    useUpdateProfile({
+      onSuccess() {
+        toast.success('Profile updated successfully!');
+        router.push('/dashboard');
+      },
+      onError(error: axiosError) {
+        toast.error(
+          error?.response?.data?.errors?.message ||
+            error?.response?.data?.message ||
+            'Failed to update profile'
+        );
+      },
+    });
   const handleSubmit = React.useCallback(
     (e: FormEvent<HTMLFormElement>): void => {
       e.preventDefault();
@@ -533,113 +738,163 @@ const OnboardingForm = ({ userId }: { userId?: string }) => {
         });
         return;
       }
+      if (isUpdate && usersDetails?.id) {
+        const updateData = {
+          id: usersDetails?.id,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          dob: formData.dob ? formData.dob.toISOString() : '',
+          photo: formData.photo ? URL.createObjectURL(formData.photo) : null,
+          parents_details: {
+            fatherName: formData.fatherName,
+            motherName: formData.motherName,
+            currentAddress: formData.currentAddress,
+            city: formData.city,
+            country: formData.country,
+          },
+          educational_details: {
+            schoolName: formData.schoolName,
+            board: formData.board,
+            mediumOfStudy: formData.mediumOfStudy,
+            classGrade: formData.classGrade,
+            major: formData.major,
+          },
+          course_selection: {
+            subjects: formData.subjects,
+            otherSubjects: formData.otherSubjects,
+            otherActivities: formData.otherActivities,
+          },
+          availability: {
+            selectedDays: formData.availability.selectedDays,
+            timeAvailable: formData.availability.timeAvailable,
+            timeToFinish: formData.availability.timeToFinish,
+          },
+        };
+        updateProfile(updateData);
+      } else {
+        // Create FormData for API submission
+        const apiFormData = new FormData();
 
-      // Create FormData for API submission
-      const apiFormData = new FormData();
-
-      // Handle basic fields with proper type checking
-      Object.entries(formData).forEach(([key, value]) => {
-        // Skip specific objects and arrays that need special handling
-        if (
-          key !== 'subjects' &&
-          key !== 'availability' &&
-          key !== 'photo' &&
-          key !== 'dob' &&
-          key !== 'otherSubjects' && // Skip these for special handling
-          key !== 'otherActivities'
-        ) {
-          // Safe type assertion with proper checks
-          const strValue = value as unknown;
+        // Handle basic fields with proper type checking
+        Object.entries(formData).forEach(([key, value]) => {
+          // Skip specific objects and arrays that need special handling
           if (
-            typeof strValue === 'string' &&
-            strValue !== null &&
-            strValue !== undefined &&
-            strValue !== ''
+            key !== 'subjects' &&
+            key !== 'availability' &&
+            key !== 'photo' &&
+            key !== 'dob' &&
+            key !== 'otherSubjects' && // Skip these for special handling
+            key !== 'otherActivities'
           ) {
-            apiFormData.append(key, strValue);
+            // Safe type assertion with proper checks
+            const strValue = value as unknown;
+            if (
+              typeof strValue === 'string' &&
+              strValue !== null &&
+              strValue !== undefined &&
+              strValue !== ''
+            ) {
+              apiFormData.append(key, strValue);
+            }
           }
+        });
+
+        // Handle photo file with proper type check
+        if (formData.photo instanceof File) {
+          apiFormData.append('photo', formData.photo);
         }
-      });
 
-      // Handle photo file with proper type check
-      if (formData.photo instanceof File) {
-        apiFormData.append('photo', formData.photo);
+        // Handle date of birth with proper type check
+        if (formData.dob instanceof Date) {
+          apiFormData.append('dob', formData.dob.toISOString());
+        }
+
+        // Handle subjects array - only add non-empty values
+        if (Array.isArray(formData.subjects) && formData.subjects.length > 0) {
+          formData.subjects.forEach((subject: string) => {
+            if (
+              subject &&
+              typeof subject === 'string' &&
+              subject.trim() !== ''
+            ) {
+              apiFormData.append('subjects', subject);
+            }
+          });
+        }
+
+        // Handle other subjects (comma-separated string)
+        if (formData.otherSubjects && formData.otherSubjects.trim() !== '') {
+          const otherSubjects = formData.otherSubjects
+            .split(',')
+            .map((subject) => subject.trim())
+            .filter((subject) => subject !== '');
+
+          otherSubjects.forEach((subject) => {
+            apiFormData.append('otherSubjects', subject);
+          });
+        }
+
+        // Handle other activities (comma-separated string)
+        if (
+          formData.otherActivities &&
+          formData.otherActivities.trim() !== ''
+        ) {
+          const otherActivities = formData.otherActivities
+            .split(',')
+            .map((activity) => activity.trim())
+            .filter((activity) => activity !== '');
+
+          otherActivities.forEach((activity) => {
+            apiFormData.append('otherActivities', activity);
+          });
+        }
+
+        // Handle availability object with proper type checks
+        const availability = formData.availability;
+
+        // Add selectedDays array - only add non-empty values
+        if (
+          Array.isArray(availability.selectedDays) &&
+          availability.selectedDays.length > 0
+        ) {
+          availability.selectedDays.forEach((day: string) => {
+            if (day && typeof day === 'string' && day.trim() !== '') {
+              apiFormData.append('selectedDays', day);
+            }
+          });
+        }
+
+        // Add other availability fields - only if they're not empty
+        if (
+          availability.timeAvailable &&
+          typeof availability.timeAvailable === 'string' &&
+          availability.timeAvailable.trim() !== ''
+        ) {
+          apiFormData.append('timeAvailable', availability.timeAvailable);
+        }
+
+        if (
+          availability.timeToFinish &&
+          typeof availability.timeToFinish === 'string' &&
+          availability.timeToFinish.trim() !== ''
+        ) {
+          apiFormData.append('timeToFinish', availability.timeToFinish);
+        }
+
+        // Submit form data
+
+        registerUser(apiFormData);
       }
-
-      // Handle date of birth with proper type check
-      if (formData.dob instanceof Date) {
-        apiFormData.append('dob', formData.dob.toISOString());
-      }
-
-      // Handle subjects array - only add non-empty values
-      if (Array.isArray(formData.subjects) && formData.subjects.length > 0) {
-        formData.subjects.forEach((subject: string) => {
-          if (subject && typeof subject === 'string' && subject.trim() !== '') {
-            apiFormData.append('subjects', subject);
-          }
-        });
-      }
-
-      // Handle other subjects (comma-separated string)
-      if (formData.otherSubjects && formData.otherSubjects.trim() !== '') {
-        const otherSubjects = formData.otherSubjects
-          .split(',')
-          .map((subject) => subject.trim())
-          .filter((subject) => subject !== '');
-
-        otherSubjects.forEach((subject) => {
-          apiFormData.append('otherSubjects', subject);
-        });
-      }
-
-      // Handle other activities (comma-separated string)
-      if (formData.otherActivities && formData.otherActivities.trim() !== '') {
-        const otherActivities = formData.otherActivities
-          .split(',')
-          .map((activity) => activity.trim())
-          .filter((activity) => activity !== '');
-
-        otherActivities.forEach((activity) => {
-          apiFormData.append('otherActivities', activity);
-        });
-      }
-
-      // Handle availability object with proper type checks
-      const availability = formData.availability;
-
-      // Add selectedDays array - only add non-empty values
-      if (
-        Array.isArray(availability.selectedDays) &&
-        availability.selectedDays.length > 0
-      ) {
-        availability.selectedDays.forEach((day: string) => {
-          if (day && typeof day === 'string' && day.trim() !== '') {
-            apiFormData.append('selectedDays', day);
-          }
-        });
-      }
-
-      // Add other availability fields - only if they're not empty
-      if (
-        availability.timeAvailable &&
-        typeof availability.timeAvailable === 'string' &&
-        availability.timeAvailable.trim() !== ''
-      ) {
-        apiFormData.append('timeAvailable', availability.timeAvailable);
-      }
-
-      if (
-        availability.timeToFinish &&
-        typeof availability.timeToFinish === 'string' &&
-        availability.timeToFinish.trim() !== ''
-      ) {
-        apiFormData.append('timeToFinish', availability.timeToFinish);
-      }
-
-      // Submit form data
-      registerUser(apiFormData);
     },
-    [formData, validateForm, registerUser]
+    [
+      validateForm,
+      formData,
+      isUpdate,
+      usersDetails?.id,
+      updateProfile,
+      registerUser,
+    ]
   );
   const generateTimeOptions = () => {
     const options = [];
@@ -659,401 +914,411 @@ const OnboardingForm = ({ userId }: { userId?: string }) => {
   };
   const timeOptions = generateTimeOptions();
   return (
-    <form onSubmit={handleSubmit} className='space-y-4 sm:space-y-6'>
-      {(isPendingToRegister || isPending) && <Loader />}
-      {/* Personal Details */}
-      <div className={SECTION_CLASS}>
-        <h3 className={SECTION_TITLE_CLASS}>Personal Details</h3>
-        <div className='flex flex-col md:flex-row gap-4 sm:gap-6'>
-          <div className={GRID_CONTAINER_CLASS}>
-            <div>
-              <Label className={LABEL_CLASS}>
-                Name<span className='text-red-500'>*</span>
-              </Label>
-              <Input
-                type='text'
-                name='name'
-                value={formData.name}
-                // onChange={handleChange}
-                disabled
-                placeholder='Enter First Name'
-                className={INPUT_CLASS}
-              />
-            </div>
-            <div>
-              <Label className={LABEL_CLASS}>
-                Date of Birth<span className='text-red-500'>*</span>
-              </Label>
-              <CustomDatePicker
-                value={formData.dob}
-                onChange={(date) =>
-                  setFormData((prev) => ({ ...prev, dob: date }))
-                }
-                className={INPUT_CLASS}
-              />
-            </div>
-            <div>
-              <Label className={LABEL_CLASS}>
-                Email<span className='text-red-500'>*</span>
-              </Label>
-              <Input
-                type='email'
-                name='email'
-                value={formData.email}
-                // onChange={handleChange}
-                disabled
-                placeholder='Enter Email'
-                className={INPUT_CLASS}
-              />
-            </div>
-
-            <div>
-              <Label className={LABEL_CLASS}>
-                Phone<span className='text-red-500'>*</span>
-              </Label>
-              <div className='relative'>
-                <Input
-                  type='tel'
-                  name='phone'
-                  value={formData.phone}
-                  onChange={(e) => {
-                    // Only allow numeric input
-                    const numericValue = e.target.value.replace(/\D/g, '');
-                    // Update with only the first 10 digits
-                    setFormData((prev) => ({
-                      ...prev,
-                      phone: numericValue.slice(0, 10),
-                    }));
-                  }}
-                  maxLength={10}
-                  placeholder='Enter 10-digit number'
-                  className={INPUT_CLASS}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Photo Upload */}
-          <div className='md:items-end w-full md:w-auto'>
-            <div className={LABEL_CLASS}>Upload Your Photo</div>
-            <div className='w-24 h-24 sm:w-28 sm:h-28 border bg-[#FCFCFD] border-[#F1F1F3] rounded-lg relative'>
-              <input
-                type='file'
-                id='photo-upload'
-                name='photo'
-                accept='image/*'
-                onChange={handlePhotoChange}
-                className='hidden'
-              />
-              <label
-                htmlFor='photo-upload'
-                className='w-full h-full flex flex-col items-center justify-center cursor-pointer'
-              >
-                {formData.photo ? (
-                  <Image
-                    src={URL.createObjectURL(formData.photo)}
-                    alt='Profile'
-                    className='w-full h-full object-cover rounded-lg'
-                    width={200}
-                    height={200}
+    <>
+      {isClient ? (
+        <form onSubmit={handleSubmit} className='space-y-4 sm:space-y-6'>
+          {(isPendingToRegister ||
+            isPending ||
+            loadUsersDetails ||
+            isPendingToUpdate) && <Loader />}
+          {/* Personal Details */}
+          <div className={SECTION_CLASS}>
+            <h3 className={SECTION_TITLE_CLASS}>Personal Details</h3>
+            <div className='flex flex-col md:flex-row gap-4 sm:gap-6'>
+              <div className={GRID_CONTAINER_CLASS}>
+                <div>
+                  <Label className={LABEL_CLASS}>
+                    Name<span className='text-red-500'>*</span>
+                  </Label>
+                  <Input
+                    type='text'
+                    name='name'
+                    value={formData.name}
+                    // onChange={handleChange}
+                    disabled
+                    placeholder='Enter First Name'
+                    className={INPUT_CLASS}
                   />
-                ) : (
-                  <div className='flex flex-col items-center justify-center w-full h-full bg-[#FCFCFD]'>
-                    <Image
-                      src='/img/upload-pic.svg'
-                      alt='Profile'
-                      width={60}
-                      height={60}
-                      className='w-full h-full p-4 sm:p-5 object-cover rounded-lg'
+                </div>
+                <div>
+                  <Label className={LABEL_CLASS}>
+                    Date of Birth<span className='text-red-500'>*</span>
+                  </Label>
+                  <CustomDatePicker
+                    value={formData.dob}
+                    onChange={(date) =>
+                      setFormData((prev) => ({ ...prev, dob: date }))
+                    }
+                    className={INPUT_CLASS}
+                  />
+                </div>
+                <div>
+                  <Label className={LABEL_CLASS}>
+                    Email<span className='text-red-500'>*</span>
+                  </Label>
+                  <Input
+                    type='email'
+                    name='email'
+                    value={formData.email}
+                    // onChange={handleChange}
+                    disabled
+                    placeholder='Enter Email'
+                    className={INPUT_CLASS}
+                  />
+                </div>
+
+                <div>
+                  <Label className={LABEL_CLASS}>
+                    Phone<span className='text-red-500'>*</span>
+                  </Label>
+                  <div className='relative'>
+                    <Input
+                      type='tel'
+                      name='phone'
+                      value={formData.phone}
+                      onChange={(e) => {
+                        // Only allow numeric input
+                        const numericValue = e.target.value.replace(/\D/g, '');
+                        // Update with only the first 10 digits
+                        setFormData((prev) => ({
+                          ...prev,
+                          phone: numericValue.slice(0, 10),
+                        }));
+                      }}
+                      maxLength={10}
+                      placeholder='Enter 10-digit number'
+                      className={INPUT_CLASS}
                     />
                   </div>
-                )}
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Parents Details */}
-      <div className={SECTION_CLASS}>
-        <h3 className={SECTION_TITLE_CLASS}>Parents Details</h3>
-        <div className='space-y-4'>
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-            <div>
-              <Label className={LABEL_CLASS}>
-                Father Name<span className='text-red-500'>*</span>
-              </Label>
-              <Input
-                name='fatherName'
-                value={formData.fatherName}
-                onChange={handleChange}
-                placeholder='Enter Father Name'
-                className={INPUT_CLASS}
-              />
-            </div>
-            <div>
-              <Label className={LABEL_CLASS}>
-                Mother Name<span className='text-red-500'>*</span>
-              </Label>
-              <Input
-                name='motherName'
-                value={formData.motherName}
-                onChange={handleChange}
-                placeholder='Enter Mother Name'
-                className={INPUT_CLASS}
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label className={LABEL_CLASS}>
-              Current Address<span className='text-red-500'>*</span>
-            </Label>
-            <Textarea
-              name='currentAddress'
-              value={formData.currentAddress}
-              onChange={handleChange}
-              placeholder='Enter Address'
-              className={`${INPUT_CLASS} min-h-[100px] placeholder:!text-[#ACACAC]`}
-            />
-          </div>
-
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-            <div>
-              <Label className={LABEL_CLASS}>
-                City<span className='text-red-500'>*</span>
-              </Label>
-              <Input
-                name='city'
-                value={formData.city}
-                onChange={handleChange}
-                placeholder='Enter City'
-                className={INPUT_CLASS}
-              />
-            </div>
-            <div>
-              <Label className={LABEL_CLASS}>
-                Country<span className='text-red-500'>*</span>
-              </Label>
-              <Input
-                name='country'
-                value={formData.country}
-                onChange={handleChange}
-                placeholder='Enter Country'
-                className={INPUT_CLASS}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Educational Details */}
-      <div className={SECTION_CLASS}>
-        <h3 className={SECTION_TITLE_CLASS}>Educational Details</h3>
-        <div className='space-y-4'>
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-            <div>
-              <Label className={LABEL_CLASS}>
-                School Name<span className='text-red-500'>*</span>
-              </Label>
-              <Input
-                name='schoolName'
-                value={formData.schoolName}
-                onChange={handleChange}
-                placeholder='Enter School Name'
-                className={INPUT_CLASS}
-              />
-            </div>
-            <div>
-              <Label className={LABEL_CLASS}>
-                Board<span className='text-red-500'>*</span>
-              </Label>
-              <BoardSelect />
-            </div>
-          </div>
-
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-            <div>
-              <Label className={LABEL_CLASS}>
-                Medium of Study<span className='text-red-500'>*</span>
-              </Label>
-              <MediumSelect />
-            </div>
-            <div>
-              <Label className={LABEL_CLASS}>
-                Class/Grade<span className='text-red-500'>*</span>
-              </Label>
-              <GradeSelect />
-            </div>
-          </div>
-
-          <div>
-            <Label className={LABEL_CLASS}>Major (if applicable)</Label>
-            <Input
-              name='major'
-              value={formData.major}
-              onChange={handleChange}
-              placeholder='Enter Major'
-              className={INPUT_CLASS}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Course Selection */}
-      <div className={SECTION_CLASS}>
-        <h3 className={SECTION_TITLE_CLASS}>Course Selection</h3>
-        <div className='space-y-4 sm:space-y-6'>
-          <div>
-            <Label className={LABEL_CLASS}>
-              Subject you wish to study on mGuru
-              <span className='text-red-500'>*</span>
-            </Label>
-            <div className='grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4'>
-              {EDUCATION_OPTIONS.subjects.map((subject) => (
-                <div key={subject} className='flex items-center space-x-2'>
-                  <Checkbox
-                    id={subject}
-                    checked={formData.subjects.includes(subject)}
-                    onCheckedChange={(checked) =>
-                      handleCheckboxChange(checked, subject)
-                    }
-                    className=' data-[state=checked]:bg-yellow data-[state=checked]:border-yellow hover:data-[state=checked]:bg-yellow-500 '
-                  />
-                  <Label htmlFor={subject} className='text-sm'>
-                    {subject}
-                  </Label>
                 </div>
-              ))}
-            </div>
-          </div>
-          <div className={GRID_CONTAINER_CLASS}>
-            <div>
-              <Label className={LABEL_CLASS}>Other Subjects</Label>
-              <div className='relative'>
-                <Input
-                  name='otherSubjects'
-                  value={formData.otherSubjects}
-                  onChange={handleChange}
-                  placeholder='E.g., Geography, Computer Science, Art'
-                  className={INPUT_CLASS}
-                />
-                <p className='text-xs text-gray-500 mt-1 mx-2'>
-                  Separate multiple subjects with commas
-                </p>
               </div>
-            </div>
-            <div>
-              <Label className={LABEL_CLASS}>
-                Other Activities of Interest
-              </Label>
-              <div className='relative'>
-                <Input
-                  name='otherActivities'
-                  value={formData.otherActivities}
-                  onChange={handleChange}
-                  placeholder='E.g., Robotics, Music, Debate'
-                  className={INPUT_CLASS}
-                />
-                <p className='text-xs text-gray-500 mt-1 mx-2'>
-                  Separate multiple activities with commas
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Availability */}
-      <div className={SECTION_CLASS}>
-        <h3 className={SECTION_TITLE_CLASS}>Availability</h3>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-4'>
-          <div>
-            <Label className={LABEL_CLASS}>
-              Select Days<span className='text-red-500'>*</span>
-            </Label>
-            <DaysSelect />
-            <div className='flex flex-wrap gap-2 mt-2'>
-              {formData.availability.selectedDays.map((day) => (
-                <div
-                  key={day}
-                  className='inline-flex items-center px-3 py-1 border border-[#F1F1F3] bg-[#FCFCFD] rounded text-sm'
-                >
-                  {day.charAt(0).toUpperCase() + day.slice(1)}
-                  <button
-                    type='button'
-                    onClick={() =>
+              {/* Photo Upload */}
+              <div className='md:items-end w-full md:w-auto'>
+                <div className={LABEL_CLASS}>Upload Your Photo</div>
+                <div className='w-24 h-24 sm:w-28 sm:h-28 border bg-[#FCFCFD] border-[#F1F1F3] rounded-lg relative'>
+                  <input
+                    type='file'
+                    id='photo-upload'
+                    name='photo'
+                    accept='image/*'
+                    onChange={handlePhotoChange}
+                    className='hidden'
+                  />
+                  <label
+                    htmlFor='photo-upload'
+                    className='w-full h-full flex flex-col items-center justify-center cursor-pointer'
+                  >
+                    {formData.photo ? (
+                      <Image
+                        src={URL.createObjectURL(formData.photo)}
+                        alt='Profile'
+                        className='w-full h-full object-cover rounded-lg'
+                        width={200}
+                        height={200}
+                      />
+                    ) : (
+                      <div className='flex flex-col items-center justify-center w-full h-full bg-[#FCFCFD]'>
+                        <Image
+                          src='/img/upload-pic.svg'
+                          alt='Profile'
+                          width={60}
+                          height={60}
+                          className='w-full h-full p-4 sm:p-5 object-cover rounded-lg'
+                        />
+                      </div>
+                    )}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Parents Details */}
+          <div className={SECTION_CLASS}>
+            <h3 className={SECTION_TITLE_CLASS}>Parents Details</h3>
+            <div className='space-y-4'>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                <div>
+                  <Label className={LABEL_CLASS}>
+                    Father Name<span className='text-red-500'>*</span>
+                  </Label>
+                  <Input
+                    name='fatherName'
+                    value={formData.fatherName}
+                    onChange={handleChange}
+                    placeholder='Enter Father Name'
+                    className={INPUT_CLASS}
+                  />
+                </div>
+                <div>
+                  <Label className={LABEL_CLASS}>
+                    Mother Name<span className='text-red-500'>*</span>
+                  </Label>
+                  <Input
+                    name='motherName'
+                    value={formData.motherName}
+                    onChange={handleChange}
+                    placeholder='Enter Mother Name'
+                    className={INPUT_CLASS}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label className={LABEL_CLASS}>
+                  Current Address<span className='text-red-500'>*</span>
+                </Label>
+                <Textarea
+                  name='currentAddress'
+                  value={formData.currentAddress}
+                  onChange={handleChange}
+                  placeholder='Enter Address'
+                  className={`${INPUT_CLASS} min-h-[100px] placeholder:!text-[#ACACAC]`}
+                />
+              </div>
+
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                <div>
+                  <Label className={LABEL_CLASS}>
+                    City<span className='text-red-500'>*</span>
+                  </Label>
+                  <Input
+                    name='city'
+                    value={formData.city}
+                    onChange={handleChange}
+                    placeholder='Enter City'
+                    className={INPUT_CLASS}
+                  />
+                </div>
+                <div>
+                  <Label className={LABEL_CLASS}>
+                    Country<span className='text-red-500'>*</span>
+                  </Label>
+                  <Input
+                    name='country'
+                    value={formData.country}
+                    onChange={handleChange}
+                    placeholder='Enter Country'
+                    className={INPUT_CLASS}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Educational Details */}
+          <div className={SECTION_CLASS}>
+            <h3 className={SECTION_TITLE_CLASS}>Educational Details</h3>
+            <div className='space-y-4'>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                <div>
+                  <Label className={LABEL_CLASS}>
+                    School Name<span className='text-red-500'>*</span>
+                  </Label>
+                  <Input
+                    name='schoolName'
+                    value={formData.schoolName}
+                    onChange={handleChange}
+                    placeholder='Enter School Name'
+                    className={INPUT_CLASS}
+                  />
+                </div>
+                <div>
+                  <Label className={LABEL_CLASS}>
+                    Board<span className='text-red-500'>*</span>
+                  </Label>
+                  <BoardSelect />
+                </div>
+              </div>
+
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                <div>
+                  <Label className={LABEL_CLASS}>
+                    Medium of Study<span className='text-red-500'>*</span>
+                  </Label>
+                  <MediumSelect />
+                </div>
+                <div>
+                  <Label className={LABEL_CLASS}>
+                    Class/Grade<span className='text-red-500'>*</span>
+                  </Label>
+                  <GradeSelect />
+                </div>
+              </div>
+
+              <div>
+                <Label className={LABEL_CLASS}>Major (if applicable)</Label>
+                <Input
+                  name='major'
+                  value={formData.major}
+                  onChange={handleChange}
+                  placeholder='Enter Major'
+                  className={INPUT_CLASS}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Course Selection */}
+          <div className={SECTION_CLASS}>
+            <h3 className={SECTION_TITLE_CLASS}>Course Selection</h3>
+            <div className='space-y-4 sm:space-y-6'>
+              <div>
+                <Label className={LABEL_CLASS}>
+                  Subject you wish to study on mGuru
+                  <span className='text-red-500'>*</span>
+                </Label>
+                <div className='grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4'>
+                  {EDUCATION_OPTIONS.subjects.map((subject) => (
+                    <div key={subject} className='flex items-center space-x-2'>
+                      <Checkbox
+                        id={subject}
+                        checked={formData.subjects.includes(subject)}
+                        onCheckedChange={(checked) =>
+                          handleCheckboxChange(checked, subject)
+                        }
+                        className=' data-[state=checked]:bg-yellow data-[state=checked]:border-yellow hover:data-[state=checked]:bg-yellow-500 '
+                      />
+                      <Label htmlFor={subject} className='text-sm'>
+                        {subject}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className={GRID_CONTAINER_CLASS}>
+                <div>
+                  <Label className={LABEL_CLASS}>Other Subjects</Label>
+                  <div className='relative'>
+                    <Input
+                      name='otherSubjects'
+                      value={formData.otherSubjects}
+                      onChange={handleChange}
+                      placeholder='E.g., Geography, Computer Science, Art'
+                      className={INPUT_CLASS}
+                    />
+                    <p className='text-xs text-gray-500 mt-1 mx-2'>
+                      Separate multiple subjects with commas
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <Label className={LABEL_CLASS}>
+                    Other Activities of Interest
+                  </Label>
+                  <div className='relative'>
+                    <Input
+                      name='otherActivities'
+                      value={formData.otherActivities}
+                      onChange={handleChange}
+                      placeholder='E.g., Robotics, Music, Debate'
+                      className={INPUT_CLASS}
+                    />
+                    <p className='text-xs text-gray-500 mt-1 mx-2'>
+                      Separate multiple activities with commas
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Availability */}
+          <div className={SECTION_CLASS}>
+            <h3 className={SECTION_TITLE_CLASS}>Availability</h3>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-4'>
+              <div>
+                <Label className={LABEL_CLASS}>
+                  Select Days<span className='text-red-500'>*</span>
+                </Label>
+                <DaysSelect />
+                <div className='flex flex-wrap gap-2 mt-2'>
+                  {formData.availability.selectedDays.map((day) => (
+                    <div
+                      key={day}
+                      className='inline-flex items-center px-3 py-1 border border-[#F1F1F3] bg-[#FCFCFD] rounded text-sm'
+                    >
+                      {day.charAt(0).toUpperCase() + day.slice(1)}
+                      <button
+                        type='button'
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            availability: {
+                              ...prev.availability,
+                              selectedDays:
+                                prev.availability.selectedDays.filter(
+                                  (d) => d !== day
+                                ),
+                            },
+                          }))
+                        }
+                        className='ml-2 text-gray-500 hover:text-gray-700'
+                      >
+                        <IoClose size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label className={LABEL_CLASS}>
+                  Time Available/Day<span className='text-red-500'>*</span>
+                </Label>
+                <div className='relative'>
+                  <Select<SelectOption>
+                    instanceId='time-available-select'
+                    menuPlacement='auto'
+                    styles={customSelectStyles}
+                    options={timeOptions}
+                    value={timeOptions.find(
+                      (option) =>
+                        option.value === formData.availability.timeAvailable
+                    )}
+                    onChange={(option) =>
                       setFormData((prev) => ({
                         ...prev,
                         availability: {
                           ...prev.availability,
-                          selectedDays: prev.availability.selectedDays.filter(
-                            (d) => d !== day
-                          ),
+                          timeAvailable: option?.value || '',
                         },
                       }))
                     }
-                    className='ml-2 text-gray-500 hover:text-gray-700'
-                  >
-                    <IoClose size={14} />
-                  </button>
+                    placeholder='00:00 hrs'
+                  />
+                  <p className='text-xs text-gray-500 mt-1 mx-2'>
+                    Select time in 24-hour format
+                  </p>
                 </div>
-              ))}
+              </div>
+              <div>
+                <Label className={LABEL_CLASS}>
+                  Time to Finish<span className='text-red-500'>*</span>
+                </Label>
+                <TimeToFinishSelect />
+                <p className='text-xs text-gray-500 mt-1 mx-2'>
+                  Select course duration
+                </p>
+              </div>
             </div>
           </div>
 
-          <div>
-            <Label className={LABEL_CLASS}>
-              Time Available/Day<span className='text-red-500'>*</span>
-            </Label>
-            <div className='relative'>
-              <Select<SelectOption>
-                instanceId='time-available-select'
-                menuPlacement='auto'
-                styles={customSelectStyles}
-                options={timeOptions}
-                value={timeOptions.find(
-                  (option) =>
-                    option.value === formData.availability.timeAvailable
-                )}
-                onChange={(option) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    availability: {
-                      ...prev.availability,
-                      timeAvailable: option?.value || '',
-                    },
-                  }))
-                }
-                placeholder='00:00 hrs'
-              />
-              <p className='text-xs text-gray-500 mt-1 mx-2'>
-                Select time in 24-hour format
-              </p>
-            </div>
+          {/* Submit Button */}
+          <div className='flex justify-end'>
+            <Button
+              type='submit'
+              className='w-full sm:w-auto bg-yellow hover:bg-yellow-500 text-black font-medium px-6 sm:px-8 py-2 rounded text-sm sm:text-base'
+            >
+              {isUpdate ? 'Update' : 'Submit'}
+            </Button>
           </div>
-          <div>
-            <Label className={LABEL_CLASS}>
-              Time to Finish<span className='text-red-500'>*</span>
-            </Label>
-            <TimeToFinishSelect />
-            <p className='text-xs text-gray-500 mt-1 mx-2'>
-              Select course duration
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Submit Button */}
-      <div className='flex justify-end'>
-        <Button
-          type='submit'
-          className='w-full sm:w-auto bg-yellow hover:bg-yellow-500 text-black font-medium px-6 sm:px-8 py-2 rounded text-sm sm:text-base'
-        >
-          {userId ? 'Update' : 'Submit'}
-        </Button>
-      </div>
-    </form>
+        </form>
+      ) : (
+        <Loader />
+      )}
+    </>
   );
 };
 

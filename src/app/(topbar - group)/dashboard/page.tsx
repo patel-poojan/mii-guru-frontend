@@ -120,7 +120,7 @@ const router = useRouter();
   const renderSubjectGridItems = () => {
     if (dashboardData?.progress?.subjects.length === 0) {
       return (
-        <div className='col-span-2 bg-[#F2F2F2] p-4 rounded-xl flex flex-col items-center justify-center min-h-[356px]'>
+        <div className='col-span-2 bg-[#F2F2F2] p-4 rounded-xl flex flex-col items-center justify-center'>
           <div className='text-[#949494] text-base md:text-lg font-normal'>
             No subjects available
           </div>
@@ -132,7 +132,7 @@ const router = useRouter();
     if (dashboardData?.progress?.subjects.length === 1) {
       return (
         <>
-          <div className='col-span-1 h-fit sm:col-span-2 bg-[#F2F2F2] p-3 md:p-4 rounded-xl flex flex-col gap-3 md:gap-4'>
+          <div className='col-span-1 sm:col-span-2 bg-[#F2F2F2] p-3 md:p-4 rounded-xl flex flex-col gap-3 md:gap-4'>
             <div className='flex flex-row gap-3 md:gap-4'>
               <div className='bg-white h-10 w-10 md:h-12 md:w-12 flex items-center justify-center rounded-md'>
                 <Image
@@ -171,7 +171,7 @@ const router = useRouter();
               Resume Course <FaArrowRightLong />
             </div>
           </div>
-          <div className='col-span-1 sm:col-span-2 bg-[#F2F2F2] p-3 md:p-4 rounded-xl flex flex-col justify-center items-center gap-2  h-40 cursor-pointer'>
+          <div className='col-span-1 sm:col-span-2 bg-[#F2F2F2] p-4 lg:p-6 rounded-xl flex flex-col justify-center items-center gap-2 cursor-pointer '>
             <FaPlus className='text-[#CCCCCC] text-4xl' />
             <div className='text-black text-lg font-medium'>Add subject</div>
           </div>
@@ -317,8 +317,8 @@ const router = useRouter();
   const renderProgressItems = () => {
     if (dashboardData?.progress?.subjects?.length === 0) {
       return (
-        <div className='col-span-2 bg-white rounded-xl p-4 flex flex-col items-center justify-center min-h-[328px]'>
-          <div className='text-[#949494] text-base font-normal'>
+        <div className='col-span-2 bg-white rounded-xl p-4 flex flex-col items-center justify-center'>
+          <div className='text-[#949494] text-base font-normal py-8'>
             No progress data available
           </div>
         </div>
@@ -329,7 +329,7 @@ const router = useRouter();
     if (dashboardData?.progress?.subjects?.length === 1) {
       return (
         <>
-          <div className='col-span-2 bg-white rounded-xl p-2 md:p-3 lg:p-4 flex flex-col items-center justify-between h-full'>
+          <div className='col-span-2 bg-white rounded-xl p-2 md:p-3 lg:p-4 flex flex-col items-center justify-between'>
             <CircularProgress
               value={dashboardData?.progress?.subjects[0].completion_percentage}
               gradientId={`progress-gradient-0`}
@@ -340,7 +340,7 @@ const router = useRouter();
               {dashboardData?.progress?.subjects[0].subject_name}
             </p>
           </div>
-          <div className='col-span-2 bg-white rounded-xl p-2 md:p-3 lg:p-4 flex flex-col gap-1 items-center justify-center h-[156px] cursor-pointer'>
+          <div className='col-span-2 bg-white rounded-xl p-4 lg:p-6 flex flex-col gap-1 items-center justify-center  cursor-pointer'>
             <FaPlus className='text-[#CCCCCC] text-4xl' />
             <div className='text-black text-lg font-medium'>Add subject</div>
           </div>
@@ -354,7 +354,7 @@ const router = useRouter();
         <>
           {dashboardData?.progress?.subjects.map((item, index) => (
             <div
-              className='bg-white col-span-2 rounded-xl p-2 md:p-3 lg:p-4 flex flex-col items-center justify-between h-full'
+              className='bg-white col-span-2 rounded-xl p-2 md:p-3 lg:p-4 flex flex-col items-center justify-between'
               key={index}
             >
               <CircularProgress
@@ -375,7 +375,7 @@ const router = useRouter();
     // For more than 2 subjects
     return dashboardData?.progress?.subjects.map((item, index) => (
       <div
-        className='bg-white rounded-xl p-2 md:p-3 lg:p-4 flex flex-col items-center justify-between h-full'
+        className='bg-white rounded-xl p-2 md:p-3 lg:p-4 flex flex-col items-center justify-between'
         key={index}
       >
         <CircularProgress
@@ -397,7 +397,7 @@ const router = useRouter();
       {/* Left Section Skeleton (Subjects and Study Hours) */}
       <div className='w-full lg:w-[73%] flex-1 flex flex-col gap-4 md:gap-6'>
         {/* Subjects Grid Skeleton */}
-        <div className='w-full flex-1 grid grid-cols-1 overflow-y-auto h-full sm:grid-cols-2 gap-4 md:gap-6'>
+        <div className='w-full flex-1 grid grid-cols-1 overflow-y-auto sm:grid-cols-2 gap-4 md:gap-6'>
           <div className='col-span-1 sm:col-span-2 bg-[#F2F2F2] p-3 md:p-4 rounded-xl animate-pulse'>
             <div className='flex flex-row gap-3 md:gap-4'>
               <div className='bg-white/70 h-10 w-10 md:h-12 md:w-12 rounded-md'></div>
@@ -434,7 +434,7 @@ const router = useRouter();
             Study Hours
           </div>
           <div className='bg-[#F2F2F2] p-3 md:p-4 rounded-xl'>
-            <div className='h-48 sm:h-56 md:h-64 bg-white/20 animate-pulse rounded flex items-center justify-center'>
+            <div className='py-16 bg-white/20 animate-pulse rounded flex items-center justify-center'>
               <div className='text-gray-400 text-sm text-center px-4'>
                 Loading study data...
               </div>
@@ -444,7 +444,7 @@ const router = useRouter();
       </div>
 
       {/* Right Section Skeleton (Profile and Progress) */}
-      <div className='w-full lg:w-[27%] bg-[#F2F2F2] p-3 md:p-4 rounded-xl flex flex-col gap-4 h-auto'>
+      <div className='w-full lg:w-[27%] bg-[#F2F2F2] p-3 md:p-4 rounded-xl flex flex-col gap-4'>
         {/* Profile Section Skeleton */}
         <div className='flex items-center gap-3 md:gap-4 animate-pulse'>
           <div className='bg-white/70 h-8 w-8 md:h-10 md:w-10 rounded-full'></div>
@@ -460,11 +460,11 @@ const router = useRouter();
             Progress so far
           </div>
           <div className='grid grid-cols-1 gap-3 md:gap-4 overflow-auto'>
-            <div className='bg-white rounded-xl p-2 md:p-3 lg:p-4 flex flex-col items-center justify-center h-36 animate-pulse'>
+            <div className='bg-white rounded-xl p-2 md:p-3 lg:p-4 flex flex-col items-center justify-center py-10 animate-pulse'>
               <div className='bg-white/70 h-20 w-20 rounded-full'></div>
               <div className='bg-white/70 h-4 w-16 rounded mt-2'></div>
             </div>
-            <div className='bg-white rounded-xl p-2 md:p-3 lg:p-4 flex flex-col items-center justify-center h-36 animate-pulse'>
+            <div className='bg-white rounded-xl p-2 md:p-3 lg:p-4 flex flex-col items-center justify-center py-10 animate-pulse'>
               <div className='bg-white/70 h-20 w-20 rounded-full'></div>
               <div className='bg-white/70 h-4 w-16 rounded mt-2'></div>
             </div>
@@ -473,11 +473,11 @@ const router = useRouter();
 
         {/* Test and Score Section Skeleton */}
         <div className='grid grid-cols-2 gap-3 md:gap-4'>
-          <div className='bg-white rounded-xl p-2 md:p-3 w-full flex flex-col items-center justify-center h-24 animate-pulse'>
+          <div className='bg-white rounded-xl p-2 md:p-3 w-full flex flex-col items-center justify-center py-6 animate-pulse'>
             <div className='bg-white/70 h-12 w-12 rounded-full'></div>
             <div className='bg-white/70 h-4 w-16 rounded mt-2'></div>
           </div>
-          <div className='bg-white rounded-xl p-2 md:p-3 w-full flex flex-col items-center justify-center h-24 animate-pulse'>
+          <div className='bg-white rounded-xl p-2 md:p-3 w-full flex flex-col items-center justify-center py-6 animate-pulse'>
             <div className='bg-white/70 h-8 w-12 rounded'></div>
             <div className='bg-white/70 h-4 w-12 rounded mt-2'></div>
           </div>
@@ -496,8 +496,8 @@ const router = useRouter();
   );
 
   return (
-    <div className='lg:h-[calc(100vh-144px)] flex flex-col lg:py-[13px]'>
-      <div className='w-full overflow-auto h-full flex flex-col my-auto'>
+    <div className='flex flex-col py-4 lg:py-6'>
+      <div className='w-full flex flex-col'>
         {/* Header Section */}
         <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 px-2'>
           <div className='text-black font-medium text-xl md:text-2xl mb-2 sm:mb-0'>
@@ -514,7 +514,7 @@ const router = useRouter();
         </div>
 
         {/* Main Content */}
-        <div className='w-full flex-1 flex flex-col lg:flex-row gap-4 md:gap-6 lg:overflow-hidden'>
+        <div className='w-full flex flex-col lg:flex-row gap-4 md:gap-6'>
           {loadDashboardData ? (
             renderLoadingSkeletons()
           ) : (
@@ -523,7 +523,7 @@ const router = useRouter();
               <div className='w-full lg:w-[73%] flex-1 flex flex-col gap-4 md:gap-6 '>
                 {/* Subjects Grid */}
                 <div
-                  className={`w-full flex-1 grid grid-cols-1 overflow-y-auto h-full sm:grid-cols-2 gap-4 md:gap-6 ${
+                  className={`w-full flex-1 grid grid-cols-1 overflow-y-auto sm:grid-cols-2 gap-4 md:gap-6 ${
                     dashboardData?.progress?.subjects &&
                     dashboardData?.progress?.subjects?.length > 4
                       ? 'pr-2'
@@ -552,7 +552,7 @@ const router = useRouter();
               </div>
 
               {/* Right Section (Profile and Progress) */}
-              <div className='w-full lg:w-[27%] bg-[#F2F2F2] p-3 md:p-4 rounded-xl flex flex-col gap-4 h-auto'>
+              <div className='w-full lg:w-[27%] bg-[#F2F2F2] p-3 md:p-4 rounded-xl flex flex-col gap-4'>
                 {/* Profile Section */}
                 <div className='flex items-center gap-3 md:gap-4'>
                   <ProfileIcon h={8} w={8} className='md:h-10 md:w-10' />
@@ -600,19 +600,19 @@ const router = useRouter();
 
                 {/* Test and Score Section */}
                 <div className='grid grid-cols-2 gap-3 md:gap-4'>
-                  <div className='bg-white rounded-xl p-2 md:p-3 w-full flex flex-col items-center justify-center'>
+                  <div className='bg-white rounded-xl p-2 md:p-3 w-full flex flex-col items-center justify-center py-3'>
                     <Image
                       src='/img/test-logo.svg'
                       alt='test'
                       height={60}
                       width={60}
-                      className='md:h-16 md:w-16 lg:h-18 lg:w-18'
+                      className='md:h-16 md:w-16'
                     />
                     <div className='text-black text-sm font-medium mt-1'>
                       {dashboardData?.test_notifications?.total_test ?? 0} test
                     </div>
                   </div>
-                  <div className='bg-white rounded-xl p-2 md:p-3 w-full flex flex-col items-center justify-center'>
+                  <div className='bg-white rounded-xl p-2 md:p-3 w-full flex flex-col items-center justify-center py-3'>
                     <div className='text-black text-2xl md:text-3xl font-medium'>
                       {dashboardData?.quiz_performance?.overall_percentage ?? 0}
                       %
@@ -641,7 +641,7 @@ const router = useRouter();
                     alt='alert'
                     height={60}
                     width={60}
-                    className={`md:h-16 md:w-16 lg:h-18 lg:w-18 ${
+                    className={`md:h-16 md:w-16 ${
                       dashboardData?.test_notifications?.has_available_tests
                         ? ''
                         : 'opacity-85'

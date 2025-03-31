@@ -55,8 +55,7 @@ const responseInterceptor = (response: AxiosResponse) => {
   if (response.config.responseType === 'blob') {
     return response;
   }
-  if(
-    response.config.url?.includes('/syllabus/presentation') ){
+  if (response.config.url?.includes('/syllabus/presentation')) {
     return response;
   }
   return response.data ?? response;
@@ -71,10 +70,20 @@ const errorInterceptor = (error: AxiosError) => {
     return Promise.reject(error);
   }
 
-  // if (error.response.status === 401 || error.response.status === 403) {
-  //   window.location.replace('/login');
-  //   toast.error('Authentication required, please log in');
-  // }
+  if (error.response.status === 401) {
+    window.location.replace('/login');
+    toast.error('Authentication required, please log in');
+  } else if (error.response.status === 403) {
+    Cookies.set('isSubscription', 'false', {
+      path: '/',
+      sameSite: 'Lax',
+      secure: true,
+    });
+    setTimeout(() => {
+      window.location.replace('/pricing');
+    }, 200);
+    toast.error('Access denied, please subscribe to a plan');
+  }
   return Promise.reject(error);
 };
 

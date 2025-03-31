@@ -119,6 +119,16 @@ const LoginPage = () => {
         //   secure: true,
         // });
         storeProfileImage(photo);
+        Cookies.set(
+          'isSubscription',
+          data?.data?.user?.is_subscription ? 'true' : 'false',
+          {
+            path: '/',
+            sameSite: 'Lax',
+            secure: true,
+          }
+        );
+
         setTimeout(() => {
           router.push('/termsandconditon');
         }, 200);

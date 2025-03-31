@@ -33,6 +33,7 @@ type User = {
   last_login: string;
   tracking: UserTracking;
   photo: string;
+  is_subscription: boolean;
 };
 
 // Main authentication response interface
@@ -105,6 +106,7 @@ export const useLogout = ({
       Cookies.remove('userInfo');
       Cookies.remove('role');
       Cookies.remove('photo');
+      Cookies.remove('isSubscription');
       localStorage.clear();
       const response: DefaultResponse = {
         statusCode: 200,
