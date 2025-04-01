@@ -8,6 +8,7 @@ import PassDialogPopup from "@/app/Components/quiz/PassDialogPopup";
 import FailDialogPopup from "@/app/Components/quiz/FailDialogPopup";
 import { toast } from "sonner";
 import { axiosInstance } from "@/app/utils/axiosInstance";
+import Cookies from 'js-cookie';
 
 interface QuestionOption {
   [key: string]: string;
@@ -74,15 +75,29 @@ interface QuizSubmissionRequest {
 // }
 export default function Page() {
   const [user_id] = useState("67dd6df741e4ccc85f62416e");
-  const [topicID,setTopicID] = useState("67dd4f3bada69ae06e9769bb");
+  const [topicID, ] = useState(Cookies.get("topicID") || "67dd4f3bada69ae06e9769bb");
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     const storedTopicId = Cookies.get("topicID");
+  //     if (storedTopicId) {
+  //       // setTopicID(storedTopicId);
+  //       Cookies.set("topicID",
+  //         storedTopicId,
+  //         { expires: 7 }
+  //       )
+  //     }
+  //   }
+  // }, []);
   useEffect(() => {
-      if (typeof window !== 'undefined') {
-        const storedTopicId = localStorage.getItem('topicID');
-        if (storedTopicId) {
-          setTopicID(storedTopicId);
-        }
-      }
-    }, []);
+    const storedTopicId = Cookies.get("topicID");
+    if (storedTopicId) {
+      // setTopicID(storedTopicId);
+      Cookies.set("topicID",
+        storedTopicId,
+        { expires: 7 }
+      )
+    }
+  });
 
   const [questions, setQuestions] =
     useState<QuestionsResponse>(defaultQuizData);
@@ -95,48 +110,47 @@ export default function Page() {
   const [activeQuestion, setActiveQuestion] =
     useState<Question>(defaultQuestion);
 
+  const [score, setScore] = useState(0);
+  const [totalQuestions, setTotalQuestions] = useState(0);
   const [openPassModel, setOpenPassModel] = useState(false);
   const [openFailModel, setOpenFailModel] = useState(false);
 
   const [userAnswers, setUserAnswers] = useState<{ [key: string]: string }>({});
-  // const base_url = "http://3.6.140.234:8002";
-  // const AUTH_TOKEN =
-  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwYXJ0aGt1a2FkaXlhNzFAZ21haWwuY29tIiwiZXhwIjoxNzQzNDEyMzgzLjM4MzI0N30.s3RBtzAD0hFtLUNQ1bZx5GpF3c43NfdlW3-XRzPwPUM";
-    const fetchQuestions = async () => {
-      setLoading(true);
-      setError(null);
-    
-      try {
-        const response = await axiosInstance.get(`/syllabus/quiz/${topicID}`);
-        
-        if (!response.data || !Array.isArray(response.data.questions)) {
-          toast.error("Invalid quiz data received.");
-          setError("Failed to load quiz data. Please try again later.");
-          return;
-        }
-    
-        const formattedData = {
-          quiz_id: response.data.quiz_id,
-          questions: response.data.questions,
-        };
-    
-        setQuestions(formattedData);
-        setActiveQuestionId(formattedData.questions[0].question_id);
-        setActiveQuestion(formattedData.questions[0]);
-        setTimeLeft(formattedData.questions.length * 60);
-      } catch (err) {
-        console.error("Error fetching questions:", err);
-        
-        toast.error("Failed to fetch quiz questions.");
-        setError("Failed to fetch quiz questions. Please try again.");
-      } finally {
-        setLoading(false);
+  const fetchQuestions = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axiosInstance.get(`/syllabus/quiz/${topicID}`);
+
+      if (!response.data || !Array.isArray(response.data.questions)) {
+        toast.error("Invalid quiz data received.");
+        setError("Failed to load quiz data. Please try again later.");
+        return;
       }
-    };
-      
-    useEffect(() => {
-      fetchQuestions();
-    }, [topicID]);
+
+      const formattedData = {
+        quiz_id: response.data.quiz_id,
+        questions: response.data.questions,
+      };
+
+      setQuestions(formattedData);
+      setActiveQuestionId(formattedData.questions[0].question_id);
+      setActiveQuestion(formattedData.questions[0]);
+      setTimeLeft(formattedData.questions.length * 60);
+    } catch (err) {
+      console.error("Error fetching questions:", err);
+
+      toast.error("Failed to fetch quiz questions.");
+      setError("Failed to fetch quiz questions. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchQuestions();
+  }, [topicID]);
 
   useEffect(() => {
     if (!loading) {
@@ -159,7 +173,6 @@ export default function Page() {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(timer);
     } else if (timeLeft === 0 && !isQuizSubmitted) {
-      // Automatically submit the quiz when time reaches zero
       evaluateResults();
     }
   }, [timeLeft, isQuizSubmitted]);
@@ -197,43 +210,71 @@ export default function Page() {
 
   const evaluateResults = async () => {
     try {
-        const submissionData: QuizSubmissionRequest = {
-            user_id: user_id,
-            quiz_id: questions.quiz_id,
-            topic_id: topicID,
-            questions: Object.entries(userAnswers).reduce(
-                (acc, [questionId, selectedOption], index) => {
-                    acc[index + 1] = {
-                        question_id: questionId,
-                        selected_option: selectedOption,
-                    };
-                    return acc;
-                },
-                {} as QuizSubmissionRequest["questions"]
-            ),
-        };
+      const submissionData: QuizSubmissionRequest = {
+        user_id: user_id,
+        quiz_id: questions.quiz_id,
+        topic_id: topicID,
+        questions: Object.entries(userAnswers).reduce(
+          (acc, [questionId, selectedOption], index) => {
+            acc[index + 1] = {
+              question_id: questionId,
+              selected_option: selectedOption,
+            };
+            return acc;
+          },
+          {} as QuizSubmissionRequest["questions"]
+        ),
+      };
 
-        const response = await axiosInstance.post("/quiz/checker", submissionData);
+      const response = await axiosInstance.post(
+        "/quiz/checker",
+        submissionData
+      );
+      // if (response?.status === 409) {
+      //   toast.error("You have already taken this quiz. Cannot retake.");
+      //   setScore(response?.data?.correct_count || 0);
+      //   setTotalQuestions(response?.data?.total_questions || 0);
+      //   setOpenFailModel(true); // Show failure popup with previous results
+      //   return;
+      // }
+  
+      // response={...response, data:{...response.data, success:response.success}};
+      setScore(response?.data?.correct_count|| 0);
+      setTotalQuestions(response?.data?.total_questions|| 0);
 
-        if (response.data.success) {
-            if (response.data.data.passed) {
-                setOpenPassModel(true);
-            } else {
-                setOpenFailModel(true);
-            }
+      if (response?.data?.success) {
+        if (response?.data?.passed) {
+          setOpenPassModel(true);
+          setOpenFailModel(false);
+         
         } else {
-            setOpenFailModel(true);
+          setOpenFailModel(true);
+          setOpenPassModel(false);
+         
         }
+      // } else {
+      //   setOpenFailModel(true);
+      // }
+      } else {
+        if (response.data.passed) {
+          setOpenPassModel(true);
+          setOpenFailModel(false);
+        } else {
+          setOpenFailModel(true);
+          setOpenPassModel(false);
+        }
+      }
     } catch (error) {
-        console.error("Error submitting quiz:", error);
-        toast.error("Failed to submit quiz. Please try again.");
-        alert("Failed to submit quiz. Please try again.");
+      console.error("Error submitting quiz:", error);
+      toast.error("Failed to submit quiz. Please try again.");
+      alert("Failed to submit quiz. Please try again.");
     }
-};
+  };
 
   const handleRetryQuiz = () => {
     setOpenFailModel(false);
-    fetchQuestions(); 
+    fetchQuestions();
+    toast.success("You can retry the quiz now.");
   };
 
   if (loading) {
@@ -413,11 +454,15 @@ export default function Page() {
       <PassDialogPopup
         openPassModel={openPassModel}
         setOpenPassModel={setOpenPassModel}
+        score={score}
+        totalQuestions={totalQuestions}
       />
       <FailDialogPopup
         openFailModel={openFailModel}
         setOpenFailModel={setOpenFailModel}
         handleRetryQuiz={handleRetryQuiz}
+        score={score}
+        totalQuestions={totalQuestions}
       />
 
       <style jsx>{`

@@ -7,6 +7,7 @@ import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
 import { CgSandClock } from "react-icons/cg";
 import axios from 'axios';
 import { axiosInstance } from '@/app/utils/axiosInstance';
+import Cookies from 'js-cookie';
 
 interface ChatMessage {
   role: 'user' | 'ai';
@@ -32,30 +33,22 @@ const ChatCoPilot = ({ base_url, topicID, AUTH_TOKEN, isChatFullScreen, setIsCha
   setIsChatFullScreen: (value: boolean) => void
 }) => {
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
-  // Initialize with null instead of accessing localStorage directly
   const [threadID, setThreadID] = useState<string | null>(null); 
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Load threadID from localStorage after component mounts (client-side only)
-  useEffect(() => {
-    // Check if window exists (client-side)
-    if (typeof window !== 'undefined') {
-      const storedThreadId = localStorage.getItem('chat_thread_id');
-      if (storedThreadId) {
-        setThreadID(storedThreadId);
-      }
-    }
-  }, []);
+useEffect(() => {
+  setThreadID(Cookies.get(topicID) ?? null);
+}
+, [topicID]);
 
   useEffect(() => {
     if (threadID) {
-      fetchChatHistoryByTopicID();
+      fetchChatHistoryByThreadID();
     }
   }, [threadID, topicID]);
 
-  const fetchChatHistoryByTopicID = async () => {
+  const fetchChatHistoryByThreadID = async () => {
     try {
       if(threadID){
         const response = await axiosInstance.get(`/chatbot/history/${threadID}`);
@@ -70,7 +63,7 @@ const ChatCoPilot = ({ base_url, topicID, AUTH_TOKEN, isChatFullScreen, setIsCha
           if (response.data.thread_id) {
             setThreadID(response.data.thread_id);
             if (typeof window !== 'undefined') {
-              localStorage.setItem('chat_thread_id', response.data.thread_id);
+              Cookies.set(Cookies.get('topicID') ?? '', response.data.thread_id, { expires: 7 });
             }
           }
         }
@@ -84,7 +77,6 @@ const ChatCoPilot = ({ base_url, topicID, AUTH_TOKEN, isChatFullScreen, setIsCha
     const messageText = inputRef.current?.value.trim() ?? "";
     if (messageText === '') return;
 
-    // Add user message immediately
     const userMessage: DisplayMessage = { id: messages.length + 1, text: messageText, sender: 'user' };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     if (inputRef.current) inputRef.current.value = "";
@@ -112,7 +104,7 @@ const ChatCoPilot = ({ base_url, topicID, AUTH_TOKEN, isChatFullScreen, setIsCha
         if (!threadID && response.data.thread_id) {
           setThreadID(response.data.thread_id);
           if (typeof window !== 'undefined') {
-            localStorage.setItem('chat_thread_id', response.data.thread_id);
+            Cookies.set(Cookies.get('topicID') ?? '', response.data.thread_id, { expires: 7 });
           }
         }
 

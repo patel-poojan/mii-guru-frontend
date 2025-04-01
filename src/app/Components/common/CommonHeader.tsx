@@ -35,7 +35,7 @@ const CommonHeader = () => {
   });
   const router = useRouter();
   const navLinks = [
-    { href: '#Dashboard', label: 'Dashboard' },
+    { href: '/dashboard', label: 'Dashboard' },
     { href: '#Settings', label: 'Settings' },
   ];
   const { mutate: onLogout, isPending } = useLogout({
