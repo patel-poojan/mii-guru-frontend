@@ -62,6 +62,7 @@ function TopicSection({
   const [topicsList, setTopicsList] = useState<TopicsList[]>([]);
   const [loading, setLoading] = useState(true);
   const [completedTopics, setCompletedTopics] = useState<number>(0);
+  const [isCurrentTopic] = useState<boolean>(true);
 
   useEffect(() => {
     async function fetchProgress() {
@@ -171,7 +172,15 @@ useEffect(() => {
               <AccordionItem
                 key={topic.topic_id ?? `topic-${index}`}
                 value={`topic-${topic.topic_id ?? index}`}
-                onClick={() => topic.completed && setTopicID(topic.topic_id)}
+                onClick={() => {
+                  if (topic.completed || (isCurrentTopic && !topic.completed)) {
+                    setTopicID(topic.topic_id);
+                    if (!topic.completed && isCurrentTopic) {
+                      // setIsCurrentTopic(false);
+                    }
+                  }
+                }}
+                
                 title={`${topic.completed ? `Go to ${topic.title}` : ""} `}
               >
                 <AccordionTrigger className="text-left text-lg md:text-lg font-[500] md:font-semibold">

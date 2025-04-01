@@ -50,8 +50,8 @@ export default function Index() {
   const [topics, setTopics] = useState<Topic[]>([
     { topic_id: "1",week:1, title: "Loading...", content: "Content 1" },
   ]);
-
-  const [topicID,setTopicID] = useState(Cookies.get('topicID') || topics[0].topic_id);
+console.log("topics[0].topic_id",topics[0].topic_id)
+  const [topicID,setTopicID] = useState(Cookies.get('topicID') || "67dd4f3bada69ae06e9769bb");
   useEffect(() => {
     Cookies.set('topicID', topicID);
   }
