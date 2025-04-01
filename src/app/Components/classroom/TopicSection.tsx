@@ -21,6 +21,7 @@ import { FaCheck } from "react-icons/fa";
 import { GoDotFill } from "react-icons/go";
 import { Skeleton } from "@/components/ui/skeleton";
 import { axiosInstance } from "@/app/utils/axiosInstance";
+import Cookies from 'js-cookie';
 
 interface Topic {
   topic_id: string;
@@ -60,6 +61,7 @@ function TopicSection({
   const router = useRouter();
   const [topicsList, setTopicsList] = useState<TopicsList[]>([]);
   const [loading, setLoading] = useState(true);
+  const [completedTopics, setCompletedTopics] = useState<number>(0);
 
   useEffect(() => {
     async function fetchProgress() {
@@ -78,6 +80,7 @@ function TopicSection({
             subject.subject_name.toLowerCase() ===
             subjectName.toLowerCase().trim()
         );
+        setCompletedTopics(subjectProgress?.completed_topics || 0);
 
         const newTopicsList = topics?.map((topic, idx) => ({
           ...topic,
@@ -95,6 +98,15 @@ function TopicSection({
     fetchProgress();
   }, [topics]);
 
+useEffect(() => {
+  Cookies.set("topicID",
+    topicsList[completedTopics]?.topic_id ?? topicsList[0]?.topic_id,
+    { expires: 7 }
+  )
+  // setTopicID(
+  //   topicsList[completedTopics]?.topic_id ?? topicsList[0]?.topic_id
+  // );
+}, [completedTopics, topicsList]); 
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6 z-[200]">

@@ -51,7 +51,12 @@ export default function Index() {
     { topic_id: "1",week:1, title: "Loading...", content: "Content 1" },
   ]);
 
-  const [topicID,setTopicID] = useState("67dd4f3bada69ae06e9769bb");
+  const [topicID,setTopicID] = useState(Cookies.get('topicID') || topics[0].topic_id);
+  useEffect(() => {
+    Cookies.set('topicID', topicID);
+  }
+  );
+  
   // localStorage.setItem("topicID", topicID);
   // useEffect(() => {
   //   localStorage.setItem("topicID", topicID);

@@ -12,10 +12,12 @@ import { Button } from '@/components/ui/button';
 import {  } from "react-icons/md";
 import { useRouter } from 'next/navigation';
 
-function FailDialogPopup({openFailModel, setOpenFailModel,handleRetryQuiz}:{
+function FailDialogPopup({openFailModel, setOpenFailModel,handleRetryQuiz,score,totalQuestions}:{
   openFailModel: boolean;
   setOpenFailModel: (open: boolean) => void;
   handleRetryQuiz: () => void;
+  score: number;
+  totalQuestions: number;
 }) {
   const router = useRouter();
   return (
@@ -35,6 +37,8 @@ function FailDialogPopup({openFailModel, setOpenFailModel,handleRetryQuiz}:{
             <DialogDescription className="text-center text-small md:text-regular font-[400]">
               <span className='text-red-400 font-[500]'>You didn&apos;t pass this test, but don&apos;t worry! Review the
               topic and try again to move ahead.</span>
+              <br/>
+              <span className='tracking-wide'>Score: {score}/{totalQuestions} </span>
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-4 mt-4">

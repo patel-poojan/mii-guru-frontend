@@ -131,7 +131,7 @@ function Avtar({
                 {/* Video controls overlay */}
                 {isHoveredOnImage || isHoveredOnImageOnControl ? (
                   <div
-                    className="absolute bottom-0 left-0 right-0 bg-black/80 p-2 py-3 rounded-b-xl"
+                    className="absolute bottom-0 left-0 right-0 bg-black/40 p-2 py-3 rounded-b-xl"
                     onMouseEnter={() => {
                       setIsHoveredOnImageOnControl(true);
                     }}

@@ -15,9 +15,12 @@ import { useRouter } from "next/navigation";
 function PassDialogPopup({
   openPassModel,
   setOpenPassModel,
+  score,totalQuestions
 }: {
   openPassModel: boolean;
   setOpenPassModel: (open: boolean) => void;
+  score: number;
+  totalQuestions: number;
 }) {
   const router = useRouter();
   return (
@@ -37,6 +40,8 @@ function PassDialogPopup({
           <DialogDescription className="text-center text-small md:text-regular font-[400]">
             You&apos;ve successfully passed the test and can now skip this
             chapter. Keep up the great work!
+            <br/>
+            <span className='tracking-wide'>Score: {score}/{totalQuestions} </span>
           </DialogDescription>
         </DialogHeader>
         <div className="flex gap-4 mt-4">

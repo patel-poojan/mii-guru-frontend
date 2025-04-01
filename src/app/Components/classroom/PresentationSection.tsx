@@ -71,7 +71,7 @@ function PresentationSection({
       <DialogTrigger asChild>
         <div className="w-full h-[25rem] overflow-auto rounded-xl outline md:outline-none outline-[6px] md:border-[6px] outline-gray-50 border-gray-50 cursor-pointer" title="click to open in fullscreen">
           {loading ? (
-            <Skeleton className="w-full h-full bg-primary/20" />
+            <Skeleton className="w-full h-full bg-primary/10" />
           ) : (
             <div 
               key={presentationTrigger} // Added key to force re-render
