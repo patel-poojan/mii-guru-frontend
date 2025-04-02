@@ -47,7 +47,7 @@ function ControlButtons({
 }) {
   return (
     <>
-      <div className="sticky z-20 bottom-0 w-full grid grid-cols-1 md:grid-cols-[1fr_0.4fr] md:gap-6">
+      <div className="sticky z-20 bottom-0 w-full grid grid-cols-1 md:grid-cols-[1fr_0.35fr] md:gap-6">
         <div className="bg-white py-5">
           <div className="border-t  w-full mx-auto rounded-lg bg-gray-200">
             <nav className="max-w-3xl mx-auto px-4 py-3 md:py-4 w-full">

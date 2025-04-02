@@ -8,7 +8,6 @@ import PresentationSection from "@/app/Components/classroom/PresentationSection"
 import ChatCoPilot from "@/app/Components/classroom/ChatCoPilot";
 import { axiosInstance } from "@/app/utils/axiosInstance";
 import Cookies from 'js-cookie';
-// import { useRouter } from "next/navigation";
 
 interface Topic {
   topic_id: string;
@@ -17,7 +16,7 @@ interface Topic {
   content: string;
 }
 interface WeeklyTopic {
-  topic_id: string; // Added topic_id for consistency
+  topic_id: string;
   week: number;
   topics: string;
   description: string;
@@ -57,13 +56,6 @@ console.log("topics[0].topic_id",topics[0].topic_id)
   }
   );
   
-  // localStorage.setItem("topicID", topicID);
-  // useEffect(() => {
-  //   localStorage.setItem("topicID", topicID);
-  // }
-  // , [topicID]);
-
-  // Audio player states
   const playerRef = useRef<ReactPlayer>(null);
   const [playing, setPlaying] = useState(false);
   const [playbackSpeed] = useState(1);
@@ -124,33 +116,78 @@ console.log("topics[0].topic_id",topics[0].topic_id)
     }
   };
   useEffect(() => {
-    const handleTabClose = async () => {
-      if (playing && playerRef.current) {
-        try {
-          const currentTime = playerRef.current.getCurrentTime() || 0;
+    const handleTabClose = () => {
+      console.log("Tab is closing...");
+      
+      if (!playerRef.current) return;
   
-          // Ensure API call completes before unload
-          navigator.sendBeacon(
-            `/api/topic/audio/track/pause/${topicID}`,
-            JSON.stringify({
-              event_type: "pause",
-              position_seconds: currentTime,
-              speed: playbackSpeed || 1,
-              timestamp: Date.now(),
-            })
-          );
-        } catch (error) {
-          console.error("Error pausing audio on tab close:", error);
+      const currentTime = playerRef.current.getCurrentTime() || 0;
+      console.log("Current time:", currentTime);
+  
+      
+      setPlaying((prevPlaying) => {
+        if (prevPlaying) {
+          console.log("Audio is playing. Pausing now...");
+          trackAudioAction("pause", currentTime, playbackSpeed);
         }
+        return false;
+      });
+    };
+  
+    const handleVisibilityChange = () => {
+      if (document.hidden && playing) {
+        console.log("Tab is hidden, pausing...");
+        handleTabClose();
       }
     };
   
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("beforeunload", handleTabClose);
+    window.addEventListener("pagehide", handleTabClose);
   
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("beforeunload", handleTabClose);
+      window.removeEventListener("pagehide", handleTabClose);
+    };
+  }, [playing, playerRef, topicID]);
+  useEffect(() => {
+    const handleTabClose = () => {
+      console.log("Tab is closing...");
+      
+      if (!playerRef.current) return;
+  
+      const currentTime = playerRef.current.getCurrentTime() || 0;
+      console.log("Current time:", currentTime);
+  
+      setPlaying((prevPlaying) => {
+        if (prevPlaying) {
+          console.log("Audio is playing. Pausing now...");
+          trackAudioAction("pause", currentTime, playbackSpeed);
+        }
+        return false;
+      });
+    };
+  
+    const handleVisibilityChange = () => {
+      if (document.hidden && playing) {
+        console.log("Tab is hidden, pausing...");
+        handleTabClose();
+      }
+    };
+  
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("beforeunload", handleTabClose);
+    window.addEventListener("pagehide", handleTabClose); // For Mobile
+  
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("beforeunload", handleTabClose);
+      window.removeEventListener("pagehide", handleTabClose);
     };
   }, [playing, playerRef, topicID, playbackSpeed]);
+    
+  
 
   useEffect(() => {
     const fetchAudio = async () => {
@@ -172,7 +209,6 @@ console.log("topics[0].topic_id",topics[0].topic_id)
 
     fetchAudio();
 
-    // Cleanup function to revoke the URL
     return () => {
       if (data) {
         URL.revokeObjectURL(data);
@@ -354,7 +390,7 @@ console.log("topics[0].topic_id",topics[0].topic_id)
   }, [syllabusData,topicID]);
   return (
     <div className="w-full flex flex-col relative text-small md:text-regular max-h-lvh ">
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_0.4fr] md:gap-6 h-full">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_0.35fr] md:gap-6 h-full">
         <div className="relative h-full bg-transparent rounded-xl flex flex-col gap-4">
           <div className="md:hidden block w-full rounded-xl bg-[url('/img/classroom/classroom_avtar_dummy_img.png')]">
             <img
@@ -416,15 +452,15 @@ console.log("topics[0].topic_id",topics[0].topic_id)
                 handleDuration={handleDuration}
                 // handleProgress={handleProgress}
                 trackAudioAction={trackAudioAction}
-                // topicID={topicID}
+                topicID={topicID}
               />
             </div>
             <TopicSection
               topics={topics}
               open={open}
               setOpen={setOpen}
+              topicID={topicID}
               setTopicID={setTopicID}
-              // topicID={topicID}
             />
           </div>
         </div>

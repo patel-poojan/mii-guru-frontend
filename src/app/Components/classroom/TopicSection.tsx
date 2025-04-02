@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -21,7 +21,7 @@ import { FaCheck } from "react-icons/fa";
 import { GoDotFill } from "react-icons/go";
 import { Skeleton } from "@/components/ui/skeleton";
 import { axiosInstance } from "@/app/utils/axiosInstance";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 interface Topic {
   topic_id: string;
@@ -30,12 +30,12 @@ interface Topic {
   content: string;
 }
 
-interface TopicsList {
-  topic_id: string;
-  title: string;
-  content: string;
-  completed: boolean;
-}
+// interface TopicsList {
+//   topic_id: string;
+//   title: string;
+//   content: string;
+//   completed: boolean;
+// }
 
 interface SubjectProgress {
   subject_name: string;
@@ -49,20 +49,21 @@ function TopicSection({
   topics,
   open,
   setOpen,
+  topicID,
   setTopicID,
   subjectName = "biology",
 }: {
   topics: Topic[];
   open: boolean;
   setOpen: (open: boolean) => void;
+  topicID: string;
   setTopicID: (topicID: string) => void;
   subjectName?: string;
 }) {
   const router = useRouter();
-  const [topicsList, setTopicsList] = useState<TopicsList[]>([]);
-  const [loading, setLoading] = useState(true);
   const [completedTopics, setCompletedTopics] = useState<number>(0);
-  const [isCurrentTopic] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
+  const [, setIsCurrentTopic] = useState<boolean>(true);
 
   useEffect(() => {
     async function fetchProgress() {
@@ -70,25 +71,15 @@ function TopicSection({
       try {
         const response = await axiosInstance.get(`/user/progress`);
         const data = response;
-
-        if (!data) {
-          console.error("No progress data found");
-          return;
-        }
+        if (!data) return;
 
         const subjectProgress = data?.data?.subjects?.find(
           (subject: SubjectProgress) =>
             subject.subject_name.toLowerCase() ===
             subjectName.toLowerCase().trim()
         );
+
         setCompletedTopics(subjectProgress?.completed_topics || 0);
-
-        const newTopicsList = topics?.map((topic, idx) => ({
-          ...topic,
-          completed: idx < (subjectProgress?.completed_topics || 0),
-        }));
-
-        setTopicsList(newTopicsList);
       } catch (error) {
         console.error("Error fetching progress:", error);
       } finally {
@@ -97,17 +88,28 @@ function TopicSection({
     }
 
     fetchProgress();
-  }, [topics]);
+  }, [subjectName]);
 
-useEffect(() => {
-  Cookies.set("topicID",
-    topicsList[completedTopics]?.topic_id ?? topicsList[0]?.topic_id,
-    { expires: 7 }
-  )
-  // setTopicID(
-  //   topicsList[completedTopics]?.topic_id ?? topicsList[0]?.topic_id
-  // );
-}, [completedTopics, topicsList]); 
+  const topicsList = useMemo(
+    () =>
+      topics.map((topic, idx) => ({
+        ...topic,
+        completed: idx < completedTopics,
+        isNextUncompleted: idx === completedTopics,
+      })),
+    [topics, completedTopics]
+  );
+
+  useEffect(() => {
+    if (topicsList.length > 0) {
+      const newTopicID =
+        topicsList[completedTopics]?.topic_id ?? topicsList[0]?.topic_id;
+      if (Cookies.get("topicID") !== newTopicID) {
+        Cookies.set("topicID", newTopicID, { expires: 7 });
+      }
+    }
+  }, [completedTopics, topicsList]);
+  console.log("topicsList", topicsList);
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6 z-[200]">
@@ -144,8 +146,13 @@ useEffect(() => {
                   Prove Your Mastery to Skip!
                 </DialogTitle>
                 <DialogDescription className="text-center text-small md:text-regular font-[400]">
-                  Take a quick test to skip this chapter/topic. Show your
-                  understanding and move ahead!
+                  Take a quick test to skip{" "}
+                  <span className="font-semibold text-[var(--MainLight-color)]">
+                    {topicsList.find((topic) => {
+                      return topic.topic_id === topicID;
+                    })?.title ?? "this topic"}
+                  </span>
+                  . Show your understanding and move ahead!
                 </DialogDescription>
               </DialogHeader>
               <div className="flex gap-4 mt-4">
@@ -173,22 +180,23 @@ useEffect(() => {
                 key={topic.topic_id ?? `topic-${index}`}
                 value={`topic-${topic.topic_id ?? index}`}
                 onClick={() => {
-                  if (topic.completed || (isCurrentTopic && !topic.completed)) {
+                  if (topic.completed || topic.isNextUncompleted) {
                     setTopicID(topic.topic_id);
-                    if (!topic.completed && isCurrentTopic) {
-                      // setIsCurrentTopic(false);
+                    if (topic.isNextUncompleted) {
+                      setIsCurrentTopic(false);
                     }
                   }
                 }}
-                
                 title={`${topic.completed ? `Go to ${topic.title}` : ""} `}
               >
                 <AccordionTrigger className="text-left text-lg md:text-lg font-[500] md:font-semibold">
                   <span className="flex gap-2 place-items-start">
                     {topic.completed ? (
                       <FaCheck className="text-[var(--MainLight-color)] mt-1" />
+                    ) : topic.isNextUncompleted ? (
+                      <GoDotFill className="size-[18px] text-[var(--MainLight-color)] mt-1" />
                     ) : (
-                      <GoDotFill className="size-4 text-black/20 mt-1" />
+                      <GoDotFill className="size-4 text-black/30 mt-1" />
                     )}
                     {topic.title}
                   </span>

@@ -7,6 +7,7 @@ import {
 } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { axiosInstance } from "@/app/utils/axiosInstance";
 
 function Avtar({
   audio,
@@ -29,7 +30,7 @@ function Avtar({
     isHoveredOnImage,
     isHoveredOnImageOnControl,
     setIsHoveredOnImageOnControl,
-    // topicID,
+    topicID,
 }:{
   audio: string | null;
   playing: boolean;
@@ -50,9 +51,11 @@ function Avtar({
   isHoveredOnImage: boolean;
   isHoveredOnImageOnControl: boolean;
   setIsHoveredOnImageOnControl: (value: boolean) => void;
+  topicID: string;
 }) {
   // const [audioUrl, ] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [, setStartPosition] = useState(0);
   // console.log("audioUrl", audioUrl);
   useEffect(() => {
     // Simulate loading time
@@ -70,10 +73,38 @@ function Avtar({
   //     setLoading(false);
   //   }
   // }, [audioUrl]);
+  useEffect(() => {
+    const fetchLastPosition = async () => {
+      try {
+        const { data } = await axiosInstance.get(
+          `/api/topic/audio/resume/${topicID}`
+        );
+
+        if ( data.position_seconds) {
+          setStartPosition(data.position_seconds);
+        }
+      } catch (error) {
+        console.error("Error fetching last position:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLastPosition();
+  }, [topicID]);
+
+  // Seek to last position when player is ready
+  // const handleReady = () => {
+    
+  //   if (playerRef.current && startPosition > 0) {
+  //     playerRef.current.seekTo(startPosition, "seconds");
+      
+  //   }
+  // };
 
   if(loading) {
     return (<div className="animate-pulse">
-      <Skeleton className="w-full h-52 rounded-xl" />
+      <Skeleton className="w-full h-48 rounded-xl" />
       <div className="absolute bottom-0 bg-gray-200 left-0 right-0 p-2 rounded-b-xl flex justify-center gap-8 mt-2">
         <Skeleton className="w-8 h-8 rounded-full bg-primary/20" />
         <Skeleton className="w-8 h-8 rounded-full bg-primary/20" />
@@ -86,7 +117,6 @@ function Avtar({
     <div className="hidden">
                 <ReactPlayer
                   ref={playerRef}
-                  // url={'/audios/classroom/1742558025_0a64700c_c933_4098_9820_f0bc2278481b.mp3'}
                   url={audio || ""}
                   playing={playing}
                   autoPlay={true}
@@ -103,6 +133,9 @@ function Avtar({
                       forceAudio: true,
                     },
                   }}
+                  onPlay={() => setPlaying(true)} 
+                  onPause={() => setPlaying(false)}
+                  // onReady={handleReady}
                   onEnded={() => {
                     setPlaying(false);
                     trackAudioAction("stop", duration, playbackSpeed);
@@ -122,7 +155,7 @@ function Avtar({
                   className="cursor-pointer"
                 >
                   <img
-                    className="w-full h-52 object-cover rounded-xl"
+                    className="w-full h-48 object-cover rounded-xl"
                     src="/img/classroom/classroom_avtar_dummy_img.png"
                     alt="Classroom"
                   />
