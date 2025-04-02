@@ -61,17 +61,20 @@ jobs:
           name: build
           path: /home/ubuntu/frontend/actions-runner/_work/mii-guru-frontend/mii-guru-frontend
 
-      - name: Extract build artifacts
-        run: tar -xzvf /home/ubuntu/frontend/actions-runner/_work/mii-guru-frontend/mii-guru-frontend/next-build.tar.gz -C /home/ubuntu/frontend/actions-runner/_work/mii-guru-frontend/mii-guru-frontend
+      - name: Extract build artifacts (force overwrite)
+        run: |
+          tar -xzvf /home/ubuntu/frontend/actions-runner/_work/mii-guru-frontend/mii-guru-frontend/next-build.tar.gz --overwrite -C /home/ubuntu/frontend/actions-runner/_work/mii-guru-frontend/mii-guru-frontend
 
       - name: Install dependencies (on self-hosted)
         run: |
           cd /home/ubuntu/frontend/actions-runner/_work/mii-guru-frontend/mii-guru-frontend
+          rm -rf .next/cache
           npm install --legacy-peer-deps
 
       - name: Start or Restart PM2
         run: |
           cd /home/ubuntu/frontend/actions-runner/_work/mii-guru-frontend/mii-guru-frontend
-          pm2 start npm --name "next-app" -- start || pm2 restart "next-app"
+          pm2 delete "next-app" || true
+          pm2 start npm --name "next-app" -- start
           pm2 save
           pm2 list
