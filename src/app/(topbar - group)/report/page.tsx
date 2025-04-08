@@ -143,99 +143,121 @@ const ProgressReport: React.FC = () => {
     },
   ];
 
+  // Function to handle PDF download// Function to handle PDF download
   // Function to handle PDF download
   const handleDownload = () => {
     // Create a print-specific style
     const style = document.createElement('style');
     style.innerHTML = `
-      @media print {
-        body * {
-          visibility: hidden;
-        }
-        #reportContent, #reportContent * {
-          visibility: visible;
-        }
-        #reportContent {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 100%;
-        }
-        @page {
-          size: A4;
-          margin: 10mm 10mm 10mm 10mm;
-        }
-        button {
-          display: none !important;
-        }
-        .SECTION_CLASS {
-          padding-top: 10px !important;
-          margin-bottom: 15px !important;
-        }
-        table {
-          page-break-inside: avoid;
-        }
-        h2 {
-          page-break-after: avoid;
-        }
-        /* Ensure no content is cut off between pages */
-        .page-break-avoid {
-          page-break-inside: avoid;
-        }
-        
-        /* Enhanced header and footer - forced to display */
-        
-        /* Date in header */
-        .header-date {
-          position: fixed;
-          top: 3mm;
-          left: 10mm;
-          font-family: Arial, sans-serif;
-          font-size: 10px;
-          color: #666;
-        }
-        
-        /* Footer elements */
-        .footer-student {
-          position: fixed;
-          bottom: 3mm;
-          left: 10mm;
-          font-family: Arial, sans-serif;
-          font-size: 9px;
-          color: #666;
-        }
-        
-        .footer-page-number {
-          position: fixed;
-          bottom: 3mm;
-          width: 100%;
-          text-align: center;
-          font-family: Arial, sans-serif;
-          font-size: 9px;
-          color: #666;
-          counter-increment: page;
-        }
-        
-        .footer-page-number::after {
-          content: counter(page) "/3";
-        }
-        
-        .footer-class-subject {
-          position: fixed;
-          bottom: 3mm;
-          right: 10mm;
-          font-family: Arial, sans-serif;
-          font-size: 9px;
-          color: #666;
-        }
-        
-        /* Add padding for headers and footers */
-        #reportContent {
-          padding-top: 8mm;
-          padding-bottom: 10mm;
-        }
+    @media print {
+      body * {
+        visibility: hidden;
       }
-    `;
+      #reportContent, #reportContent * {
+        visibility: visible;
+      }
+      #reportContent {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      @page {
+        size: A4;
+        margin: 12mm 10mm 12mm 10mm;
+      }
+      
+      /* Hide header elements and remove white space */
+      button, .header-row, header, nav, .create-app-header {
+        display: none !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      
+      /* Target any potential parent containers that might cause white space */
+      #__next > div, main, .main-content, .container, .app-container {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+      }
+      
+      .SECTION_CLASS {
+        padding-top: 10px !important;
+        margin-bottom: 15px !important;
+        margin-top: 0 !important;
+      }
+      
+      /* First section in the report - remove top spacing */
+      #reportContent > div:first-child {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+      }
+      
+      table {
+        page-break-inside: avoid;
+      }
+      h2 {
+        page-break-after: avoid;
+      }
+      /* Ensure no content is cut off between pages */
+      .page-break-avoid {
+        page-break-inside: avoid;
+      }
+      
+      /* Enhanced header and footer - forced to display */
+      /* Date in header */
+      .header-date {
+        position: fixed;
+        top: 3mm;
+        left: 10mm;
+        font-family: Arial, sans-serif;
+        font-size: 10px;
+        color: #666;
+      }
+      
+      /* Footer elements */
+      .footer-student {
+        position: fixed;
+        bottom: 3mm;
+        left: 10mm;
+        font-family: Arial, sans-serif;
+        font-size: 9px;
+        color: #666;
+      }
+      
+      .footer-page-number {
+        position: fixed;
+        bottom: 3mm;
+        width: 100%;
+        text-align: center;
+        font-family: Arial, sans-serif;
+        font-size: 9px;
+        color: #666;
+        counter-increment: page;
+      }
+      
+      .footer-page-number::after {
+        content: counter(page) "/3";
+      }
+      
+      .footer-class-subject {
+        position: fixed;
+        bottom: 3mm;
+        right: 10mm;
+        font-family: Arial, sans-serif;
+        font-size: 9px;
+        color: #666;
+      }
+      
+      /* Adjust padding to eliminate white space */
+      #reportContent {
+        padding-top: 0 !important;
+        padding-bottom: 10mm;
+      }
+    }
+  `;
     document.head.appendChild(style);
 
     // Create elements for header and footer that will be visible regardless of browser print settings
@@ -260,36 +282,8 @@ const ProgressReport: React.FC = () => {
     document.body.appendChild(footerPageNumber);
     document.body.appendChild(footerClassSubject);
 
-    // Display a loading animation
-    const loadingAnimation = document.createElement('div');
-    loadingAnimation.className = 'loading-animation';
-    loadingAnimation.innerHTML = `
-      <div class="spinner-border text-primary" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-    `;
-    document.body.appendChild(loadingAnimation);
-
     // Print the report
     window.print();
-
-    // Remove the loading animation
-    document.body.removeChild(loadingAnimation);
-
-    // Display a success message
-    const successMessage = document.createElement('div');
-    successMessage.className = 'success-message';
-    successMessage.innerHTML = `
-      <div class="alert alert-success" role="alert">
-        Report downloaded successfully!
-      </div>
-    `;
-    document.body.appendChild(successMessage);
-
-    // Remove the success message after 2 seconds
-    setTimeout(() => {
-      document.body.removeChild(successMessage);
-    }, 2000);
 
     // Clean up
     document.head.removeChild(style);

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import Image from 'next/image';
 
 const LearningHeightsSection = () => {
   const features = [
@@ -7,29 +8,33 @@ const LearningHeightsSection = () => {
       number: '01',
       title: 'Adaptive Learning',
       description:
-        'Start by identifying the core features of the product. These are the functions.',
+        'Every child learns differently—our AI adapts to their pace and style.Personalized pathways ensure students stay challenged, not overwhelmed.',
       color: '#3AC6F2',
+      image: '/img/adaptive-learning.svg',
     },
     {
       number: '02',
       title: 'Interactive Content',
       description:
-        'Start by identifying the core features of the product. These are the functions.',
+        'Lessons come alive with voice, visuals, and real-time interaction.Designed to spark curiosity and deepen understanding.',
       color: '#3189EF',
+      image: '/img/interactive-content.svg',
     },
     {
       number: '03',
       title: 'Progress Tracking',
       description:
-        'Start by identifying the core features of the product. These are the functions.',
+        'Real-time performance insights for students and parents.Track achievements and spot areas that need more attention.',
       color: '#68F146',
+      image: '/img/progress-tracking.svg',
     },
     {
       number: '04',
-      title: 'Gamification',
+      title: 'Fun Learning',
       description:
-        'Start by identifying the core features of the product. These are the functions.',
+        'Learning becomes an exciting journey with  badges, and rewards.Keeps students motivated, focused, and coming back for more.',
       color: '#545AE7',
+      image: '/img/fun-learning.svg',
     },
   ];
 
@@ -56,15 +61,15 @@ const LearningHeightsSection = () => {
         {/* Cards Grid */}
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-10'>
           {features.map((feature, index) => (
-            <div key={index} className='relative group'>
+            <div key={index} className='relative group h-full flex'>
               {/* Top-left border */}
               <div
                 className='absolute rounded-[20px] -top-[10px] -left-[10px] w-[138px] h-[138px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10'
                 style={{
                   background: `
-                    linear-gradient(to right, ${feature.color}, ${feature.color}) left top no-repeat,
-                    linear-gradient(to bottom, ${feature.color}, ${feature.color}) left top no-repeat
-                  `,
+            linear-gradient(to right, ${feature.color}, ${feature.color}) left top no-repeat,
+            linear-gradient(to bottom, ${feature.color}, ${feature.color}) left top no-repeat
+          `,
                 }}
               />
 
@@ -73,9 +78,9 @@ const LearningHeightsSection = () => {
                 className='absolute rounded-[20px] -bottom-[10px] -right-[10px] w-[138px] h-[138px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10'
                 style={{
                   background: `
-                    linear-gradient(to left, #5F5F5F, #5F5F5F) bottom right no-repeat,
-                    linear-gradient(to top, #5F5F5F, #5F5F5F) bottom right no-repeat
-                  `,
+            linear-gradient(to left, #5F5F5F, #5F5F5F) bottom right no-repeat,
+            linear-gradient(to top, #5F5F5F, #5F5F5F) bottom right no-repeat
+          `,
                 }}
               />
 
@@ -85,19 +90,30 @@ const LearningHeightsSection = () => {
                   position: 'relative',
                   zIndex: 20,
                 }}
-                className='bg-white border-none rounded-[20px]'
+                className='bg-white border-none rounded-[20px] flex-1 flex flex-col'
               >
-                <CardContent className='p-6 sm:p-8 md:p-10 flex flex-col gap-6 sm:gap-8 md:gap-10'>
+                <CardContent className='p-6 sm:p-8 md:p-10 flex flex-col gap-4 sm:gap-6 flex-1'>
                   {/* Number in top-right */}
-                  <span
-                    style={{ color: feature.color }}
-                    className='text-end text-4xl sm:text-5xl md:text-6xl font-bold'
-                  >
-                    {feature.number}
-                  </span>
+                  <div className='flex justify-between items-center'>
+                    <div className='relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24'>
+                      <Image
+                        src={feature.image}
+                        alt={feature.title}
+                        fill
+                        sizes='(max-width: 640px) 4rem, (max-width: 768px) 5rem, 6rem'
+                        className='object-contain'
+                      />
+                    </div>
+                    <span
+                      style={{ color: feature.color }}
+                      className='text-3xl sm:text-4xl md:text-6xl font-bold'
+                    >
+                      {feature.number}
+                    </span>
+                  </div>
 
                   {/* Content */}
-                  <div>
+                  <div className='mt-auto'>
                     <h3 className='text-lg sm:text-xl font-semibold text-[#5F5F5F]'>
                       {feature.title}
                     </h3>

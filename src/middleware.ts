@@ -170,7 +170,7 @@ export const config = {
     '/admin',
     '/termsandconditon',
     '/dashboard',
-    '/report',
+    // '/report',
     '/pricing',
     '/update-profile',
   ],

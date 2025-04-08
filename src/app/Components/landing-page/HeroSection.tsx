@@ -1,8 +1,11 @@
+'use client';
 import React from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
-const HeroSection = () => {
+const HeroSection = ({ scrollToPrice }: { scrollToPrice: () => void }) => {
+  const router = useRouter();
   return (
     <section className='w-full bg-[#FFC20D] overflow-hidden'>
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
@@ -17,10 +20,16 @@ const HeroSection = () => {
               </h1>
               <div className='mt-8 sm:mt-12'>
                 <div className='flex flex-col sm:flex-row sm:justify-center lg:justify-start gap-4'>
-                  <Button className='w-full sm:w-auto bg-white text-[#5F5F5F] hover:bg-[#163ba5] hover:text-white px-6 sm:px-8 py-3 text-base font-medium transition-colors'>
+                  <Button
+                    className='w-full sm:w-auto bg-white text-[#5F5F5F] hover:bg-[#163ba5] hover:text-white px-6 sm:px-8 py-3 text-base font-medium transition-colors'
+                    onClick={() => router.push('/signup')}
+                  >
                     Explore Courses
                   </Button>
-                  <Button className='w-full sm:w-auto bg-transparent text-[#5F5F5F] border border-[#5F5F5F] hover:bg-[#163ba5] hover:text-white hover:border-transparent px-6 sm:px-8 py-3 text-base font-medium transition-colors'>
+                  <Button
+                    className='w-full sm:w-auto bg-transparent text-[#5F5F5F] border border-[#5F5F5F] hover:bg-[#163ba5] hover:text-white hover:border-transparent px-6 sm:px-8 py-3 text-base font-medium transition-colors'
+                    onClick={scrollToPrice}
+                  >
                     View Pricing
                   </Button>
                 </div>
