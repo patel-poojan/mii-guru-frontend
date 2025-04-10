@@ -1,19 +1,22 @@
 import { useGoogleLoginVerify } from '@/app/utils/api/auth-api';
 import { Button } from '@/components/ui/button';
 import { useGoogleLogin } from '@react-oauth/google';
-import React from 'react';
+import React, { useState } from 'react';
 import { FcGoogle } from 'react-icons/fc';
 import { toast } from 'sonner';
 import Cookies from 'js-cookie';
 import { axiosError } from '../../types/axiosTypes';
 import { useRouter } from 'next/navigation';
 import { storeProfileImage } from '@/app/utils/storeProfileImage';
+import { Loader } from './Loader';
 
 const GoogleButton = () => {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const { mutate: loginVerify, isPending: isPendingVerify } =
     useGoogleLoginVerify({
       onSuccess(data) {
+        setIsLoading(true);
         const token = data?.data?.access_token;
         if (token) {
           Cookies.set('authToken', token, {
@@ -52,6 +55,9 @@ const GoogleButton = () => {
           setTimeout(() => {
             router.push('/onboarding');
           }, 200);
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 500);
         } else {
           router.push('/login');
         }
@@ -86,6 +92,7 @@ const GoogleButton = () => {
       onClick={() => googleLogin()}
       type='button'
     >
+      {isLoading || isPendingVerify ? <Loader /> : null}
       {isPendingVerify ? (
         <span>Loading...</span>
       ) : (
