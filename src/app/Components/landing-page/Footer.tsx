@@ -2,12 +2,12 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import {
-  FaFacebookF,
-  FaInstagram,
-  FaTwitter,
-  FaLinkedinIn,
-} from 'react-icons/fa';
+// import {
+//   FaFacebookF,
+//   FaInstagram,
+//   FaTwitter,
+//   FaLinkedinIn,
+// } from 'react-icons/fa';
 import CompanyLogo from '../common/CompanyLogo';
 
 const Footer = () => {
@@ -61,7 +61,7 @@ const Footer = () => {
 
           {/* Social Icons */}
           <div className='flex gap-4'>
-            <Link
+            {/* <Link
               href='#'
               className='w-10 h-10 rounded-full border border-[#212121] flex items-center justify-center hover:bg-white/10 transition-colors'
             >
@@ -84,7 +84,7 @@ const Footer = () => {
               className='w-10 h-10 rounded-full border border-[#212121] flex items-center justify-center hover:bg-white/10 transition-colors'
             >
               <FaLinkedinIn size={18} />
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>
