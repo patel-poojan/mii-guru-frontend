@@ -22,14 +22,27 @@ const Page = () => {
       toast.success(data?.message);
       if (data?.data?.tracking) {
         const userInfo = data?.data?.tracking;
+        // Set the cookie
         Cookies.set('userInfo', JSON.stringify(userInfo), {
           path: '/',
           sameSite: 'Lax',
           secure: true,
         });
-        setTimeout(() => {
-          router.push('/onboarding');
-        }, 400);
+
+        // Add cookie verification before navigation
+        const checkCookieAndNavigate = () => {
+          const storedUserInfo = Cookies.get('userInfo');
+          if (storedUserInfo) {
+            // Cookie is successfully set, proceed with navigation
+            router.push('/onboarding');
+          } else {
+            // Cookie not yet set, retry after a short delay
+            setTimeout(checkCookieAndNavigate, 100);
+          }
+        };
+
+        // Start the verification process with a small initial delay
+        setTimeout(checkCookieAndNavigate, 200);
       }
     },
     onError(error: axiosError) {
