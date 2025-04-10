@@ -673,7 +673,7 @@ const OnboardingForm = () => {
 
         setTimeout(() => {
           router.push('/meet-teachers');
-        }, 200);
+        }, 400);
       }
     },
     onError(error: axiosError) {

@@ -20,18 +20,6 @@ const Footer = () => {
         <div className='flex flex-col lg:flex-row justify-between items-start lg:items-end mb-10'>
           {/* Navigation Links */}
           <nav className='flex flex-col lg:flex-row gap-4 lg:gap-7 mb-6 lg:mb-0 text-base text-[#212121]'>
-            <Link
-              href='/products'
-              className='hover:text-yellow transition-colors'
-            >
-              Products
-            </Link>
-            <Link
-              href='/solutions'
-              className='hover:text-yellow transition-colors'
-            >
-              Solutions
-            </Link>
             <Link href='/terms' className='hover:text-yellow transition-colors'>
               Terms of service
             </Link>
@@ -61,9 +49,15 @@ const Footer = () => {
 
         {/* Bottom Section */}
         <div className='flex flex-col lg:flex-row justify-between items-center pt-10 border-t border-[#212121]'>
-          <p className='text-sm opacity-80 mb-4 lg:mb-0'>
-            Copyright © 2024 miiiGuru, All rights reserved.
-          </p>
+          <div>
+            <p className='text-sm opacity-80 mb-4 lg:mb-0'>
+              Copyright © 2025 miiiGuru, All rights reserved.
+            </p>
+
+            <p className='text-sm opacity-80 mb-4 lg:mb-0'>
+              A product of TechMii Innovations
+            </p>
+          </div>
 
           {/* Social Icons */}
           <div className='flex gap-4'>

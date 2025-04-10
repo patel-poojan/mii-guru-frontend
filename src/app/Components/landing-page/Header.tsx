@@ -12,14 +12,21 @@ import {
 import { Menu, X } from 'lucide-react';
 import CompanyLogo from '../common/CompanyLogo';
 import { useRouter } from 'next/navigation';
-
-const Header = () => {
+const Header = ({
+  scrollToPrice,
+  scrollToMission,
+  scrollToFeatures,
+}: {
+  scrollToPrice: () => void;
+  scrollToMission: () => void;
+  scrollToFeatures: () => void;
+}) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const navLinks = [
-    { href: '#mission', label: 'Mission' },
-    { href: '#features', label: 'Product Features' },
-    { href: '#pricing', label: 'Pricing' },
+    { href: '#mission', label: 'Mission', onClick: scrollToMission },
+    { href: '#features', label: 'Product Features', onClick: scrollToFeatures },
+    { href: '#pricing', label: 'Pricing', onClick: scrollToPrice },
   ];
 
   return (
@@ -40,6 +47,7 @@ const Header = () => {
                 key={link.href}
                 href={link.href}
                 className='text-[#5F5F5F] hover:text-[#183CAC]'
+                onClick={link.onClick}
               >
                 {link.label}
               </a>

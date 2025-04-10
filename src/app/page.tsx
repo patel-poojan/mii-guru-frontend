@@ -10,7 +10,8 @@ import Footer from './Components/landing-page/Footer';
 
 const Page = () => {
   const priceRef = useRef<HTMLDivElement | null>(null);
-
+  const missionRef = useRef<HTMLDivElement | null>(null);
+  const featuresRef = useRef<HTMLDivElement | null>(null);
   const scrollToPrice = () => {
     if (priceRef.current) {
       const yPosition =
@@ -22,11 +23,48 @@ const Page = () => {
       });
     }
   };
+  const scrollToMission = () => {
+    if (missionRef.current) {
+      const yPosition =
+        missionRef.current.getBoundingClientRect().top +
+        window.pageYOffset -
+        80; // 80px offset
+
+      window.scrollTo({
+        top: yPosition,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  const scrollToFeatures = () => {
+    if (featuresRef.current) {
+      const yPosition =
+        featuresRef.current.getBoundingClientRect().top +
+        window.pageYOffset -
+        80; // 80px offset
+
+      window.scrollTo({
+        top: yPosition,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   return (
     <div>
-      <Header />
+      <Header
+        scrollToPrice={scrollToPrice}
+        scrollToFeatures={scrollToFeatures}
+        scrollToMission={scrollToMission}
+      />
       <HeroSection scrollToPrice={scrollToPrice} />
+      <div ref={missionRef}>
+        <MissionSection />
+      </div>
+      <div ref={featuresRef}>
+        <LearningHeightsSection />
+      </div>
       <MissionSection />
       <LearningHeightsSection />
       <div ref={priceRef}>

@@ -29,7 +29,7 @@ const Page = () => {
         });
         setTimeout(() => {
           router.push('/onboarding');
-        }, 200);
+        }, 400);
       }
     },
     onError(error: axiosError) {
