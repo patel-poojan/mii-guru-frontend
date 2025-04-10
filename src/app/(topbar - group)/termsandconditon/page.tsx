@@ -8,10 +8,10 @@ import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { axiosError } from '../../types/axiosTypes';
 import Cookies from 'js-cookie';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 const Page = () => {
   // Common CSS classes
-  const router = useRouter();
+  // const router = useRouter();
   const [enableTermsCondition, setEnableTermsCondition] = useState(false);
   const sectionClass = 'mb-8 text-black';
   const headingClass = 'font-semibold text-base mb-4 text-black';
@@ -22,27 +22,36 @@ const Page = () => {
       toast.success(data?.message);
       if (data?.data?.tracking) {
         const userInfo = data?.data?.tracking;
-        // Set the cookie
-        Cookies.set('userInfo', JSON.stringify(userInfo), {
-          path: '/',
-          sameSite: 'Lax',
-          secure: true,
+
+        // Create a promise to track cookie setting with proper TypeScript typing
+        const setCookiePromise = new Promise<void>((resolve) => {
+          // Set the cookie
+          Cookies.set('userInfo', JSON.stringify(userInfo), {
+            path: '/',
+            sameSite: 'Lax',
+            secure: true,
+            expires: 30, // Adding expiration to increase persistence
+          });
+
+          // Resolve the promise
+          resolve();
         });
 
-        // Add cookie verification before navigation
-        const checkCookieAndNavigate = () => {
+        // Wait for cookie to be set, then navigate
+        setCookiePromise.then(() => {
+          // Using a synchronous check before navigation
           const storedUserInfo = Cookies.get('userInfo');
-          if (storedUserInfo) {
-            // Cookie is successfully set, proceed with navigation
-            router.push('/onboarding');
-          } else {
-            // Cookie not yet set, retry after a short delay
-            setTimeout(checkCookieAndNavigate, 100);
-          }
-        };
+          console.log(
+            'Cookie set verification:',
+            storedUserInfo ? 'Success' : 'Failed'
+          );
 
-        // Start the verification process with a small initial delay
-        setTimeout(checkCookieAndNavigate, 200);
+          // Force a small delay to ensure cookie is processed by the browser
+          setTimeout(() => {
+            // Prevent navigation interruption by using replace instead of push
+            window.location.href = '/onboarding';
+          }, 500);
+        });
       }
     },
     onError(error: axiosError) {
