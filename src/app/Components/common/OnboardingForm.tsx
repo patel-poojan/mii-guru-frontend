@@ -664,16 +664,30 @@ const OnboardingForm = () => {
     onSuccess(data) {
       toast.success("Registration successful! Let's get started");
       if (data?.data?.tracking) {
-        const updatedUserInfo = data?.data?.tracking;
-        Cookies.set('userInfo', JSON.stringify(updatedUserInfo), {
-          path: '/',
-          sameSite: 'Lax',
-          secure: true,
+        const userInfo = data?.data?.tracking;
+
+        // Create a promise to track cookie setting with proper TypeScript typing
+        const setCookiePromise = new Promise<void>((resolve) => {
+          // Set the cookie
+          Cookies.set('userInfo', JSON.stringify(userInfo), {
+            path: '/',
+            sameSite: 'Lax',
+            secure: true,
+            expires: 30, // Adding expiration to increase persistence
+          });
+
+          // Resolve the promise
+          resolve();
         });
 
-        setTimeout(() => {
-          router.push('/meet-teachers');
-        }, 400);
+        // Wait for cookie to be set, then navigate
+        setCookiePromise.then(() => {
+          // Force a small delay to ensure cookie is processed by the browser
+          setTimeout(() => {
+            // Prevent navigation interruption by using replace instead of push
+            window.location.href = '/meet-teachers';
+          }, 500);
+        });
       }
     },
     onError(error: axiosError) {

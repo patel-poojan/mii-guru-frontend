@@ -128,18 +128,27 @@ export default function Index() {
       const response = await axiosInstance.post('/auth/update-tracking', {
         introductionViewed: true,
       });
-
       if (response?.data?.tracking) {
         const userInfo = response.data.tracking;
-        Cookies.set('userInfo', JSON.stringify(userInfo), {
-          path: '/',
-          sameSite: 'Lax',
-          secure: true,
-        });
+        const setCookiePromise = new Promise<void>((resolve) => {
+          // Set the cookie
+          Cookies.set('userInfo', JSON.stringify(userInfo), {
+            path: '/',
+            sameSite: 'Lax',
+            secure: true,
+            expires: 30, // Adding expiration to increase persistence
+          });
 
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 400);
+          // Resolve the promise
+          resolve();
+        });
+        setCookiePromise.then(() => {
+          // Force a small delay to ensure cookie is processed by the browser
+          setTimeout(() => {
+            // Prevent navigation interruption by using replace instead of push
+            window.location.href = '/dashboard';
+          }, 500);
+        });
       } else {
         router.push('/meet-teachers');
       }

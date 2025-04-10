@@ -39,13 +39,6 @@ const Page = () => {
 
         // Wait for cookie to be set, then navigate
         setCookiePromise.then(() => {
-          // Using a synchronous check before navigation
-          const storedUserInfo = Cookies.get('userInfo');
-          console.log(
-            'Cookie set verification:',
-            storedUserInfo ? 'Success' : 'Failed'
-          );
-
           // Force a small delay to ensure cookie is processed by the browser
           setTimeout(() => {
             // Prevent navigation interruption by using replace instead of push
