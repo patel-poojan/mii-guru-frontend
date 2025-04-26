@@ -65,12 +65,9 @@ const Page = () => {
       <div ref={featuresRef}>
         <LearningHeightsSection />
       </div>
-      <MissionSection />
-      <LearningHeightsSection />
       <div ref={priceRef}>
         <PricingSection />
       </div>
-
       <ContactSection />
       <Footer />
     </div>
